@@ -8,6 +8,8 @@ public class Card : MonoBehaviour
 
     private bool Locked = true;
 
+    public Vector3 lockPos;
+
     private void Awake()
     {
         Locked = true;
@@ -15,13 +17,25 @@ public class Card : MonoBehaviour
 
     private void Start()
     {
-        
+       
+    }
+
+    private void Update()
+    {
+        if (Locked)
+        {
+            if (transform.position != lockPos)
+            {
+                Locked = false;
+            }
+
+        }
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void OnTriggerEnter(Collider other)
     {
-       //
+        //
     }
 
     private void OnTriggerStay(Collider other)

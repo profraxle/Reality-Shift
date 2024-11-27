@@ -2,8 +2,9 @@ using Oculus.Interaction.HandGrab;
 using Oculus.Interaction.Input;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
-public class Deck : MonoBehaviour
+public class Deck : NetworkBehaviour
 {
     private List<Card> decklist;
 
@@ -21,7 +22,7 @@ public class Deck : MonoBehaviour
 
     UpdateDrawZone drawZoneUpdater;
 
-    GameObject currentCard;
+    public GameObject currentCard;
 
     [SerializeField]
     IHand hand;
@@ -29,33 +30,40 @@ public class Deck : MonoBehaviour
     [SerializeField]
     IHandGrabInteractor interactor;
 
+    public ulong deckID;
+
     private bool newCardNeeded = false;
+
+    ClientRpcParams clientRpcParams;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+
+        
+
         drawZoneUpdater = drawZone.GetComponent<UpdateDrawZone>();
 
         cardsInDeck--;
         model.transform.localScale = new Vector3(100, 100, 100 * cardsInDeck);
         //creates a first card to be grabbable on top of the deck
-        currentCard = Instantiate(cardPrefab);
-        currentCard.transform.position = transform.position;
-        currentCard.GetComponent<Card>().SetLocked(true);
-        
 
-        
     }
 
     // Update is called once per frame
     void Update()
     {
-        Vector3 diff = currentCard.transform.position - transform.position;
-        if (diff.magnitude > 0.01)
-        {
-            currentCard.GetComponent<Card>().SetLocked(false);
-            newCardNeeded = true;
-        }
+
+        
+
+            Vector3 diff = currentCard.transform.position - transform.position;
+            if (diff.magnitude > 0.01)
+            {
+                currentCard.GetComponent<Card>().SetLocked(false);
+                newCardNeeded = true;
+            }
+
     }
 
 
@@ -64,26 +72,108 @@ public class Deck : MonoBehaviour
     /// </summary>
     public void DrawFromDeck()
     {
-        //checks if the hand is w
-        if (drawZoneUpdater.GetIsInDrawZone())
+
+
+       
+            //checks if the hand is w
+            if (drawZoneUpdater.GetIsInDrawZone())
+            {
+
+                 if (NetworkManager.Singleton.IsServer)
+                {
+
+
+                    //checks if currentCard no longer in the spawn position
+                    if (newCardNeeded)
+                    {
+
+                        SpawnNewCard();
+                        //spawn a new card to be grabbed and change scale of deck to reflect cards left to be drawn
+
+                        model.transform.localScale = new Vector3(100, 100, 100 * cardsInDeck);
+                        newCardNeeded = false;
+                    }
+
+                }
+                else
+                {
+                    SpawnNewCardServerRpc();
+                }
+
+             }
+            
+
+       
+
+       
+
+    }
+
+    public void SpawnFirstCard()
+    {
+        currentCard = Instantiate(cardPrefab);
+        currentCard.transform.position = transform.position;
+        currentCard.transform.eulerAngles = new Vector3(90, 0, 0) + transform.eulerAngles;
+        currentCard.GetComponent<Card>().SetLocked(true);
+        currentCard.GetComponent<Card>().lockPos = transform.position;
+        var cardNetworkObject = currentCard.GetComponent<NetworkObject>();
+        cardNetworkObject.Spawn();
+        cardNetworkObject.ChangeOwnership(deckID);
+
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void SpawnFirstCardServerRpc()
+    {
+         SpawnFirstCard();
+        this.NetworkObject.ChangeOwnership(deckID);
+
+        
+    }
+
+    public void SpawnNewCard()
+    {
+        currentCard = Instantiate(cardPrefab);
+        currentCard.transform.position = transform.position;
+        currentCard.transform.eulerAngles = new Vector3(90, 0, 0) + transform.eulerAngles;
+        currentCard.GetComponent<Card>().SetLocked(true);
+        currentCard.GetComponent<Card>().lockPos = transform.position;
+        var cardNetworkObject = currentCard.GetComponent<NetworkObject>();
+        cardNetworkObject.Spawn();
+        cardNetworkObject.ChangeOwnership(deckID);
+
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void SpawnNewCardServerRpc()
+    {
+
+
+        Vector3 diff = currentCard.transform.position - transform.position;
+        if (diff.magnitude > 0.01)
         {
+            newCardNeeded = true;
+        }
+
+        
 
             //checks if currentCard no longer in the spawn position
             if (newCardNeeded)
             {
 
+                SpawnNewCard();
                 //spawn a new card to be grabbed and change scale of deck to reflect cards left to be drawn
-                currentCard = Instantiate(cardPrefab);
-                currentCard.transform.position = transform.position;
-                cardsInDeck--;
 
                 model.transform.localScale = new Vector3(100, 100, 100 * cardsInDeck);
                 newCardNeeded = false;
             }
-            
-        }
+
+ 
 
     }
 
+ 
+
+    
 
 }

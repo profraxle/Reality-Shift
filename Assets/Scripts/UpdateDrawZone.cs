@@ -7,6 +7,9 @@ public class UpdateDrawZone : MonoBehaviour
 
     private bool isInDrawZone;
 
+    public bool currInZone;
+    public GameObject currCard;
+
     void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "RightHand")
@@ -14,6 +17,7 @@ public class UpdateDrawZone : MonoBehaviour
             isInDrawZone = true;
 
         }
+
     }
 
     void OnTriggerExit(Collider other)
