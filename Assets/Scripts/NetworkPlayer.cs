@@ -16,6 +16,9 @@ public class NetworkPlayer : NetworkBehaviour
     [SerializeField]
     public Vector3[] spawns;
 
+    [SerializeField]
+    GameObject boardViewer;
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -31,9 +34,12 @@ public class NetworkPlayer : NetworkBehaviour
 
             VRRigReferences.Singleton.root.position = spawns[ID];
 
+            GameObject spawnedViewer = Instantiate(boardViewer);
+
             if (spawns[ID].x != 0)
             {
                 VRRigReferences.Singleton.root.eulerAngles = new Vector3(0, -90, 0);
+                spawnedViewer.transform.eulerAngles = new Vector3(boardViewer.transform.eulerAngles.x, 90, 315);
             }
 
             if (NetworkManager.Singleton.IsServer)
@@ -47,7 +53,17 @@ public class NetworkPlayer : NetworkBehaviour
             }
 
             
+            spawnedViewer.transform.position = spawns[ID] + (VRRigReferences.Singleton.root.right*0.5f)+ (VRRigReferences.Singleton.root.forward * 0.2f);
 
+            //STINKIEST OF ALL HACKS LOOK AWAY
+            if (ID == 0)
+            {
+                spawnedViewer.GetComponent<BoardViewer>().boardView = 1;
+            }
+            else{
+                spawnedViewer.GetComponent<BoardViewer>().boardView = 0;
+            }
+            spawnedViewer.GetComponent<BoardViewer>().changeTex();
         }
 
         

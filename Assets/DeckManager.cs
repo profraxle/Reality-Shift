@@ -4,7 +4,7 @@ public class DeckManager : MonoBehaviour
 {
     public static DeckManager Singleton;
 
-   public Deck[] decks;
+    public Deck[] decks;
 
     private void Awake()
     {

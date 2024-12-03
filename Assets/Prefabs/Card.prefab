@@ -17,9 +17,9 @@ GameObject:
   - component: {fileID: 492710792303958492}
   - component: {fileID: 6746921179469624575}
   - component: {fileID: 4162159889787486790}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Card
-  m_TagString: Untagged
+  m_TagString: Card
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -33,9 +33,9 @@ Transform:
   m_GameObject: {fileID: 1943711336295376787}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 100, y: 100.00003, z: 100}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 0, y: -0.0021, z: -0}
+  m_LocalScale: {x: 150, y: 150, z: 150}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 8535141133626249849}
   m_Father: {fileID: 0}
@@ -56,6 +56,7 @@ MonoBehaviour:
   _addNewPointsToFront: 0
   _forwardElement: {fileID: 0}
   _oneGrabTransformer: {fileID: 0}
+  isGrabbed: 0
   _twoGrabTransformer: {fileID: 0}
   _targetTransform: {fileID: 0}
   _maxGrabPoints: -1
@@ -136,7 +137,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.00088999985, y: 0.00063500006, z: 0.0000030001252}
+  m_Size: {x: 0.00088999985, y: 0.00063500006, z: 0.00003}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &5353949325584515577
 MonoBehaviour:
@@ -150,6 +151,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 407d1ae91e880de448048f7f293602ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  lockPos: {x: 0, y: 0, z: 0}
+  onStack: 0
+  grabbable: {fileID: 6094614427578263634}
 --- !u!114 &492710792303958492
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -239,7 +243,7 @@ GameObject:
   - component: {fileID: 6094614427578263634}
   - component: {fileID: 2277477639641365896}
   - component: {fileID: 5262581002510702465}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ISDK_HandGrabInteraction
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -277,6 +281,7 @@ MonoBehaviour:
   _addNewPointsToFront: 0
   _forwardElement: {fileID: 0}
   _oneGrabTransformer: {fileID: 0}
+  isGrabbed: 0
   _twoGrabTransformer: {fileID: 0}
   _targetTransform: {fileID: 1512323646905194643}
   _maxGrabPoints: -1

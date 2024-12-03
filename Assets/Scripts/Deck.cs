@@ -34,6 +34,8 @@ public class Deck : NetworkBehaviour
 
     private bool newCardNeeded = false;
 
+ 
+
     ClientRpcParams clientRpcParams;
 
 
@@ -54,16 +56,16 @@ public class Deck : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-
-        
-
+        if (currentCard)
+        {
             Vector3 diff = currentCard.transform.position - transform.position;
             if (diff.magnitude > 0.01)
             {
                 currentCard.GetComponent<Card>().SetLocked(false);
                 newCardNeeded = true;
             }
-
+        }
+        
     }
 
 
@@ -79,26 +81,28 @@ public class Deck : NetworkBehaviour
             if (drawZoneUpdater.GetIsInDrawZone())
             {
 
-                 if (NetworkManager.Singleton.IsServer)
-                {
-
+                
 
                     //checks if currentCard no longer in the spawn position
                     if (newCardNeeded)
                     {
+                        if (NetworkManager.Singleton.IsServer)
+                        {
 
-                        SpawnNewCard();
+                    SpawnNewCard();
                         //spawn a new card to be grabbed and change scale of deck to reflect cards left to be drawn
 
                         model.transform.localScale = new Vector3(100, 100, 100 * cardsInDeck);
                         newCardNeeded = false;
+
+                    }
+                    else
+                    {
+                        SpawnNewCardServerRpc();
+                    }
                     }
 
-                }
-                else
-                {
-                    SpawnNewCardServerRpc();
-                }
+                
 
              }
             
@@ -125,10 +129,22 @@ public class Deck : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void SpawnFirstCardServerRpc()
     {
-         SpawnFirstCard();
+
+        ClientRpcParams clientRpcParams = new ClientRpcParams
+        {
+            Send = new ClientRpcSendParams
+            {
+                TargetClientIds = new ulong[] { deckID }
+            }
+        };
+
+        SpawnFirstCard();
         this.NetworkObject.ChangeOwnership(deckID);
 
-        
+        NetworkObjectReference cardNetworkReference = new NetworkObjectReference(currentCard);
+
+        newCardClientRpc(cardNetworkReference, clientRpcParams);
+
     }
 
     public void SpawnNewCard()
@@ -142,37 +158,36 @@ public class Deck : NetworkBehaviour
         cardNetworkObject.Spawn();
         cardNetworkObject.ChangeOwnership(deckID);
 
+        
+
     }
 
     [ServerRpc(RequireOwnership = false)]
     public void SpawnNewCardServerRpc()
     {
+        SpawnNewCard();
+        //spawn a new card to be grabbed and change scale of deck to reflect cards left to be drawn
 
+        model.transform.localScale = new Vector3(100, 100, 100 * cardsInDeck);
+        newCardNeeded = false;
 
-        Vector3 diff = currentCard.transform.position - transform.position;
-        if (diff.magnitude > 0.01)
-        {
-            newCardNeeded = true;
-        }
+        NetworkObjectReference cardNetworkReference= new NetworkObjectReference(currentCard);
 
+        newCardClientRpc(cardNetworkReference, clientRpcParams);
+    }
+
+    [ClientRpc]
+    
+    public void newCardClientRpc(NetworkObjectReference cardNetworkReference, ClientRpcParams clientRpcParams = default)
+    {
         
+        NetworkObject networkObject;
+        cardNetworkReference.TryGet(out networkObject);
 
-            //checks if currentCard no longer in the spawn position
-            if (newCardNeeded)
-            {
-
-                SpawnNewCard();
-                //spawn a new card to be grabbed and change scale of deck to reflect cards left to be drawn
-
-                model.transform.localScale = new Vector3(100, 100, 100 * cardsInDeck);
-                newCardNeeded = false;
-            }
-
- 
+        currentCard = networkObject.gameObject;
 
     }
 
- 
 
     
 

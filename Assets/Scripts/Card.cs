@@ -1,3 +1,4 @@
+using Oculus.Interaction;
 using UnityEngine;
 
 public class Card : MonoBehaviour
@@ -10,6 +11,8 @@ public class Card : MonoBehaviour
 
     public Vector3 lockPos;
 
+    public bool onStack = false;
+
     private void Awake()
     {
         Locked = true;
@@ -17,40 +20,37 @@ public class Card : MonoBehaviour
 
     private void Start()
     {
-       
+       //grabbable = GetComponent<Grabbable>();
     }
 
     private void Update()
     {
-        if (Locked)
-        {
-            if (transform.position != lockPos)
-            {
-                Locked = false;
-            }
 
-        }
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void OnTriggerEnter(Collider other)
     {
         //
+
+        
     }
 
     private void OnTriggerStay(Collider other)
     {
         if (!Locked)
         {
-            if (other.gameObject.tag == "Surface")
-            {
 
-                Quaternion newRot = Quaternion.Euler(-90, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
+                if (other.gameObject.tag == "Surface")
+                {
 
-                Vector3 newPos = new Vector3(transform.position.x, other.transform.position.y, transform.position.z);
+                    Quaternion newRot = Quaternion.Euler(-90, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
 
-                transform.SetPositionAndRotation(newPos, newRot);
-            }
+                    Vector3 newPos = new Vector3(transform.position.x, other.transform.position.y, transform.position.z);
+
+                    transform.SetPositionAndRotation(newPos, newRot);
+                }
+            
         }
     }
 
