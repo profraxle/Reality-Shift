@@ -17,16 +17,14 @@ public class CardDataFetcher : MonoBehaviour
     //declare path for storing deckLists
     private string decklistFolder;
     private List<string> cardNames = new List<string>{};
-    public List<DeckData> decks = new List<DeckData>{};
+    private List<DeckData> decks = new List<DeckData>{};
 
-    [SerializeField]
-    GameObject deckChoicePrefab;
-
-    [SerializeField]
-    GameObject canvasObject;
+    public bool isFetching;
 
     public void Start()
     {
+        isFetching = true;
+
         //combine path to create save location
         saveFolder = Path.Combine(Application.persistentDataPath,  "CardData");
         Directory.CreateDirectory(saveFolder);
@@ -41,31 +39,17 @@ public class CardDataFetcher : MonoBehaviour
         ReadDecklists();
         StartCoroutine(DownloadAndSaveCards(cardNames));
 
-        for (int i = 0; i < decks.Count; i++)
-        {
-            GameObject newPanel = Instantiate(deckChoicePrefab);
 
-            DeckChoicePanel deckChoicePanel = newPanel.GetComponent<DeckChoicePanel>();
-            deckChoicePanel.deckData = decks[i];
-            deckChoicePanel.UpdatePanel();
+    }
 
-            deckChoicePanel.transform.SetParent(canvasObject.transform, false);
-            deckChoicePanel.transform.localScale = Vector3.one;
-            deckChoicePanel.transform.localPosition = new Vector3(-600+(i*350), 150, 0);
+    public string GetSaveFolder()
+    {
+        return saveFolder;
+    }
 
-
-            string cardImagePath = Path.Combine(saveFolder, decks[i].cardsStartOut[0] + ".png");
-            byte[] fileData;
-            if (File.Exists(cardImagePath))
-            {
-                fileData = File.ReadAllBytes(cardImagePath);
-                Texture2D tex = new Texture2D(2, 2);
-                tex.LoadImage(fileData);
-                Sprite sprite = Sprite.Create(tex,new Rect(0, 0, tex.width,tex.height),new Vector2(0.5f,0.5f),100f);
-                deckChoicePanel.SetImage(sprite);
-                
-            }
-        }
+    public List<DeckData> GetDecks()
+    {
+        return decks;
     }
 
     private void ReadDecklists()
@@ -185,6 +169,8 @@ public class CardDataFetcher : MonoBehaviour
                 }
             }
         }
+
+        this.gameObject.GetComponent<DeckSelector>().ShowDecks();
     }
 
     private IEnumerator DownloadAndSaveImage(string imageUrl, string savePath)

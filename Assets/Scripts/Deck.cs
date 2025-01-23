@@ -35,7 +35,8 @@ public class Deck : NetworkBehaviour
 
     private bool newCardNeeded = false;
 
- 
+    private DeckData deckData;
+
 
     ClientRpcParams clientRpcParams;
 
@@ -117,6 +118,7 @@ public class Deck : NetworkBehaviour
     public void SpawnFirstCard()
     {
         currentCard = Instantiate(cardPrefab);
+        
         currentCard.transform.position = transform.position;
         currentCard.transform.eulerAngles = new Vector3(90, 0, 0) + transform.eulerAngles;
         currentCard.GetComponent<Card>().SetLocked(true);

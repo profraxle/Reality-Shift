@@ -351,6 +351,7 @@ GameObject:
   m_Component:
   - component: {fileID: 636683804}
   - component: {fileID: 636683803}
+  - component: {fileID: 636683805}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -370,8 +371,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a6429893bb172c47b6e8eb1411f9cb5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deckChoicePrefab: {fileID: 4628812584206830473, guid: 113b30ba483de4c4faab7bcfa3c85a28, type: 3}
-  canvasObject: {fileID: 561114141}
+  isFetching: 0
 --- !u!4 &636683804
 Transform:
   m_ObjectHideFlags: 0
@@ -387,6 +387,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &636683805
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 636683802}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1cea596c17fca7498bf3c7352f62266, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cardFetcher: {fileID: 636683803}
+  deckChoicePrefab: {fileID: 4628812584206830473, guid: 113b30ba483de4c4faab7bcfa3c85a28, type: 3}
+  canvasObject: {fileID: 561114141}
 --- !u!1 &893898937
 GameObject:
   m_ObjectHideFlags: 0
