@@ -1,7 +1,10 @@
 using Oculus.Platform;
 using System.Collections.Generic;
 using System.IO;
+using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 
 
@@ -19,15 +22,19 @@ public class DeckSelector : MonoBehaviour
     [SerializeField]
     GameObject canvasObject;
 
+    [SerializeField]
+    GameObject text;
+
+    [SerializeField]
+    GameObject selectedText;
+
     string saveFolder;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    DeckData selectedDeck;
+
+    public void SetSelectedDeck(DeckData newDeck)
     {
-       
-
-       
-
+        selectedDeck = newDeck;
     }
 
     public void ShowDecks()
@@ -46,26 +53,38 @@ public class DeckSelector : MonoBehaviour
 
             deckChoicePanel.transform.SetParent(canvasObject.transform, false);
             deckChoicePanel.transform.localScale = Vector3.one;
-            deckChoicePanel.transform.localPosition = new Vector3(-600 + (i * 350), 150, 0);
+            deckChoicePanel.transform.localPosition = new Vector3(-800 + (i * 350), 200, 0);
 
+            deckChoicePanel.selector = this;
 
-            string cardImagePath = Path.Combine(saveFolder, decks[i].cardsStartOut[0] + ".png");
-            byte[] fileData;
-            if (File.Exists(cardImagePath))
-            {
-                fileData = File.ReadAllBytes(cardImagePath);
-                Texture2D tex = new Texture2D(2, 2);
-                tex.LoadImage(fileData);
-                Sprite sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f);
-                deckChoicePanel.SetImage(sprite);
+            Texture2D tex = decks[i].cardImages[decks[i].cardsStartOut[0]];
 
-            }
+            Sprite sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f);
+            deckChoicePanel.SetImage(sprite);
+
+            
         }
     }
 
-    // Update is called once per frame
-    void Update()
+    public void SubmitChosenDeck()
     {
-        
+        if (!selectedDeck.IsUnityNull())
+        {
+            LocalPlayerManager.instance.SetLocalPlayerDeck(selectedDeck);
+            SceneManager.LoadScene("SampleScene");
+        }
+    }
+
+    public void UpdateDeckText()
+    {
+        TextMeshProUGUI textComp = text.GetComponent<TextMeshProUGUI>();
+        textComp.text = "";
+
+        selectedText.GetComponent<TextMeshProUGUI>().text = "Selected: " +selectedDeck.deckName;
+        foreach (string cardName in selectedDeck.cardsInDeck) {
+            textComp.text += cardName + "\n";
+         }
     }
 }
+
+

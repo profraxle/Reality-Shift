@@ -11,6 +11,8 @@ public class DeckChoicePanel : MonoBehaviour
     [SerializeField]
     GameObject image;
 
+    public DeckSelector selector;
+
     public DeckData deckData;
 
     void Start()
@@ -32,5 +34,11 @@ public class DeckChoicePanel : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public void Selected()
+    {
+        selector.SetSelectedDeck(deckData);
+        selector.UpdateDeckText();
     }
 }

@@ -3,6 +3,10 @@ using Oculus.Interaction.Input;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using System.Linq;
+using System;
+using OVR.OpenVR;
+using Unity.VisualScripting;
 
 
 public class Deck : NetworkBehaviour
@@ -13,7 +17,6 @@ public class Deck : NetworkBehaviour
 
     [SerializeField]
     private GameObject model;
-
 
     [SerializeField]
     private GameObject cardPrefab;
@@ -35,24 +38,52 @@ public class Deck : NetworkBehaviour
 
     private bool newCardNeeded = false;
 
-    private DeckData deckData;
-
+    public DeckData deckData;
+    private Stack<string> currentDeck; 
 
     ClientRpcParams clientRpcParams;
-
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        currentDeck = new Stack<string>();
 
-        
+        deckData = LocalPlayerManager.instance.GetLocalPlayerDeck();
+
+        foreach (string card in deckData.cardsInDeck)
+        {
+            currentDeck.Push(card);
+        }
+        shuffle();
 
         drawZoneUpdater = drawZone.GetComponent<UpdateDrawZone>();
 
         cardsInDeck--;
-        model.transform.localScale = new Vector3(100, 100, 100 * cardsInDeck);
+        model.transform.localScale = new Vector3(100, 100, 100 * currentDeck.Count());
         //creates a first card to be grabbable on top of the deck
 
+    }
+
+    void shuffle()
+    {
+       
+        //fisher-yates shuffle algo
+
+        string[] deckShuffle = currentDeck.ToArray();
+
+        for (int i = deckShuffle.Length - 1; i > 0; i--)
+        {
+            int j = UnityEngine.Random.Range(0, i + 1);
+            (deckShuffle[i], deckShuffle[j]) = (deckShuffle[j], deckShuffle[i]);
+        }
+
+        currentDeck.Clear();
+        for (int i = 0; i< deckShuffle.Length; i++)
+        {
+            currentDeck.Push(deckShuffle[i]);
+        }
+            
+        
     }
 
     // Update is called once per frame
@@ -76,14 +107,9 @@ public class Deck : NetworkBehaviour
     /// </summary>
     public void DrawFromDeck()
     {
-
-
-       
             //checks if the hand is w
             if (drawZoneUpdater.GetIsInDrawZone())
             {
-
-                
 
                     //checks if currentCard no longer in the spawn position
                     if (newCardNeeded)
@@ -91,38 +117,46 @@ public class Deck : NetworkBehaviour
                         if (NetworkManager.Singleton.IsServer)
                         {
 
-                    SpawnNewCard();
+                        SpawnNewCard();
                         //spawn a new card to be grabbed and change scale of deck to reflect cards left to be drawn
 
                         model.transform.localScale = new Vector3(100, 100, 100 * cardsInDeck);
                         newCardNeeded = false;
 
-                    }
-                    else
-                    {
+                        }
+                        else
+                        {
                         SpawnNewCardServerRpc();
+                        }
                     }
-                    }
-
-                
-
              }
-            
-
-       
-
-       
 
     }
 
     public void SpawnFirstCard()
     {
+
+
+
         currentCard = Instantiate(cardPrefab);
         
         currentCard.transform.position = transform.position;
-        currentCard.transform.eulerAngles = new Vector3(90, 0, 0) + transform.eulerAngles;
+        currentCard.transform.eulerAngles = new Vector3(90, 0,0) + transform.eulerAngles;
         currentCard.GetComponent<Card>().SetLocked(true);
         currentCard.GetComponent<Card>().lockPos = transform.position;
+
+        string cardName = currentDeck.Pop();
+
+        Texture2D tex = deckData.cardImages[cardName];
+        CardData cardData = deckData.cardData[cardName];
+
+
+        //set card face to the current texture
+        List<Material> materials = new List<Material>();
+        currentCard.GetComponent<Renderer>().GetMaterials(materials);
+        materials[2].mainTexture = tex;
+
+
         var cardNetworkObject = currentCard.GetComponent<NetworkObject>();
         cardNetworkObject.Spawn();
         cardNetworkObject.ChangeOwnership(deckID);
@@ -157,6 +191,17 @@ public class Deck : NetworkBehaviour
         currentCard.transform.eulerAngles = new Vector3(90, 0, 0) + transform.eulerAngles;
         currentCard.GetComponent<Card>().SetLocked(true);
         currentCard.GetComponent<Card>().lockPos = transform.position;
+
+        string cardName = currentDeck.Pop();
+        Texture2D tex = deckData.cardImages[cardName];
+        CardData cardData = deckData.cardData[cardName];
+
+        //set card face to the current texture
+        List<Material> materials = new List<Material>();
+        currentCard.GetComponent<Renderer>().GetMaterials(materials);
+        materials[2].mainTexture = tex;
+
+
         var cardNetworkObject = currentCard.GetComponent<NetworkObject>();
         cardNetworkObject.Spawn();
         cardNetworkObject.ChangeOwnership(deckID);
@@ -171,7 +216,7 @@ public class Deck : NetworkBehaviour
         SpawnNewCard();
         //spawn a new card to be grabbed and change scale of deck to reflect cards left to be drawn
 
-        model.transform.localScale = new Vector3(100, 100, 100 * cardsInDeck);
+        model.transform.localScale = new Vector3(100, 100, 100 * currentDeck.Count());
         newCardNeeded = false;
 
         NetworkObjectReference cardNetworkReference= new NetworkObjectReference(currentCard);
