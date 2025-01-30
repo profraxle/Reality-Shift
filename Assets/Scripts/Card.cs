@@ -5,7 +5,7 @@ public class Card : MonoBehaviour
 {
 
     Texture2D cardImage;
-    CardData cardData;
+    public CardData cardData;
 
     private bool Locked = true;
 

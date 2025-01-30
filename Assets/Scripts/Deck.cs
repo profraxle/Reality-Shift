@@ -135,15 +135,13 @@ public class Deck : NetworkBehaviour
 
     public void SpawnFirstCard()
     {
-
-
-
         currentCard = Instantiate(cardPrefab);
         
         currentCard.transform.position = transform.position;
         currentCard.transform.eulerAngles = new Vector3(90, 0,0) + transform.eulerAngles;
-        currentCard.GetComponent<Card>().SetLocked(true);
-        currentCard.GetComponent<Card>().lockPos = transform.position;
+        Card currentCardObj = currentCard.GetComponent<Card>();
+        currentCardObj.SetLocked(true);
+        currentCardObj.lockPos = transform.position;
 
         string cardName = currentDeck.Pop();
 
@@ -156,10 +154,16 @@ public class Deck : NetworkBehaviour
         currentCard.GetComponent<Renderer>().GetMaterials(materials);
         materials[2].mainTexture = tex;
 
+        currentCardObj.cardData = cardData;
 
         var cardNetworkObject = currentCard.GetComponent<NetworkObject>();
         cardNetworkObject.Spawn();
         cardNetworkObject.ChangeOwnership(deckID);
+
+
+        NetworkObjectReference cardNetworkReference = new NetworkObjectReference(currentCard);
+        ChangeCardTexClientRpc(cardNetworkReference,cardName);
+
 
     }
 
@@ -189,8 +193,9 @@ public class Deck : NetworkBehaviour
         currentCard = Instantiate(cardPrefab);
         currentCard.transform.position = transform.position;
         currentCard.transform.eulerAngles = new Vector3(90, 0, 0) + transform.eulerAngles;
-        currentCard.GetComponent<Card>().SetLocked(true);
-        currentCard.GetComponent<Card>().lockPos = transform.position;
+        Card currentCardObj = currentCard.GetComponent<Card>();
+        currentCardObj.SetLocked(true);
+        currentCardObj.lockPos = transform.position;
 
         string cardName = currentDeck.Pop();
         Texture2D tex = deckData.cardImages[cardName];
@@ -201,12 +206,14 @@ public class Deck : NetworkBehaviour
         currentCard.GetComponent<Renderer>().GetMaterials(materials);
         materials[2].mainTexture = tex;
 
+        currentCardObj.cardData = cardData;
 
         var cardNetworkObject = currentCard.GetComponent<NetworkObject>();
         cardNetworkObject.Spawn();
         cardNetworkObject.ChangeOwnership(deckID);
 
-        
+        NetworkObjectReference cardNetworkReference = new NetworkObjectReference(currentCard);
+        ChangeCardTexClientRpc(cardNetworkReference, cardName);
 
     }
 
@@ -234,6 +241,28 @@ public class Deck : NetworkBehaviour
 
         currentCard = networkObject.gameObject;
 
+
+
+        string cardName  = currentCard.GetComponent<Card>().cardData.name;
+
+
+
+
+    }
+
+    [ClientRpc]
+    public void ChangeCardTexClientRpc(NetworkObjectReference cardNetworkReference, string cardName)
+    {
+        NetworkObject networkObject;
+        cardNetworkReference.TryGet(out networkObject);
+        GameObject changedCard = networkObject.gameObject;
+
+        Texture2D tex = deckData.cardImages[cardName];
+        CardData cardData = deckData.cardData[cardName];
+
+        List<Material> materials = new List<Material>();
+        changedCard.GetComponent<Renderer>().GetMaterials(materials);
+        materials[2].mainTexture = tex;
     }
 
 
