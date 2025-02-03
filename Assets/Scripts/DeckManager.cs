@@ -36,7 +36,8 @@ public class DeckManager : MonoBehaviour
                     newDeckObject.transform.eulerAngles = new Vector3(0, 180, 0);
                 }
 
-                newDeckObject.GetComponent<Deck>().deckID = ((ulong)i);
+                newDeckObject.GetComponent<Deck>().deckID = new NetworkVariable<ulong>((ulong)i);
+
                 newDeckObject.GetComponent<NetworkObject>().SpawnWithOwnership((ulong)i);
 
                 spawnedDecks = true;

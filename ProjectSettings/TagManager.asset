@@ -7,6 +7,7 @@ TagManager:
   - RightHand
   - Surface
   - Card
+  - Poses
   layers:
   - Default
   - TransparentFX

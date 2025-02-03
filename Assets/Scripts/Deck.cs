@@ -9,6 +9,7 @@ using OVR.OpenVR;
 using Unity.VisualScripting;
 using JetBrains.Annotations;
 using Unity.Collections;
+using Oculus.Interaction;
 
 
 public class Deck : NetworkBehaviour
@@ -36,7 +37,7 @@ public class Deck : NetworkBehaviour
     [SerializeField]
     IHandGrabInteractor interactor;
 
-    public ulong deckID;
+    public NetworkVariable<ulong> deckID;
 
     private bool newCardNeeded = false;
 
@@ -45,11 +46,13 @@ public class Deck : NetworkBehaviour
 
     ClientRpcParams clientRpcParams;
 
+    bool addListener = true;
+
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-
-        if (deckID == NetworkManager.LocalClientId)
+        if (deckID.Value == NetworkManager.LocalClientId)
         {
             currentDeck = new Stack<string>();
 
@@ -135,6 +138,7 @@ public class Deck : NetworkBehaviour
                     //checks if currentCard no longer in the spawn position
                     if (newCardNeeded)
                     {
+                        newCardNeeded = false;
                         if (NetworkManager.Singleton.IsServer)
                         {
 
@@ -142,12 +146,13 @@ public class Deck : NetworkBehaviour
                         //spawn a new card to be grabbed and change scale of deck to reflect cards left to be drawn
 
                         model.transform.localScale = new Vector3(100, 100, 100 * cardsInDeck);
-                        newCardNeeded = false;
+                        
 
                         }
                         else
                         {
                         SpawnNewCardServerRpc();
+                        
                         }
                     }
              }
@@ -178,7 +183,7 @@ public class Deck : NetworkBehaviour
         currentCardObj.cardData = cardData;
 
         var cardNetworkObject = currentCard.GetComponent<NetworkObject>();
-        cardNetworkObject.SpawnWithOwnership(deckID);
+        cardNetworkObject.SpawnWithOwnership(deckID.Value);
 
 
         NetworkObjectReference cardNetworkReference = new NetworkObjectReference(currentCard);
@@ -197,12 +202,12 @@ public class Deck : NetworkBehaviour
         {
             Send = new ClientRpcSendParams
             {
-                TargetClientIds = new ulong[] { deckID }
+                TargetClientIds = new ulong[] { deckID.Value }
             }
         };
 
         SpawnFirstCard();
-        this.NetworkObject.ChangeOwnership(deckID);
+        this.NetworkObject.ChangeOwnership(deckID.Value);
 
         NetworkObjectReference cardNetworkReference = new NetworkObjectReference(currentCard);
 
@@ -231,7 +236,7 @@ public class Deck : NetworkBehaviour
         currentCardObj.cardData = cardData;
 
         var cardNetworkObject = currentCard.GetComponent<NetworkObject>();
-        cardNetworkObject.SpawnWithOwnership(deckID);
+        cardNetworkObject.SpawnWithOwnership(deckID.Value);
 
 
         NetworkObjectReference cardNetworkReference = new NetworkObjectReference(currentCard);
@@ -270,7 +275,7 @@ public class Deck : NetworkBehaviour
     [ClientRpc]
     public void ClientConnectedClientRpc(string deckName, FixedString128Bytes[] nCurrentDeck)
     {
-        if (deckID != NetworkManager.LocalClientId)
+        if (deckID.Value != NetworkManager.LocalClientId)
         {
             currentDeck = new Stack<String>();
             deckData = LocalPlayerManager.Singleton.allDeckData[deckName];

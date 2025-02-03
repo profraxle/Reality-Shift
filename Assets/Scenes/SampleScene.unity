@@ -1919,7 +1919,7 @@ GameObject:
   - component: {fileID: 301343061}
   m_Layer: 0
   m_Name: DrawCard
-  m_TagString: Untagged
+  m_TagString: Poses
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1954,31 +1954,7 @@ MonoBehaviour:
   _selector: {fileID: 301343062}
   _whenSelected:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: Deck, Assembly-CSharp
-        m_MethodName: DrawFromDeck
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 1
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: Deck, Assembly-CSharp
-        m_MethodName: DrawFromDeck
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   _whenUnselected:
     m_PersistentCalls:
       m_Calls: []
@@ -2671,12 +2647,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DeckPrefab: {fileID: 8407049900361872367, guid: 6643fa2cf2697a54bbc8b8ed26ccaa7a, type: 3}
-  decks: []
+  spawnedDecks: 0
   spawns:
   - {x: 0.315, y: -0.344, z: -0.3401}
   - {x: 1.082, y: -0.344, z: 0.46010002}
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 0}
+  decks: []
 --- !u!4 &437565031
 Transform:
   m_ObjectHideFlags: 0
