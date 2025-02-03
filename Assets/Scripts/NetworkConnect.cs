@@ -92,5 +92,13 @@ public class NetworkConnect : MonoBehaviour
 
         }
         heartBeatTimer += Time.deltaTime;
+
+        if (NetworkManager.Singleton.IsServer)
+        {
+            if (NetworkManager.Singleton.ConnectedClientsList.Count >= 2 && !DeckManager.Singleton.spawnedDecks)
+            {
+                DeckManager.Singleton.SpawnDecks();
+            }
+        }
     }
 }

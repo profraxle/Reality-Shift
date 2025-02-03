@@ -1,10 +1,15 @@
+using System;
+using Unity.Netcode;
 using UnityEngine;
 
 public class DeckManager : MonoBehaviour
 {
     public static DeckManager Singleton;
+    public GameObject DeckPrefab;
 
-    public Deck[] decks;
+    public bool spawnedDecks;
+    public Vector3[] spawns;
+    public Deck[] decks = new Deck[4];
 
     private void Awake()
     {
@@ -13,10 +18,36 @@ public class DeckManager : MonoBehaviour
 
     public void Start()
     {
-        for (int i = 0; i < decks.Length; i++)
-        {
-            decks[i].deckID = (ulong)i;
+        spawnedDecks = false;
+    }
+
+    public void SpawnDecks()
+    {
+        //if this deck manager is the server's spawn all the decks in the game
+        if (NetworkManager.Singleton.IsServer) {
+
+            for (int i = 0; i < NetworkManager.Singleton.ConnectedClientsList.Count; i++)
+            {
+                GameObject newDeckObject = Instantiate(DeckPrefab);
+                newDeckObject.transform.position = spawns[i];
+                
+                if (i % 2 != 0)
+                {
+                    newDeckObject.transform.eulerAngles = new Vector3(0, 180, 0);
+                }
+
+                newDeckObject.GetComponent<Deck>().deckID = ((ulong)i);
+                newDeckObject.GetComponent<NetworkObject>().SpawnWithOwnership((ulong)i);
+
+                spawnedDecks = true;
+                //decks[i] = newDeckObject.GetComponent<Deck>();
+            }
+
         }
+
+
+
+        
     }
 
 }

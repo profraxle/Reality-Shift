@@ -70,7 +70,7 @@ public class DeckSelector : MonoBehaviour
     {
         if (!selectedDeck.IsUnityNull())
         {
-            LocalPlayerManager.instance.SetLocalPlayerDeck(selectedDeck);
+            LocalPlayerManager.Singleton.SetLocalPlayerDeck(selectedDeck);
             SceneManager.LoadScene("SampleScene");
         }
     }

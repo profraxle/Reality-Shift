@@ -7,6 +7,8 @@ using System.Linq;
 using System;
 using OVR.OpenVR;
 using Unity.VisualScripting;
+using JetBrains.Annotations;
+using Unity.Collections;
 
 
 public class Deck : NetworkBehaviour
@@ -46,22 +48,45 @@ public class Deck : NetworkBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        currentDeck = new Stack<string>();
 
-        deckData = LocalPlayerManager.instance.GetLocalPlayerDeck();
-
-        foreach (string card in deckData.cardsInDeck)
+        if (deckID == NetworkManager.LocalClientId)
         {
-            currentDeck.Push(card);
+            currentDeck = new Stack<string>();
+
+            deckData = LocalPlayerManager.Singleton.GetLocalPlayerDeck();
+
+            foreach (string card in deckData.cardsInDeck)
+            {
+                currentDeck.Push(card);
+            }
+            shuffle();
+
+            drawZoneUpdater = drawZone.GetComponent<UpdateDrawZone>();
+
+            cardsInDeck--;
+            model.transform.localScale = new Vector3(100, 100, 100 * currentDeck.Count());
+            //creates a first card to be grabbable on top of the deck
+
+            List<FixedString128Bytes> currentDeckSendable = new List<FixedString128Bytes>(currentDeck.Count);
+
+            foreach (var cardName in currentDeck)
+            {
+                currentDeckSendable.Add(new FixedString128Bytes(cardName));
+            }
+
+            if (NetworkManager.Singleton.IsClient)
+            {
+                //send strings of current deck order
+                ClientConnectedServerRpc(deckData.deckName, currentDeckSendable.ToArray());
+                SpawnFirstCardServerRpc();
+            }
+            else
+            {
+                ClientConnectedClientRpc(deckData.deckName, currentDeckSendable.ToArray());
+                SpawnFirstCard();
+            }
+
         }
-        shuffle();
-
-        drawZoneUpdater = drawZone.GetComponent<UpdateDrawZone>();
-
-        cardsInDeck--;
-        model.transform.localScale = new Vector3(100, 100, 100 * currentDeck.Count());
-        //creates a first card to be grabbable on top of the deck
-
     }
 
     void shuffle()
@@ -77,11 +102,7 @@ public class Deck : NetworkBehaviour
             (deckShuffle[i], deckShuffle[j]) = (deckShuffle[j], deckShuffle[i]);
         }
 
-        currentDeck.Clear();
-        for (int i = 0; i< deckShuffle.Length; i++)
-        {
-            currentDeck.Push(deckShuffle[i]);
-        }
+        currentDeck = new Stack<string>(deckShuffle);
             
         
     }
@@ -157,12 +178,13 @@ public class Deck : NetworkBehaviour
         currentCardObj.cardData = cardData;
 
         var cardNetworkObject = currentCard.GetComponent<NetworkObject>();
-        cardNetworkObject.Spawn();
-        cardNetworkObject.ChangeOwnership(deckID);
+        cardNetworkObject.SpawnWithOwnership(deckID);
 
 
         NetworkObjectReference cardNetworkReference = new NetworkObjectReference(currentCard);
         ChangeCardTexClientRpc(cardNetworkReference,cardName);
+
+        
 
 
     }
@@ -209,8 +231,8 @@ public class Deck : NetworkBehaviour
         currentCardObj.cardData = cardData;
 
         var cardNetworkObject = currentCard.GetComponent<NetworkObject>();
-        cardNetworkObject.Spawn();
-        cardNetworkObject.ChangeOwnership(deckID);
+        cardNetworkObject.SpawnWithOwnership(deckID);
+
 
         NetworkObjectReference cardNetworkReference = new NetworkObjectReference(currentCard);
         ChangeCardTexClientRpc(cardNetworkReference, cardName);
@@ -231,6 +253,35 @@ public class Deck : NetworkBehaviour
         newCardClientRpc(cardNetworkReference, clientRpcParams);
     }
 
+    [ServerRpc]
+    public void ClientConnectedServerRpc(string deckName, FixedString128Bytes[]nCurrentDeck )
+    {
+        ClientConnectedClientRpc(deckName,nCurrentDeck);
+        deckData = LocalPlayerManager.Singleton.allDeckData[deckName];
+        
+        for (int i = nCurrentDeck.Count() -1; i >= 0; i--)
+        {
+            currentDeck.Push(nCurrentDeck[i].ToString());
+        }
+
+
+    }
+
+    [ClientRpc]
+    public void ClientConnectedClientRpc(string deckName, FixedString128Bytes[] nCurrentDeck)
+    {
+        if (deckID != NetworkManager.LocalClientId)
+        {
+            currentDeck = new Stack<String>();
+            deckData = LocalPlayerManager.Singleton.allDeckData[deckName];
+            for (int i = nCurrentDeck.Count() - 1; i >= 0; i--)
+            {
+                currentDeck.Push(nCurrentDeck[i].ToString());
+            }
+        }
+    }
+
+
     [ClientRpc]
     
     public void newCardClientRpc(NetworkObjectReference cardNetworkReference, ClientRpcParams clientRpcParams = default)
@@ -241,13 +292,7 @@ public class Deck : NetworkBehaviour
 
         currentCard = networkObject.gameObject;
 
-
-
-        string cardName  = currentCard.GetComponent<Card>().cardData.name;
-
-
-
-
+        string cardName = currentCard.GetComponent<Card>().cardData.name;
     }
 
     [ClientRpc]

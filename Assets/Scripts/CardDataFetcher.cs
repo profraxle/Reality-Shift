@@ -128,6 +128,7 @@ public class CardDataFetcher : MonoBehaviour
     }
 
 
+
     private IEnumerator DownloadAndSaveCards(List<string> cardNames)
     {
 
@@ -235,6 +236,7 @@ public class CardDataFetcher : MonoBehaviour
             newDeckVersion.deckName = decks[i].deckName;
 
             decks[i] = newDeckVersion;
+            LocalPlayerManager.Singleton.allDeckData.Add(newDeckVersion.deckName,newDeckVersion);
 
         }
 

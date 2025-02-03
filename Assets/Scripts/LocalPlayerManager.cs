@@ -1,18 +1,22 @@
+using NUnit.Framework;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class LocalPlayerManager : MonoBehaviour
 {
-    public static LocalPlayerManager instance;
+    public static LocalPlayerManager Singleton;
     public DeckData localPlayerDeck;
+
+    public Dictionary<string,DeckData> allDeckData = new Dictionary<string,DeckData> ();
 
     private void Awake()
     {
 
-        if (instance != null) {
+        if (Singleton != null) {
             Destroy(gameObject);
             return;
         }
-        instance = this;
+        Singleton = this;
         DontDestroyOnLoad(gameObject);
     }
 

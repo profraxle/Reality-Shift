@@ -42,15 +42,6 @@ public class NetworkPlayer : NetworkBehaviour
                 spawnedViewer.transform.eulerAngles = new Vector3(boardViewer.transform.eulerAngles.x, 90, 315);
             }
 
-            if (NetworkManager.Singleton.IsServer)
-            {
-                DeckManager.Singleton.decks[ID].SpawnFirstCard();
-
-            }
-            else
-            {
-                DeckManager.Singleton.decks[ID].SpawnFirstCardServerRpc();
-            }
 
             
             spawnedViewer.transform.position = spawns[ID] + (VRRigReferences.Singleton.root.right*0.5f)+ (VRRigReferences.Singleton.root.forward * 0.2f);
