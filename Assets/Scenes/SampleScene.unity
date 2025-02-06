@@ -3747,6 +3747,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: OVRCameraRigInteraction
       objectReference: {fileID: 0}
+    - target: {fileID: 5233142800409840567, guid: f54012181eacade4ea242c65f804720f, type: 3}
+      propertyPath: m_TagString
+      value: Fingertip
+      objectReference: {fileID: 0}
     - target: {fileID: 7215171681461543761, guid: f54012181eacade4ea242c65f804720f, type: 3}
       propertyPath: _skeletonType
       value: 4

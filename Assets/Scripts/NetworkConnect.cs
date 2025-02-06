@@ -95,7 +95,7 @@ public class NetworkConnect : MonoBehaviour
 
         if (NetworkManager.Singleton.IsServer)
         {
-            if (NetworkManager.Singleton.ConnectedClientsList.Count >= 2 && !DeckManager.Singleton.spawnedDecks)
+            if (NetworkManager.Singleton.ConnectedClientsList.Count >= 1   && !DeckManager.Singleton.spawnedDecks)
             {
                 DeckManager.Singleton.SpawnDecks();
             }
