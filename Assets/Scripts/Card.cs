@@ -50,9 +50,15 @@ public class Card : MonoBehaviour
 
                     transform.SetPositionAndRotation(newPos, newRot);
                 }
-            
+
+                if (other.gameObject.tag == "RightHand" && HandPoseManager.Singleton.getRightDrag())
+                {
+                    Vector3 newPos = new Vector3(other.transform.position.x, transform.position.y,other.transform.position.z);
+                    transform.SetPositionAndRotation(newPos, transform.rotation);
+                }
+
+            }
         }
-    }
 
     public void SetLocked(bool nLocked)
     {

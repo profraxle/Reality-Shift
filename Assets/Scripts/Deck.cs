@@ -48,12 +48,21 @@ public class Deck : NetworkBehaviour
 
     bool addListener = true;
 
+    public SelectorUnityEventWrapper selector;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         if (deckID.Value == NetworkManager.LocalClientId)
         {
+
+            selector = FindFirstObjectByType<SelectorUnityEventWrapper>();
+            if (selector != null)
+            {
+                selector.WhenSelected.AddListener(DrawFromDeck);
+            }
+
             currentDeck = new Stack<string>();
 
             deckData = LocalPlayerManager.Singleton.GetLocalPlayerDeck();
@@ -297,7 +306,6 @@ public class Deck : NetworkBehaviour
 
         currentCard = networkObject.gameObject;
 
-        string cardName = currentCard.GetComponent<Card>().cardData.name;
     }
 
     [ClientRpc]
@@ -313,6 +321,8 @@ public class Deck : NetworkBehaviour
         List<Material> materials = new List<Material>();
         changedCard.GetComponent<Renderer>().GetMaterials(materials);
         materials[2].mainTexture = tex;
+
+        changedCard.GetComponent<Card>().cardData = cardData;
     }
 
 
