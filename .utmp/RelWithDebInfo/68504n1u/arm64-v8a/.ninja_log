@@ -1,10 +1,19 @@
 # ninja log v5
 89	1407	7548966894234672	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	4a20d3ecea8fce55
 50	1418	7548966894434669	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	795d76dd510f2791
-1	1440	7548966894664668	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	67921ea600946d1e
-113	1462	7548966894874671	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	d4f17061f327f5c8
 132	1526	7548966895524645	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	3a692071bf48fa5d
+1	1440	7548966894664668	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	67921ea600946d1e
 31	1608	7548966896354665	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	208f8760b681525d
+113	1462	7548966894874671	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	d4f17061f327f5c8
 65	1790	7548966898185888	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	3097af5904616bff
-16	1925	7548966899551248	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	fa6f8ba6efa79fb6
 1925	2101	7548966901331238	C:/Users/frase/Documents/_Honours/Project/Reality-Shift/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/68504n1u/obj/arm64-v8a/libgame.so	c95b6984565bca51
+16	1925	7548966899551248	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	fa6f8ba6efa79fb6
+38	1532	7606570414442960	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	4a20d3ecea8fce55
+27	1535	7606570414532958	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	795d76dd510f2791
+49	1577	7606570415142963	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	d4f17061f327f5c8
+32	1584	7606570415182979	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	67921ea600946d1e
+55	1690	7606570416231565	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	3a692071bf48fa5d
+16	1804	7606570417361556	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	208f8760b681525d
+43	2133	7606570420457189	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	3097af5904616bff
+22	2373	7606570423077909	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	fa6f8ba6efa79fb6
+2374	2827	7606570427624001	C:/Users/frase/Documents/_Honours/Project/Reality-Shift/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/68504n1u/obj/arm64-v8a/libgame.so	c95b6984565bca51
