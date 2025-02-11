@@ -1,0 +1,6 @@
+Add menu for deck actions spawnable by double tapping deck
+Likewise for Graveyard/Exile
+
+Add Avatars
+
+Add Hand for Cards

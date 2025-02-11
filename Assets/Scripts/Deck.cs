@@ -5,17 +5,13 @@ using UnityEngine;
 using Unity.Netcode;
 using System.Linq;
 using System;
-using OVR.OpenVR;
-using Unity.VisualScripting;
-using JetBrains.Annotations;
+using System.Collections;
 using Unity.Collections;
 using Oculus.Interaction;
 
 
 public class Deck : NetworkBehaviour
 {
-    private List<Card> decklist;
-
     int cardsInDeck = 100;
 
     [SerializeField]
@@ -46,9 +42,10 @@ public class Deck : NetworkBehaviour
 
     ClientRpcParams clientRpcParams;
 
-    bool addListener = true;
-
     public SelectorUnityEventWrapper selector;
+
+    [SerializeField]
+    private GameObject cardZonePrefab;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -99,6 +96,20 @@ public class Deck : NetworkBehaviour
             }
 
         }
+
+        StartCoroutine(SpawnZones());
+    }
+
+    IEnumerator SpawnZones()
+    {
+        //wait so position of deck will be correct when called
+        yield return new WaitForSeconds(0.5f);
+
+        for (int i = 0; i < 2; i++)
+        {
+            GameObject newZone =Instantiate(cardZonePrefab, transform.position + (0.8f*transform.forward) + (0.15f*transform.right*i), transform.rotation);
+            newZone.GetComponent<CardZone>().owningDeck = this;
+        }
     }
 
     void shuffle()
@@ -140,32 +151,25 @@ public class Deck : NetworkBehaviour
     /// </summary>
     public void DrawFromDeck()
     {
-            //checks if the hand is w
-            if (drawZoneUpdater.GetIsInDrawZone())
-            {
-
-                    //checks if currentCard no longer in the spawn position
-                    if (newCardNeeded)
-                    {
-                        newCardNeeded = false;
-                        if (NetworkManager.Singleton.IsServer)
-                        {
-
-                        SpawnNewCard();
-                        //spawn a new card to be grabbed and change scale of deck to reflect cards left to be drawn
-
-                        model.transform.localScale = new Vector3(100, 100, 100 * cardsInDeck);
-                        
-
-                        }
-                        else
-                        {
-                        SpawnNewCardServerRpc();
-                        
-                        }
-                    }
-             }
-
+        //checks if the hand is within the draw zone
+        if (drawZoneUpdater.GetIsInDrawZone())
+        { 
+            //checks if currentCard no longer in the spawn position
+            if (newCardNeeded)
+            { 
+                newCardNeeded = false;
+                if (NetworkManager.Singleton.IsServer)
+                {
+                    SpawnNewCard();
+                    //spawn a new card to be grabbed and change scale of deck to reflect cards left to be drawn
+                    model.transform.localScale = new Vector3(100, 100, 100 * cardsInDeck);
+                }
+                else 
+                { 
+                    SpawnNewCardServerRpc(); 
+                } 
+            }
+        }
     }
 
     public void SpawnFirstCard()

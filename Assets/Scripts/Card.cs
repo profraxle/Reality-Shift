@@ -1,5 +1,6 @@
 using Newtonsoft.Json.Bson;
 using Oculus.Interaction;
+using Oculus.Interaction.HandGrab;
 using UnityEngine;
 
 public class Card : MonoBehaviour
@@ -16,13 +17,11 @@ public class Card : MonoBehaviour
 
     [SerializeField]
     PokeInteractable pokeInteractable;
-
     [SerializeField]
-    GrabInteractable grabInteractable;
-
-    PokeInteractor dragger;
+    HandGrabInteractable handGrabInteractable;
 
     bool dragging;
+    bool grabbed;
     bool tapped;
     float doubleTapTimer;
 
@@ -35,16 +34,10 @@ public class Card : MonoBehaviour
         Locked = true;
         
         dragging = false;
+        grabbed = false;
 
         tapped = false;
         doubleTapTimer = 0.0f;
-    }
-
-    private void Start()
-    {
-
-        //TODO: Replace this with getting the fingertip of current interacting hand
-       // hand = GameObject.FindGameObjectWithTag("Fingertip");
     }
 
     private void Update()
@@ -62,14 +55,18 @@ public class Card : MonoBehaviour
         pokeInteractable.WhenSelectingInteractorAdded.Action += StartDrag;
         
         pokeInteractable.WhenSelectingInteractorRemoved.Action += StopDrag;
-
+        
+        handGrabInteractable.WhenSelectingInteractorAdded.Action += StartGrab;
+        
+        handGrabInteractable.WhenSelectingInteractorRemoved.Action += StopGrab;
+        
         pokeInteractable.Disable();
     }
 
     private void OnTriggerEnter(Collider other)
     {
         //enable poke component when overlapping the table
-        if (other.gameObject.tag == "Surface")
+        if (other.gameObject.CompareTag("Surface"))
         {
             pokeInteractable.Enable();
         }
@@ -83,7 +80,7 @@ public class Card : MonoBehaviour
         {
 
             //when overlapping with the surface object
-            if (other.gameObject.tag == "Surface")
+            if (other.gameObject.CompareTag("Surface"))
             {
                 //set rotation and position of card to be sat on tabletop
                 Quaternion newRot = Quaternion.Euler(-90, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
@@ -119,7 +116,7 @@ public class Card : MonoBehaviour
     private void OnTriggerExit(Collider other)
     {
         //disable poke component when no longer on table
-        if ( other.gameObject.tag == "Surface")
+        if ( other.gameObject.CompareTag("Surface"))
         {
             pokeInteractable.Disable();
         }
@@ -134,12 +131,10 @@ public class Card : MonoBehaviour
     {
         
         dragging = true;
-        dragger = pokeInteractor;
-
         GetFingerTip(pokeInteractor);
             
-            handRotation = hand.transform.rotation;
-            handPosition = hand.transform.position;
+        handRotation = hand.transform.rotation;
+        handPosition = hand.transform.position;
             
         if (doubleTapTimer > 0)
         {
@@ -165,7 +160,6 @@ public class Card : MonoBehaviour
     void StopDrag(PokeInteractor pokeInteractor)
     {
         dragging = false;
-        dragger = null;
     }
 
     void GetFingerTip(PokeInteractor pokeInteractor)
@@ -180,6 +174,29 @@ public class Card : MonoBehaviour
             }
         }
         
+    }
+    void StartGrab(HandGrabInteractor grabInteractor)
+    {
+        grabbed =true;
+    }
+
+    void StopGrab(HandGrabInteractor grabInteractor)
+    {
+        grabbed = false;
+    }
+
+
+    //checks if the card is not being grabbed for purposes of adding back to deck or other zone
+    public bool IsNotGrabbed()
+    {
+        if (!dragging && !grabbed)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
 }

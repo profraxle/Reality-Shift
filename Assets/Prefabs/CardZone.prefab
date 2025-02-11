@@ -94,13 +94,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5697796911187114549}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
+  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 100, y: 100, z: 10000}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1221349219914380689}
-  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!33 &2045890142080173589
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -166,10 +166,11 @@ GameObject:
   m_Component:
   - component: {fileID: 1221349219914380689}
   - component: {fileID: 6163479964209944330}
-  - component: {fileID: 4527961830016182781}
   - component: {fileID: -3413710207807501180}
+  - component: {fileID: 7634246994756052684}
+  - component: {fileID: 7571561252984267522}
   m_Layer: 6
-  m_Name: Deck
+  m_Name: CardZone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -204,7 +205,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 434982269
+  GlobalObjectIdHash: 3655014483
   InScenePlacedSourceGlobalObjectIdHash: 3761565280
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -213,26 +214,6 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!114 &4527961830016182781
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8407049900361872367}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9457796f5d96980468107fbc2dd71eed, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  model: {fileID: 5697796911187114549}
-  cardPrefab: {fileID: 1943711336295376787, guid: 8807b6c3bb89a1941b8cb39191082d18, type: 3}
-  drawZone: {fileID: 4440452300836341599}
-  currentCard: {fileID: 0}
-  deckID:
-    m_InternalValue: 0
-  selector: {fileID: 0}
-  cardZonePrefab: {fileID: 8407049900361872367, guid: a50fc8cf97c7abc4eb305a18ce750b75, type: 3}
 --- !u!114 &-3413710207807501180
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -264,3 +245,41 @@ MonoBehaviour:
   InLocalSpace: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &7634246994756052684
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8407049900361872367}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f8f4e2806241be4ab511038606e26fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  drawZoneUpdater: {fileID: 7960660424988747903}
+  drawableCard: {fileID: 0}
+  cardInZone: {fileID: 0}
+  owningDeck: {fileID: 0}
+  model: {fileID: 5697796911187114549}
+--- !u!65 &7571561252984267522
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8407049900361872367}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.08, y: -0.08, z: -0.07}
+  m_Center: {x: 0, y: 0, z: 0}

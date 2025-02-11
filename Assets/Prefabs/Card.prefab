@@ -141,7 +141,7 @@ MonoBehaviour:
   lockPos: {x: 0, y: 0, z: 0}
   onStack: 0
   pokeInteractable: {fileID: 3006248668507783480}
-  grabInteractable: {fileID: 5262581002510702465}
+  handGrabInteractable: {fileID: 2277477639641365896}
 --- !u!114 &492710792303958492
 MonoBehaviour:
   m_ObjectHideFlags: 0
