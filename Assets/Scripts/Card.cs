@@ -2,6 +2,7 @@ using Newtonsoft.Json.Bson;
 using Oculus.Interaction;
 using Oculus.Interaction.HandGrab;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class Card : MonoBehaviour
 {
@@ -9,14 +10,14 @@ public class Card : MonoBehaviour
     Texture2D cardImage;
     public CardData cardData;
 
-    private bool Locked = true;
+    [FormerlySerializedAs("Locked")] public bool locked = true;
 
     public Vector3 lockPos;
 
     public bool onStack = false;
 
     [SerializeField]
-    PokeInteractable pokeInteractable;
+    public PokeInteractable pokeInteractable;
     [SerializeField]
     HandGrabInteractable handGrabInteractable;
 
@@ -31,7 +32,7 @@ public class Card : MonoBehaviour
 
     private void Awake()
     {
-        Locked = true;
+        locked = true;
         
         dragging = false;
         grabbed = false;
@@ -47,6 +48,8 @@ public class Card : MonoBehaviour
         {
             doubleTapTimer -= Time.deltaTime;
         }
+
+        
     }
 
     private void OnEnable()
@@ -65,23 +68,25 @@ public class Card : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        //enable poke component when overlapping the table
-        if (other.gameObject.CompareTag("Surface"))
-        {
-            pokeInteractable.Enable();
-        }
+
     }
 
 
     private void OnTriggerStay(Collider other)
     {
         //if able to be manipulated
-        if (!Locked)
+        if (!locked)
         {
 
+            
+            
             //when overlapping with the surface object
             if (other.gameObject.CompareTag("Surface"))
             {
+                
+                pokeInteractable.Enable();
+                
+                
                 //set rotation and position of card to be sat on tabletop
                 Quaternion newRot = Quaternion.Euler(-90, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
 
@@ -111,20 +116,30 @@ public class Card : MonoBehaviour
                 transform.SetPositionAndRotation(newPos, newRot);
             }
         }
+        else
+        {
+            if (other.gameObject.CompareTag("Surface"))
+            {
+               
+                pokeInteractable.Disable();
+                
+            }
         }
+    }
 
     private void OnTriggerExit(Collider other)
     {
-        //disable poke component when no longer on table
-        if ( other.gameObject.CompareTag("Surface"))
+        if (other.gameObject.CompareTag("Surface"))
         {
+               
             pokeInteractable.Disable();
+                
         }
     }
 
     public void SetLocked(bool nLocked)
     {
-        Locked = nLocked;
+        locked = nLocked;
     }
 
      void StartDrag(PokeInteractor pokeInteractor)

@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using Unity.Collections;
 using Oculus.Interaction;
+using Vector3 = UnityEngine.Vector3;
 
 
 public class Deck : NetworkBehaviour
@@ -18,7 +19,7 @@ public class Deck : NetworkBehaviour
     private GameObject model;
 
     [SerializeField]
-    private GameObject cardPrefab;
+    public GameObject cardPrefab;
 
     [SerializeField]
     private GameObject drawZone;
@@ -47,10 +48,13 @@ public class Deck : NetworkBehaviour
     [SerializeField]
     private GameObject cardZonePrefab;
 
+    private float surfHeight;
+    public float surfOffset;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        surfHeight = GameObject.FindGameObjectWithTag("Surface").transform.position.y;
         if (deckID.Value == NetworkManager.LocalClientId)
         {
 
@@ -73,7 +77,7 @@ public class Deck : NetworkBehaviour
             drawZoneUpdater = drawZone.GetComponent<UpdateDrawZone>();
 
             cardsInDeck--;
-            model.transform.localScale = new Vector3(100, 100, 100 * currentDeck.Count());
+            
             //creates a first card to be grabbable on top of the deck
 
             List<FixedString128Bytes> currentDeckSendable = new List<FixedString128Bytes>(currentDeck.Count);
@@ -95,6 +99,10 @@ public class Deck : NetworkBehaviour
                 SpawnFirstCard();
             }
 
+            surfOffset = 0.001f;
+            
+            model.transform.localScale = new Vector3(100, 100, 100 * currentDeck.Count);
+            model.transform.position = new Vector3(transform.position.x, surfHeight+(5f*currentDeck.Count*3e-05f)+surfOffset, transform.position.z);
         }
 
         StartCoroutine(SpawnZones());
@@ -135,7 +143,7 @@ public class Deck : NetworkBehaviour
     {
         if (currentCard)
         {
-            Vector3 diff = currentCard.transform.position - transform.position;
+            Vector3 diff = currentCard.transform.position - new Vector3(transform.position.x, surfHeight+(10f*currentDeck.Count*3e-05f)-surfOffset, transform.position.z);;
             if (diff.magnitude > 0.01)
             {
                 currentCard.GetComponent<Card>().SetLocked(false);
@@ -162,7 +170,8 @@ public class Deck : NetworkBehaviour
                 {
                     SpawnNewCard();
                     //spawn a new card to be grabbed and change scale of deck to reflect cards left to be drawn
-                    model.transform.localScale = new Vector3(100, 100, 100 * cardsInDeck);
+                    model.transform.localScale = new Vector3(100, 100, 100 * currentDeck.Count);
+                    model.transform.position = new Vector3(transform.position.x, surfHeight+(5f*currentDeck.Count*3e-05f)+surfOffset, transform.position.z);
                 }
                 else 
                 { 
@@ -176,7 +185,7 @@ public class Deck : NetworkBehaviour
     {
         currentCard = Instantiate(cardPrefab);
         
-        currentCard.transform.position = transform.position;
+        currentCard.transform.position = new Vector3(transform.position.x, surfHeight+(10f*currentDeck.Count*3e-05f)-surfOffset, transform.position.z);
         currentCard.transform.eulerAngles = new Vector3(90, 0,0) + transform.eulerAngles;
         Card currentCardObj = currentCard.GetComponent<Card>();
         currentCardObj.SetLocked(true);
@@ -231,7 +240,7 @@ public class Deck : NetworkBehaviour
     public void SpawnNewCard()
     {
         currentCard = Instantiate(cardPrefab);
-        currentCard.transform.position = transform.position;
+        currentCard.transform.position = new Vector3(transform.position.x, surfHeight+(10f*currentDeck.Count*3e-05f)-surfOffset, transform.position.z);
         currentCard.transform.eulerAngles = new Vector3(90, 0, 0) + transform.eulerAngles;
         Card currentCardObj = currentCard.GetComponent<Card>();
         currentCardObj.SetLocked(true);
@@ -263,7 +272,8 @@ public class Deck : NetworkBehaviour
         SpawnNewCard();
         //spawn a new card to be grabbed and change scale of deck to reflect cards left to be drawn
 
-        model.transform.localScale = new Vector3(100, 100, 100 * currentDeck.Count());
+        model.transform.localScale = new Vector3(100, 100, 100 * currentDeck.Count);
+        model.transform.position = new Vector3(transform.position.x, surfHeight+(10f*currentDeck.Count*3e-05f)-surfOffset, transform.position.z);
         newCardNeeded = false;
 
         NetworkObjectReference cardNetworkReference= new NetworkObjectReference(currentCard);

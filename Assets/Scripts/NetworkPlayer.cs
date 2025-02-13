@@ -49,7 +49,7 @@ public class NetworkPlayer : NetworkBehaviour
             //STINKIEST OF ALL HACKS LOOK AWAY
             if (ID == 0)
             {
-                spawnedViewer.GetComponent<BoardViewer>().boardView = 1;
+                spawnedViewer.GetComponent<BoardViewer>().boardView = 0;
             }
             else{
                 spawnedViewer.GetComponent<BoardViewer>().boardView = 0;

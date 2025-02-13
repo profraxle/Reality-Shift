@@ -34,7 +34,7 @@ Transform:
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: -0.0021, z: -0}
   m_LocalScale: {x: 150, y: 150, z: 150}
-  m_ConstrainProportionsScale: 1
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8535141133626249849}
   m_Father: {fileID: 0}
@@ -138,6 +138,7 @@ MonoBehaviour:
       large: 
       art_crop: 
       border_crop: 
+  locked: 1
   lockPos: {x: 0, y: 0, z: 0}
   onStack: 0
   pokeInteractable: {fileID: 3006248668507783480}
