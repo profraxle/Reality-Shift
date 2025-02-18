@@ -40,7 +40,9 @@ public class CardPile : NetworkBehaviour
     
     protected virtual void Start()
     {
-        model.GetComponent<NetworkObject>().Spawn();
+        
+        SpawnNetworkObjectServerRpc(model);
+        
         if (faceUp)
         {
             cardRot = -90f;
@@ -321,6 +323,12 @@ public class CardPile : NetworkBehaviour
         model.transform.localScale = new Vector3(150, 150, 150 * cardsInPile.Count);
         transform.position = new Vector3(transform.position.x,
             surfHeight + (5f * cardsInPile.Count * cardHeight) + surfOffset, transform.position.z);
+    }
+
+    [ServerRpc]
+    protected void SpawnNetworkObjectServerRpc(GameObject toSpawn)
+    {
+        toSpawn.GetComponent<NetworkObject>().SpawnWithOwnership(playerID);
     }
     
 }

@@ -76,7 +76,7 @@ public class Deck : CardPile
             GameObject newZone =Instantiate(cardZonePrefab, transform.position + (0.8f*transform.forward) + (0.15f*transform.right*i), transform.rotation);
             newZone.GetComponent<CardZone>().PassDeckData(this);
             
-            newZone.GetComponent<NetworkObject>().SpawnWithOwnership(deckID.Value);
+            SpawnNetworkObjectServerRpc(newZone);
         }
         
         UpdatePileHeight();
@@ -124,6 +124,8 @@ public class Deck : CardPile
             }
         }
     }
+    
+    
 
 
 
