@@ -150,6 +150,8 @@ public class CardDataFetcher : MonoBehaviour
                     Texture2D tex = new Texture2D(2, 2);
                     tex.LoadImage(fileData);
 
+                    tex = ConfigureTexture(tex);
+
                     string cardContents = File.ReadAllText(cardDataPath);
                     CardData readCard = JsonUtility.FromJson<CardData>(cardContents);
 
@@ -261,6 +263,8 @@ public class CardDataFetcher : MonoBehaviour
             byte[] imageBytes = texture.EncodeToPNG();
             File.WriteAllBytes(savePath, imageBytes);
             Debug.Log($"Saved card image to '{savePath}'.");
+            
+            texture = ConfigureTexture(texture);
 
             allCardImages.Add(cardName, texture);
         }
@@ -276,11 +280,27 @@ public class CardDataFetcher : MonoBehaviour
         return fileName;
     }
     
-
-
-
     
+    private Texture2D ConfigureTexture(Texture2D texture)
+    {
+        texture.filterMode = FilterMode.Trilinear;
+        texture.anisoLevel = 16;
+        texture.wrapMode = TextureWrapMode.Repeat;
+
+        if (SystemInfo.SupportsTextureFormat(TextureFormat.ASTC_4x4))
+        {
+            Texture2D newTexture = new Texture2D(texture.width, texture.height, TextureFormat.ASTC_4x4, false);
+            newTexture.SetPixels(texture.GetPixels());
+            newTexture.Apply();
+            texture = newTexture;
+        }
+
+        return texture;
+    }
 }
+
+
+
 [System.Serializable]
 public class ImageUris
 {

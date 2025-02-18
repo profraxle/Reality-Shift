@@ -79,6 +79,8 @@ GameObject:
   - component: {fileID: 4005481414036039825}
   - component: {fileID: 2045890142080173589}
   - component: {fileID: 2673458825020175409}
+  - component: {fileID: 1557243052886027400}
+  - component: {fileID: 2057973953983776291}
   m_Layer: 6
   m_Name: DeckModel
   m_TagString: Untagged
@@ -156,6 +158,58 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &1557243052886027400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5697796911187114549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f54f51a886d7e214fb02b18194535a00, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  UseUnreliableDeltas: 0
+  SyncPositionX: 1
+  SyncPositionY: 1
+  SyncPositionZ: 1
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
+  SyncScaleX: 1
+  SyncScaleY: 1
+  SyncScaleZ: 1
+  PositionThreshold: 0.001
+  RotAngleThreshold: 0.01
+  ScaleThreshold: 0.01
+  UseQuaternionSynchronization: 0
+  UseQuaternionCompression: 0
+  UseHalfFloatPrecision: 0
+  InLocalSpace: 1
+  Interpolate: 1
+  SlerpPosition: 0
+--- !u!114 &2057973953983776291
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5697796911187114549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 3655014483
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!1 &8407049900361872367
 GameObject:
   m_ObjectHideFlags: 0
@@ -257,11 +311,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f8f4e2806241be4ab511038606e26fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cardPrefab: {fileID: 0}
+  cardToAdd: {fileID: 0}
   drawZoneUpdater: {fileID: 7960660424988747903}
-  drawableCard: {fileID: 0}
-  cardInZone: {fileID: 0}
-  owningDeck: {fileID: 0}
   model: {fileID: 5697796911187114549}
+  surfOffset: 0
+  cardHeight: 0
+  faceUp: 0
+  owningDeck: {fileID: 0}
 --- !u!65 &7571561252984267522
 BoxCollider:
   m_ObjectHideFlags: 0
