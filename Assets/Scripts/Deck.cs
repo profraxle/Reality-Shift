@@ -61,9 +61,10 @@ public class Deck : CardPile
                 SpawnNextCardInPile();
             }
             
+            StartCoroutine(SpawnZones());
         }
 
-        StartCoroutine(SpawnZones());
+        
     }
 
     IEnumerator SpawnZones()
@@ -71,15 +72,8 @@ public class Deck : CardPile
         //wait so position of deck will be correct when called
         yield return new WaitForSeconds(0.5f);
 
-        for (int i = 0; i < 2; i++)
-        {
-            GameObject newZone =Instantiate(cardZonePrefab, transform.position + (0.8f*transform.forward) + (0.15f*transform.right*i), transform.rotation);
-            newZone.GetComponent<CardZone>().PassDeckData(this);
-            
-            SpawnNetworkObjectServerRpc(newZone);
-        }
+        SpawnZonesServerRpc();
         
-        UpdatePileHeight();
     }
 
     void shuffle()
@@ -124,6 +118,19 @@ public class Deck : CardPile
             }
         }
     }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void SpawnZonesServerRpc()
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            GameObject newZone =Instantiate(cardZonePrefab, transform.position + (0.8f*transform.forward) + (0.15f*transform.right*i), transform.rotation);
+            newZone.GetComponent<CardZone>().PassDeckData(this);
+            
+            newZone.GetComponent<NetworkObject>().Spawn();
+        }
+    }
+    
     
     
 
