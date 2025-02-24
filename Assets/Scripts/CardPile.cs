@@ -29,7 +29,7 @@ public class CardPile : NetworkBehaviour
     public float surfOffset;
     public float cardHeight;
 
-    protected ulong playerID;
+    public NetworkVariable<ulong> playerID;
 
     protected ClientRpcParams clientRpcParams;
 
@@ -40,7 +40,6 @@ public class CardPile : NetworkBehaviour
 
     protected virtual void Start()
     {
-
 
         if (faceUp)
         {
@@ -74,7 +73,7 @@ public class CardPile : NetworkBehaviour
         {
             Send = new ClientRpcSendParams
             {
-                TargetClientIds = new ulong[] { playerID }
+                TargetClientIds = new ulong[] { playerID.Value }
             }
         };
         
@@ -109,6 +108,8 @@ public class CardPile : NetworkBehaviour
                     //get texture of adding card and set pile top texture to it
                     Texture2D tex = deckData.cardImages[cardToAdd.cardData.name];
                     modelMaterials[2].mainTexture = tex;
+
+                    ChangePileTextureClientRpc(cardToAdd.cardData.name);
                 }
 
                 //destroy the owning card object
@@ -145,6 +146,8 @@ public class CardPile : NetworkBehaviour
                     if (faceUp)
                     {
                         modelMaterials[2].mainTexture = deckData.cardImages[cardsInPile.Peek()];
+                        
+                        ChangePileTextureClientRpc(cardsInPile.Peek());
                     }
                 }
                 else
@@ -263,7 +266,7 @@ public class CardPile : NetworkBehaviour
         drawableCardObj.cardData = cardData;
 
         var cardNetworkObject = drawableCard.GetComponent<NetworkObject>();
-        cardNetworkObject.SpawnWithOwnership(playerID);
+        cardNetworkObject.SpawnWithOwnership(playerID.Value);
 
         pileHeight.Value = cardsInPile.Count;
 
@@ -339,8 +342,6 @@ public class CardPile : NetworkBehaviour
         materials[2].mainTexture = tex;
 
         changedCard.GetComponent<Card>().cardData = cardData;
-        
-
     }
     
 
@@ -348,6 +349,13 @@ public class CardPile : NetworkBehaviour
     protected void GetPileHeightServerRpc()
     {
         pileHeight.Value = cardsInPile.Count;
+    }
+
+    [ClientRpc]
+    protected void ChangePileTextureClientRpc(string cardAtTop)
+    {
+        Texture2D tex = deckData.cardImages[cardAtTop];
+        modelMaterials[2].mainTexture = tex;
     }
     
 }

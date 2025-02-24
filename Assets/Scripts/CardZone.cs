@@ -24,7 +24,6 @@ public class CardZone : CardPile
     public void PassDeckData(Deck owningDeck)
     {
         deckData = owningDeck.deckData;
-        playerID = owningDeck.deckID.Value;
     }
 
 }

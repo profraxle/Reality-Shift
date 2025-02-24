@@ -6,8 +6,12 @@ using System.IO;
 using UnityEngine.Networking;
 using NUnit.Framework.Constraints;
 using UnityEditor;
+using UnityEngine.XR;
+
 public class CardDataFetcher : MonoBehaviour
 {
+
+    
     //save URL for scryfall api
     private const string baseURL = "https://api.scryfall.com/cards/named?fuzzy=";
     
@@ -26,6 +30,8 @@ public class CardDataFetcher : MonoBehaviour
 
     public void Start()
     {
+
+        SetFFR();
         isFetching = true;
 
         //combine path to create save location
@@ -297,6 +303,11 @@ public class CardDataFetcher : MonoBehaviour
 
         return texture;
     }
+    
+    public void SetFFR()
+    {
+        OVRManager.foveatedRenderingLevel = OVRManager.FoveatedRenderingLevel.High;
+    }
 }
 
 
@@ -329,3 +340,4 @@ public struct DeckData
     public Dictionary<string, Texture2D> cardImages;
     public Dictionary<string, CardData> cardData;
 }
+

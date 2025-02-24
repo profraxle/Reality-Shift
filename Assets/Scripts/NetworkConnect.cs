@@ -8,6 +8,9 @@ using Unity.Netcode.Transports.UTP;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
+
 public class NetworkConnect : MonoBehaviour
 {
     public int maxConnection = 4;
@@ -16,11 +19,19 @@ public class NetworkConnect : MonoBehaviour
     private Lobby currentLobby;
     private float heartBeatTimer;
 
+   
+
     private async void Awake()
     {
         await UnityServices.InitializeAsync();
         await AuthenticationService.Instance.SignInAnonymouslyAsync();
 
+        if (IsPortInUse(transport.ConnectionData.Port))
+        {
+            transport.ConnectionData.Port += 10;
+        }
+        
+        
         JoinOrCreate();
     }
 
@@ -100,5 +111,27 @@ public class NetworkConnect : MonoBehaviour
                 DeckManager.Singleton.SpawnDecks();
             }
         }
+    }
+    
+    public bool IsPortInUse(int port)
+    {
+        bool isInUse = false;
+
+        TcpListener listener = null;
+        try
+        {
+            listener = new TcpListener(IPAddress.Any, port);
+            listener.Start();
+        }
+        catch (SocketException)
+        {
+            isInUse = true;
+        }
+        finally
+        {
+            listener?.Stop();
+        }
+
+        return isInUse;
     }
 }

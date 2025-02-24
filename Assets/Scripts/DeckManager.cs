@@ -37,12 +37,14 @@ public class DeckManager : MonoBehaviour
                 }
 
                 newDeckObject.GetComponent<Deck>().deckID = new NetworkVariable<ulong>((ulong)i);
+                newDeckObject.GetComponent<Deck>().playerID = new NetworkVariable<ulong>((ulong)i);
 
                 newDeckObject.GetComponent<NetworkObject>().SpawnWithOwnership((ulong)i);
 
-                spawnedDecks = true;
+                
                 //decks[i] = newDeckObject.GetComponent<Deck>();
             }
+            spawnedDecks = true;
 
         }
 

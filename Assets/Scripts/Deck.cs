@@ -29,7 +29,6 @@ public class Deck : CardPile
         base.Start();
         faceUp = false;
         
-        
         if (deckID.Value == NetworkManager.LocalClientId)
         {
             deckData = LocalPlayerManager.Singleton.GetLocalPlayerDeck();
@@ -126,11 +125,22 @@ public class Deck : CardPile
         {
             GameObject newZone =Instantiate(cardZonePrefab, transform.position + (0.8f*transform.forward) + (0.15f*transform.right*i), transform.rotation);
             newZone.GetComponent<CardZone>().PassDeckData(this);
-            
+            newZone.GetComponent<CardZone>().playerID = new NetworkVariable<ulong>(playerID.Value);
             newZone.GetComponent<NetworkObject>().Spawn();
+            
+            NetworkObjectReference zoneNetworkReference = new NetworkObjectReference(newZone);
+            
+            NewZoneClientRpc(zoneNetworkReference);
         }
     }
-    
+
+    [ClientRpc]
+    public void NewZoneClientRpc(NetworkObjectReference cardObjectReference)
+    {
+        cardObjectReference.TryGet(out NetworkObject networkObject);
+
+        networkObject.GetComponent<CardZone>().PassDeckData(this);
+    }
     
     
 
