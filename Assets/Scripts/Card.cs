@@ -29,6 +29,11 @@ public class Card : MonoBehaviour
     GameObject hand;
     Quaternion handRotation;
     Vector3 handPosition;
+    
+    Surface surface;
+
+    private float surfOffset;
+    private float surfOffsetAmount;
 
     private void Awake()
     {
@@ -39,6 +44,9 @@ public class Card : MonoBehaviour
 
         tapped = false;
         doubleTapTimer = 0.0f;
+
+        surfOffset = -1f;
+        surfOffsetAmount = 0.0001f;
     }
 
     private void Update()
@@ -68,7 +76,13 @@ public class Card : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (other.gameObject.CompareTag("Surface"))
+        {
+            //if (!locked)
+            //{
 
+            
+        }
     }
 
 
@@ -83,6 +97,23 @@ public class Card : MonoBehaviour
             //when overlapping with the surface object
             if (other.gameObject.CompareTag("Surface"))
             {
+
+                if (!surface)
+                {
+                    surface = other.gameObject.GetComponent<Surface>();
+                }
+
+                if (surfOffset ==-1f)
+                {
+                    surfOffset = surface.GetCardsOnSurface() * surfOffsetAmount;
+                    surface.IncreaseCardsOnSurface();
+                }
+                if (surface.GetCardsOnSurface() * surfOffsetAmount < surfOffset && surfOffset > 0) 
+                {
+                    surfOffset -= surfOffsetAmount;
+                }
+                
+                
                 
                 pokeInteractable.Enable();
                 
@@ -90,7 +121,7 @@ public class Card : MonoBehaviour
                 //set rotation and position of card to be sat on tabletop
                 Quaternion newRot = Quaternion.Euler(-90, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
 
-                Vector3 newPos = new Vector3(transform.position.x, other.transform.position.y, transform.position.z);
+                Vector3 newPos = new Vector3(transform.position.x, other.transform.position.y+surfOffset, transform.position.z);
 
                 transform.SetPositionAndRotation(newPos, newRot);
             }
@@ -129,13 +160,18 @@ public class Card : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.CompareTag("Surface"))
+        if (!locked)
         {
-               
-            pokeInteractable.Disable();
-                
+            if (other.gameObject.CompareTag("Surface"))
+            {
+                surfOffset = -1f;
+                surface = null;
+                pokeInteractable.Disable();
+                other.gameObject.GetComponent<Surface>().DecreaseCardsOnSurface();
+            }
         }
     }
+
 
     public void SetLocked(bool nLocked)
     {

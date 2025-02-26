@@ -19,7 +19,7 @@ public class CardPile : NetworkBehaviour
     [SerializeField] protected UpdateDrawZone drawZoneUpdater;
     [SerializeField] protected GameObject model;
 
-    protected GameObject drawableCard;
+    public GameObject drawableCard;
 
     public DeckData deckData;
 
@@ -38,9 +38,10 @@ public class CardPile : NetworkBehaviour
 
     private NetworkVariable<int> pileHeight = new NetworkVariable<int>(0);
 
+    public bool cardSpawnedValid;
+
     protected virtual void Start()
     {
-
         if (faceUp)
         {
             cardRot = -90f;
@@ -58,7 +59,6 @@ public class CardPile : NetworkBehaviour
 
         //create stack to store cards in pile
         cardsInPile = new Stack<string>();
-
 
         modelMaterials = new List<Material>();
         model.GetComponent<Renderer>().GetMaterials(modelMaterials);
@@ -80,95 +80,145 @@ public class CardPile : NetworkBehaviour
         pileHeight.OnValueChanged += UpdatePileHeight;
 
         model.transform.localScale = new Vector3(100, 100, 0);
+
+        cardSpawnedValid = false;
     }
 
     // Update is called once per frame
     protected virtual void Update()
     {
-        if (cardToAdd)
+        if (playerID.Value == NetworkManager.Singleton.LocalClientId)
         {
-            if (cardToAdd.IsNotGrabbed())
+            if (NetworkManager.Singleton.IsServer)
             {
-                if (!drawableCard)
+                if (pileHeight.Value != cardsInPile.Count)
                 {
-
-                    SpawnDrawableCard(cardToAdd);
+                    UpdatePileHeight();
                 }
-                else
-                {
-                    UpdateDrawableCard(cardToAdd);
-                }
-
-                //add the card name to the cards in Zone
-                cardsInPile.Push(cardToAdd.cardData.name);
-
-
-                if (faceUp)
-                {
-                    //get texture of adding card and set pile top texture to it
-                    Texture2D tex = deckData.cardImages[cardToAdd.cardData.name];
-                    modelMaterials[2].mainTexture = tex;
-
-                    ChangePileTextureClientRpc(cardToAdd.cardData.name);
-                }
-
-                //destroy the owning card object
-                Destroy(cardToAdd.gameObject);
-                cardToAdd = null;
             }
-        }
 
-        //if a card exists to be drawn
-        if (drawableCard)
-        {
-
-            //get difference of cards pos from spawned pos
-            Vector3 diff = drawableCard.transform.position - new Vector3(transform.position.x,
-                surfHeight + (10f * cardsInPile.Count * cardHeight) - surfOffset, transform.position.z);
-
-            //when distance is greater than 0.01
-            if (diff.magnitude > 0.01)
+            if (cardToAdd)
             {
-
-                //unlock card, and pop top of stack
-                drawableCard.GetComponent<Card>().SetLocked(false);
-                if (cardsInPile.Count > 0)
+                if (cardToAdd.IsNotGrabbed())
                 {
-                    cardsInPile.Pop();
-                }
+                    if (!drawableCard)
+                    {
+                        cardSpawnedValid = false;
+                        if (NetworkManager.Singleton.IsServer)
+                        {
+                            SpawnDrawableCard(cardToAdd);
+                        }
+                        else
+                        {
 
+                            SpawnDrawableCardServerRpc(cardToAdd.cardData.name);
+                        }
+                    }
+                    else
+                    {
+                        if (NetworkManager.Singleton.IsServer)
+                        {
+                            UpdateDrawableCard(cardToAdd);
+                        }
+                        else
+                        {
+                            UpdateDrawableCardServerRpc(cardToAdd.cardData.name);
 
-                //if there are still cards in the pile
-                if (cardsInPile.Count > 0)
-                {
-                    SpawnNextCardInPile();
+                        }
+                    }
+
+                    //add the card name to the cards in Zone
+                    if (NetworkManager.Singleton.IsServer)
+                    {
+                        cardsInPile.Push(cardToAdd.cardData.name);
+                    }
+                    else
+                    {
+                        PushCardToPileServerRpc(cardToAdd.cardData.name);
+                    }
+
 
                     if (faceUp)
                     {
-                        modelMaterials[2].mainTexture = deckData.cardImages[cardsInPile.Peek()];
+                        //get texture of adding card and set pile top texture to it
+                        Texture2D tex = deckData.cardImages[cardToAdd.cardData.name];
+                        modelMaterials[2].mainTexture = tex;
                         
-                        ChangePileTextureClientRpc(cardsInPile.Peek());
+                        ChangePileTextureServerRpc(cardToAdd.cardData.name);
                     }
-                }
-                else
-                {
-                    if (faceUp)
-                    {
-                        modelMaterials[2].mainTexture = null;
-                        drawableCard = null;
-                    }
-                }
-            }
-        }
 
-        if (NetworkManager.Singleton.IsServer)
-        {
-            if (pileHeight.Value != cardsInPile.Count)
+                    //destroy the owning card object
+                    if (NetworkManager.Singleton.IsServer)
+                    {
+                        cardToAdd.gameObject.GetComponent<NetworkObject>().Despawn();
+                        Destroy(cardToAdd.gameObject);
+                        cardToAdd = null;
+                    }
+                    else
+                    {
+                        NetworkObjectReference cardNetworkObjectReference =
+                            new NetworkObjectReference(cardToAdd.gameObject);
+                        DestroyCardObjectServerRpc(cardNetworkObjectReference);
+                        cardToAdd = null;
+
+                    }
+                }
+            }
+
+            //if a card exists to be drawn
+            if (drawableCard && cardSpawnedValid)
             {
-                pileHeight.Value = cardsInPile.Count;
+                
+                //get difference of cards pos from spawned pos
+                Vector3 diff = drawableCard.transform.position - new Vector3(transform.position.x,
+                    surfHeight + (10f * pileHeight.Value * cardHeight) - surfOffset, transform.position.z);
+
+                //when distance is greater than 0.01
+                if (diff.magnitude > 0.01f)
+                {
+                    cardSpawnedValid = false;
+                    
+                    Debug.Log(diff.magnitude);
+                    //unlock card, and pop top of stack
+                    drawableCard.GetComponent<Card>().SetLocked(false);
+                    drawableCard = null;
+
+                    CheckAndPopCurrentPileServerRpc();
+
+
+                    //if there are still cards in the pile
+                    if (pileHeight.Value > 0)
+                    {
+                        if (NetworkManager.Singleton.IsServer)
+                        {
+                            SpawnNextCardInPile();
+
+                            if (faceUp)
+                            {
+                                modelMaterials[2].mainTexture = deckData.cardImages[cardsInPile.Peek()];
+
+                                ChangePileTextureClientRpc(cardsInPile.Peek());
+                            }
+                        }
+                        else
+                        {
+                            Debug.Log("Spawning Next Card In Pile!!");
+                            SpawnNextCardInPileServerRpc();
+                        }
+
+
+                    }
+                    else
+                    {
+                        if (faceUp)
+                        {
+                            modelMaterials[2].mainTexture = null;
+                            drawableCard = null;
+                        }
+                    }
+                }
             }
         }
-        
     }
 
     private void OnTriggerEnter(Collider other)
@@ -197,10 +247,7 @@ public class CardPile : NetworkBehaviour
                     cardToAdd.SetLocked(true);
                 }
             }
-
-
         }
-
     }
 
     private void OnTriggerExit(Collider other)
@@ -239,14 +286,36 @@ public class CardPile : NetworkBehaviour
         SpawnDrawableCard(cardName);
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    public void SpawnDrawableCardServerRpc(string cardName)
+    {
+        SpawnDrawableCard(cardName);
+        
+        NetworkObjectReference cardNetworkReference = new NetworkObjectReference(drawableCard);
+        
+        NewCardClientRpc(cardNetworkReference,clientRpcParams);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void UpdateDrawableCardServerRpc(string cardName)
+    {
+        UpdateDrawableCard(cardName);
+    }
+
+  
+
     //instatiate new drawable card and set tex and data from deckData
     public void SpawnDrawableCard(String cardName)
     {
-        drawableCard = Instantiate(cardPrefab);
+        
 
-        drawableCard.transform.position = new Vector3(transform.position.x,
+        Vector3 initPos = new Vector3(transform.position.x,
             surfHeight + (10f * cardsInPile.Count * cardHeight) - surfOffset, transform.position.z);
-        drawableCard.transform.eulerAngles = new Vector3(cardRot, 0, 0) + transform.eulerAngles;
+        Quaternion initQuat = Quaternion.Euler(new Vector3(cardRot, 0, 0) + transform.eulerAngles);
+        
+        drawableCard = Instantiate(cardPrefab, initPos, initQuat);
+        
+        
         Card drawableCardObj = drawableCard.GetComponent<Card>();
         drawableCardObj.SetLocked(true);
         drawableCardObj.lockPos = model.transform.position;
@@ -270,7 +339,8 @@ public class CardPile : NetworkBehaviour
 
         pileHeight.Value = cardsInPile.Count;
 
-
+        cardSpawnedValid = true;
+        
         NetworkObjectReference cardNetworkReference = new NetworkObjectReference(drawableCard);
         ChangeCardTexClientRpc(cardNetworkReference, cardName);
     }
@@ -283,14 +353,24 @@ public class CardPile : NetworkBehaviour
     }
 
     //same as above but over ~the network~
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     public void SpawnNextCardInPileServerRpc()
     {
-        SpawnNextCardInPile();
-        NetworkObjectReference cardNetworkReference = new NetworkObjectReference(drawableCard);
+        if (cardsInPile.Count > 0)
+        {
+            SpawnNextCardInPile();
+            NetworkObjectReference cardNetworkReference = new NetworkObjectReference(drawableCard);
 
-        NewCardClientRpc(cardNetworkReference, clientRpcParams);
+            NewCardClientRpc(cardNetworkReference, clientRpcParams);
+
+            if (faceUp)
+            {
+                modelMaterials[2].mainTexture = deckData.cardImages[cardsInPile.Peek()];
+                ChangePileTextureClientRpc(cardsInPile.Peek());
+            }
+        }
     }
+    
 
     [ClientRpc]
     public void NewCardClientRpc(NetworkObjectReference cardObjectReference, ClientRpcParams clientRpcParams)
@@ -298,13 +378,20 @@ public class CardPile : NetworkBehaviour
         cardObjectReference.TryGet(out NetworkObject networkObject);
 
         drawableCard = networkObject.gameObject;
+        cardSpawnedValid = true;
     }
 
     public void UpdateDrawableCard(Card cardInZone)
     {
-        Card drawableCardObj = drawableCard.GetComponent<Card>();
 
         string cardName = cardInZone.cardData.name;
+        
+        UpdateDrawableCard(cardName);
+    }
+    
+    public void UpdateDrawableCard(string cardName)
+    {
+        Card drawableCardObj = drawableCard.GetComponent<Card>();
 
         Texture2D tex = deckData.cardImages[cardName];
         CardData cardData = deckData.cardData[cardName];
@@ -358,4 +445,46 @@ public class CardPile : NetworkBehaviour
         modelMaterials[2].mainTexture = tex;
     }
     
+    [ServerRpc(RequireOwnership = false)]
+    protected void ChangePileTextureServerRpc(string cardAtTop)
+    {
+        Texture2D tex = deckData.cardImages[cardAtTop];
+        modelMaterials[2].mainTexture = tex;
+        
+        ChangePileTextureClientRpc(cardAtTop);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    protected void CheckAndPopCurrentPileServerRpc()
+    {
+        if (cardsInPile.Count > 0)
+        {
+            cardsInPile.Pop();
+        }
+        
+        UpdatePileHeight();
+        
+    }
+    
+
+    [ServerRpc(RequireOwnership = false)]
+    protected void DestroyCardObjectServerRpc(NetworkObjectReference cardNetworkReference)
+    {
+        NetworkObject networkObject;
+        cardNetworkReference.TryGet(out networkObject);
+        networkObject.Despawn();
+        Destroy(networkObject.gameObject);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    protected void PushCardToPileServerRpc(string cardName)
+    {
+        cardsInPile.Push(cardName);
+        UpdatePileHeight();
+    }
+
+    protected void UpdatePileHeight()
+    {
+        pileHeight.Value = cardsInPile.Count;
+    }
 }

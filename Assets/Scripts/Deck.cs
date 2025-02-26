@@ -48,16 +48,18 @@ public class Deck : CardPile
                 currentDeckSendable.Add(new FixedString128Bytes(cardName));
             }
 
-            if (NetworkManager.Singleton.IsClient)
+            if (NetworkManager.Singleton.IsServer)
             {
                 //send strings of current deck order
-                ClientConnectedServerRpc(deckData.deckName, currentDeckSendable.ToArray());
-                SpawnNextCardInPileServerRpc();
+                ClientConnectedClientRpc(deckData.deckName, currentDeckSendable.ToArray());
+                SpawnNextCardInPile();
             }
             else
             {
-                ClientConnectedClientRpc(deckData.deckName, currentDeckSendable.ToArray());
-                SpawnNextCardInPile();
+                
+                ClientConnectedServerRpc(deckData.deckName, currentDeckSendable.ToArray());
+                SpawnNextCardInPileServerRpc();
+                Debug.Log("the start is fucking up");
             }
             
             StartCoroutine(SpawnZones());

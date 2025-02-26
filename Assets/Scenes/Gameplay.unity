@@ -8342,6 +8342,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1490363783}
   - component: {fileID: 1490363782}
+  - component: {fileID: 1490363784}
   m_Layer: 6
   m_Name: Surface (1)
   m_TagString: Surface
@@ -8387,6 +8388,18 @@ Transform:
   - {fileID: 1186493866}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1490363784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1490363781}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9636562bd2312264a974b475456ca399, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1499622492
 GameObject:
   m_ObjectHideFlags: 0
@@ -9866,6 +9879,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1716767742}
   - component: {fileID: 1716767739}
+  - component: {fileID: 1716767743}
   m_Layer: 6
   m_Name: Surface
   m_TagString: Surface
@@ -9911,6 +9925,18 @@ Transform:
   - {fileID: 95994563}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1716767743
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1716767738}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9636562bd2312264a974b475456ca399, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1732906306
 GameObject:
   m_ObjectHideFlags: 0
