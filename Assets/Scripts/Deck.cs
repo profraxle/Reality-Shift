@@ -18,6 +18,9 @@ public class Deck : CardPile
     [SerializeField]
     private GameObject cardZonePrefab;
 
+    [SerializeField]
+    private GameObject lifeTrackerPrefab;
+
     void Awake()
     {
         faceUp = false;
@@ -59,7 +62,6 @@ public class Deck : CardPile
                 
                 ClientConnectedServerRpc(deckData.deckName, currentDeckSendable.ToArray());
                 SpawnNextCardInPileServerRpc();
-                Debug.Log("the start is fucking up");
             }
             
             StartCoroutine(SpawnZones());
@@ -74,6 +76,7 @@ public class Deck : CardPile
         yield return new WaitForSeconds(0.5f);
 
         SpawnZonesServerRpc();
+        SpawnLifeTrackerServerRpc();
         
     }
 
@@ -128,7 +131,7 @@ public class Deck : CardPile
             GameObject newZone =Instantiate(cardZonePrefab, transform.position + (0.8f*transform.forward) + (0.15f*transform.right*i), transform.rotation);
             newZone.GetComponent<CardZone>().PassDeckData(this);
             newZone.GetComponent<CardZone>().playerID = new NetworkVariable<ulong>(playerID.Value);
-            newZone.GetComponent<NetworkObject>().Spawn();
+            newZone.GetComponent<NetworkObject>().SpawnWithOwnership(playerID.Value);
             
             NetworkObjectReference zoneNetworkReference = new NetworkObjectReference(newZone);
             
@@ -143,9 +146,13 @@ public class Deck : CardPile
 
         networkObject.GetComponent<CardZone>().PassDeckData(this);
     }
-    
-    
 
+    [ServerRpc(RequireOwnership = false)]
+    public void SpawnLifeTrackerServerRpc()
+    {
+        GameObject newTracker =Instantiate(lifeTrackerPrefab, transform.position + (0.85f*transform.forward) + (0.1f * transform.up) ,  Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y+45, transform.eulerAngles.z));
+        newTracker.GetComponent<NetworkObject>().SpawnWithOwnership(playerID.Value);
+    }
 
 
 

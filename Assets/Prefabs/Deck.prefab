@@ -230,13 +230,18 @@ MonoBehaviour:
   cardToAdd: {fileID: 0}
   drawZoneUpdater: {fileID: 7960660424988747903}
   model: {fileID: 5697796911187114549}
+  drawableCard: {fileID: 0}
   surfOffset: 0
   cardHeight: 0
+  playerID:
+    m_InternalValue: 0
   faceUp: 0
+  cardSpawnedValid: 0
   deckID:
     m_InternalValue: 0
   selector: {fileID: 0}
   cardZonePrefab: {fileID: 8407049900361872367, guid: a50fc8cf97c7abc4eb305a18ce750b75, type: 3}
+  lifeTrackerPrefab: {fileID: 1018536335586205269, guid: ab99c618ee84324478b346072ec951b7, type: 3}
 --- !u!114 &-3413710207807501180
 MonoBehaviour:
   m_ObjectHideFlags: 0
