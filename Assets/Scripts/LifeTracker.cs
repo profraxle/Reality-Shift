@@ -14,6 +14,7 @@ public class LifeTracker : NetworkBehaviour
     {
         
         life.OnValueChanged += SetLifeText;
+        SetLifeText(life.Value,life.Value);
     }
     
     [ServerRpc(RequireOwnership = false)]

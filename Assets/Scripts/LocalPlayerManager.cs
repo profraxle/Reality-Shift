@@ -7,6 +7,8 @@ public class LocalPlayerManager : MonoBehaviour
     public static LocalPlayerManager Singleton;
     public DeckData localPlayerDeck;
 
+    public GameObject localPlayerHand;
+
     public Dictionary<string,DeckData> allDeckData = new Dictionary<string,DeckData> ();
 
     private void Awake()

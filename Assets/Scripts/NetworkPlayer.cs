@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
+using Unity.VisualScripting;
 
 public class NetworkPlayer : NetworkBehaviour
 {
@@ -18,6 +19,9 @@ public class NetworkPlayer : NetworkBehaviour
 
     [SerializeField]
     GameObject boardViewer;
+
+    [SerializeField]
+    private GameObject cardHandPrefab;
 
     public override void OnNetworkSpawn()
     {
@@ -45,11 +49,17 @@ public class NetworkPlayer : NetworkBehaviour
 
             
             spawnedViewer.transform.position = spawns[ID] + (VRRigReferences.Singleton.root.right*0.5f)+ (VRRigReferences.Singleton.root.forward * 0.2f);
+            
+            GameObject cardHand = Instantiate(cardHandPrefab);
+            cardHand.transform.position = spawns[ID] + (VRRigReferences.Singleton.root.forward * 0.1f) + (-VRRigReferences.Singleton.root.up * 0.3f);
+            //cardHand.transform.eulerAngles = new Vector3(0,0);
+
+            LocalPlayerManager.Singleton.localPlayerHand = cardHand;
 
             //STINKIEST OF ALL HACKS LOOK AWAY
             if (ID == 0)
             {
-                spawnedViewer.GetComponent<BoardViewer>().boardView = 0;
+                spawnedViewer.GetComponent<BoardViewer>().boardView = 1;
             }
             else{
                 spawnedViewer.GetComponent<BoardViewer>().boardView = 0;

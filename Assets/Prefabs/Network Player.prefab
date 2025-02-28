@@ -45,6 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f54f51a886d7e214fb02b18194535a00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  UseUnreliableDeltas: 0
   SyncPositionX: 1
   SyncPositionY: 1
   SyncPositionZ: 1
@@ -108,6 +109,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f54f51a886d7e214fb02b18194535a00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  UseUnreliableDeltas: 0
   SyncPositionX: 1
   SyncPositionY: 1
   SyncPositionZ: 1
@@ -175,7 +177,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3329542205
+  GlobalObjectIdHash: 3875372239
+  InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -208,6 +211,7 @@ MonoBehaviour:
   - {x: 0, y: 0, z: 0}
   - {x: 1.368, y: 0, z: 0}
   boardViewer: {fileID: 8392602458135880650, guid: 6127f7fab4ef23b4ba4c3618dfa9ebe6, type: 3}
+  cardHandPrefab: {fileID: 8076385209867189882, guid: f09d80e9eaf0651458bee79fa0bcd7d1, type: 3}
 --- !u!114 &2093492145289322214
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -220,6 +224,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f54f51a886d7e214fb02b18194535a00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  UseUnreliableDeltas: 0
   SyncPositionX: 1
   SyncPositionY: 1
   SyncPositionZ: 1
@@ -283,6 +288,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f54f51a886d7e214fb02b18194535a00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  UseUnreliableDeltas: 0
   SyncPositionX: 1
   SyncPositionY: 1
   SyncPositionZ: 1

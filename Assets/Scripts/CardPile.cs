@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -82,6 +83,7 @@ public class CardPile : NetworkBehaviour
         model.transform.localScale = new Vector3(100, 100, 0);
 
         cardSpawnedValid = false;
+        
     }
 
     // Update is called once per frame
@@ -301,6 +303,13 @@ public class CardPile : NetworkBehaviour
     {
         UpdateDrawableCard(cardName);
     }
+    
+    [ServerRpc(RequireOwnership = false)]
+    public void UpdateDrawableCardWithPeekServerRpc()
+    {
+        UpdateDrawableCard(cardsInPile.Peek());
+    }
+
 
   
 
@@ -486,5 +495,46 @@ public class CardPile : NetworkBehaviour
     protected void UpdatePileHeight()
     {
         pileHeight.Value = cardsInPile.Count;
+    }
+
+
+    public void QuickDrawCards(int amount)
+    {
+        GameObject oldDrawCard = drawableCard;
+
+        
+        for (int i = 0; i < amount; i++)
+        {
+            drawableCard = null;
+            if (NetworkManager.Singleton.IsServer)
+            {
+                cardSpawnedValid = false;
+                SpawnNextCardInPile();
+            }
+            else
+            {
+                cardSpawnedValid = false;
+                SpawnNextCardInPileServerRpc();
+            }
+            
+            while (!cardSpawnedValid)
+            {
+            }
+            drawableCard.GetComponent<Card>().SetLocked(false);
+            drawableCard.transform.position = LocalPlayerManager.Singleton.localPlayerHand.transform.position;
+            CheckAndPopCurrentPileServerRpc();
+        }
+
+        drawableCard = oldDrawCard;
+        if (NetworkManager.Singleton.IsServer)
+        {
+            UpdateDrawableCard(cardsInPile.Peek());
+        }
+        else
+        {
+            UpdateDrawableCardWithPeekServerRpc();
+        }
+
+
     }
 }

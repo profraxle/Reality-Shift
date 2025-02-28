@@ -108,6 +108,7 @@ public class Deck : CardPile
         }
         
     }
+    
 
     [ClientRpc]
     public void ClientConnectedClientRpc(string deckName, FixedString128Bytes[] nCurrentDeck)

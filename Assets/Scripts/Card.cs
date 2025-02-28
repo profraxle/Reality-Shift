@@ -83,6 +83,11 @@ public class Card : MonoBehaviour
 
             
         }
+
+        if (other.gameObject.CompareTag("CardHand"))
+        {
+            other.GetComponent<CardHand>().AddToCardsInHand(gameObject);
+        }
     }
 
 
@@ -124,28 +129,30 @@ public class Card : MonoBehaviour
                 Vector3 newPos = new Vector3(transform.position.x, other.transform.position.y+surfOffset, transform.position.z);
 
                 transform.SetPositionAndRotation(newPos, newRot);
+                
+                //if being dragged by player poking
+                if (dragging)
+                {
+                    //get difference in hand rotation this frame
+                    Quaternion handRotDiff = hand.transform.rotation * Quaternion.Inverse(handRotation);
+                    handRotation = hand.transform.rotation;
+
+                    //get difference in hand position this frame
+                    Vector3 handPosDiff = hand.transform.position - handPosition;
+                    handPosition = hand.transform.position;
+
+                    //increase cards y angle by the difference y angle
+                    newRot = Quaternion.Euler(-90, transform.rotation.eulerAngles.y + handRotDiff.eulerAngles.y, transform.rotation.eulerAngles.z);
+
+                    //add hand position diff to x and y axes
+                     newPos = new Vector3(transform.position.x + handPosDiff.x, transform.position.y, transform.position.z + handPosDiff.z);
+
+                    transform.SetPositionAndRotation(newPos, newRot);
+                }
             }
 
 
-            //if being dragged by player poking
-            if (dragging)
-            {
-                //get difference in hand rotation this frame
-                Quaternion handRotDiff = hand.transform.rotation * Quaternion.Inverse(handRotation);
-                handRotation = hand.transform.rotation;
-
-                //get difference in hand position this frame
-                Vector3 handPosDiff = hand.transform.position - handPosition;
-                handPosition = hand.transform.position;
-
-                //increase cards y angle by the difference y angle
-                Quaternion newRot = Quaternion.Euler(-90, transform.rotation.eulerAngles.y + handRotDiff.eulerAngles.y, transform.rotation.eulerAngles.z);
-
-                //add hand position diff to x and y axes
-                Vector3 newPos = new Vector3(transform.position.x + handPosDiff.x, transform.position.y, transform.position.z + handPosDiff.z);
-
-                transform.SetPositionAndRotation(newPos, newRot);
-            }
+            
         }
         else
         {
@@ -169,6 +176,11 @@ public class Card : MonoBehaviour
                 pokeInteractable.Disable();
                 other.gameObject.GetComponent<Surface>().DecreaseCardsOnSurface();
             }
+        }
+
+        if (other.gameObject.CompareTag("CardHand"))
+        {
+            other.GetComponent<CardHand>().RemoveFromCardsInHand(gameObject);
         }
     }
 

@@ -337,7 +337,7 @@ public class CardData
     public ImageUris image_uris;
 }
 
-public struct DeckData
+public class DeckData
 {
     public string deckName;
     public List<string> cardsInDeck;

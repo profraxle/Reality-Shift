@@ -9,6 +9,7 @@ TagManager:
   - Card
   - Poses
   - Fingertip
+  - CardHand
   layers:
   - Default
   - TransparentFX
