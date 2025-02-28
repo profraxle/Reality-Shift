@@ -5,23 +5,15 @@ using UnityEngine;
 
 public class LifeTracker : NetworkBehaviour
 {
-    private NetworkVariable<int> life;
+    private NetworkVariable<int> life  = new NetworkVariable<int>(40);
     [SerializeField]
     private TextMeshProUGUI lifeText;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        StartCoroutine(Initialise());
-
-    }
-
-    IEnumerator Initialise()
-    {
-        life = new NetworkVariable<int>(0);
         
         life.OnValueChanged += SetLifeText;
-        life.Value = 40;
     }
     
     [ServerRpc(RequireOwnership = false)]
