@@ -148,11 +148,16 @@ public class CardPile : NetworkBehaviour
                         
                         ChangePileTextureServerRpc(cardToAdd.cardData.name);
                     }
-
+                    
+                    if (cardToAdd.surface)
+                    {
+                        cardToAdd.surface.RemoveCardFromSurface(cardToAdd.gameObject);
+                    }
                     //destroy the owning card object
                     if (NetworkManager.Singleton.IsServer)
                     {
                         cardToAdd.gameObject.GetComponent<NetworkObject>().Despawn();
+                       
                         Destroy(cardToAdd.gameObject);
                         cardToAdd = null;
                     }

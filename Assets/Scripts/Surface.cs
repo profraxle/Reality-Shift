@@ -1,26 +1,30 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Surface : MonoBehaviour
 {
-    private float cardsOnSurface;
-
-    private void Start()
-    {
-        cardsOnSurface = 0;
-    }
     
-    public void IncreaseCardsOnSurface()
+    List<GameObject> cardsOnSurface = new List<GameObject>();
+    float surfOffsetAmount = 0.0001f;
+    
+    public void AddCardToSurface(GameObject card)
     {
-        cardsOnSurface++;
+        cardsOnSurface.Add(card);
+        SetCardOffsets();
     }
 
-    public void DecreaseCardsOnSurface()
+    public void RemoveCardFromSurface(GameObject card)
     {
-        cardsOnSurface--;
+       cardsOnSurface.Remove(card);
+       card.GetComponent<Card>().surfOffset = -1f;
+       SetCardOffsets();
     }
 
-    public float GetCardsOnSurface()
+    public void SetCardOffsets()
     {
-        return cardsOnSurface;
+        for (int i = 0; i < cardsOnSurface.Count; i++)
+        {
+            cardsOnSurface[i].GetComponent<Card>().surfOffset = surfOffsetAmount * i;
+        }
     }
 }

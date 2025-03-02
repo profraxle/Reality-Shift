@@ -24,16 +24,16 @@ public class Card : MonoBehaviour
     bool dragging;
     bool grabbed;
     bool tapped;
+    bool inHand;
     float doubleTapTimer;
 
     GameObject hand;
     Quaternion handRotation;
     Vector3 handPosition;
     
-    Surface surface;
+    public Surface surface;
 
-    private float surfOffset;
-    private float surfOffsetAmount;
+    public float surfOffset;
 
     private void Awake()
     {
@@ -46,7 +46,9 @@ public class Card : MonoBehaviour
         doubleTapTimer = 0.0f;
 
         surfOffset = -1f;
-        surfOffsetAmount = 0.0001f;
+        
+
+        inHand = false;
     }
 
     private void Update()
@@ -84,10 +86,7 @@ public class Card : MonoBehaviour
             
         }
 
-        if (other.gameObject.CompareTag("CardHand"))
-        {
-            other.GetComponent<CardHand>().AddToCardsInHand(gameObject);
-        }
+        
     }
 
 
@@ -110,15 +109,8 @@ public class Card : MonoBehaviour
 
                 if (surfOffset ==-1f)
                 {
-                    surfOffset = surface.GetCardsOnSurface() * surfOffsetAmount;
-                    surface.IncreaseCardsOnSurface();
+                    surface.AddCardToSurface(gameObject);
                 }
-                if (surface.GetCardsOnSurface() * surfOffsetAmount < surfOffset && surfOffset > 0) 
-                {
-                    surfOffset -= surfOffsetAmount;
-                }
-                
-                
                 
                 pokeInteractable.Enable();
                 
@@ -150,8 +142,14 @@ public class Card : MonoBehaviour
                     transform.SetPositionAndRotation(newPos, newRot);
                 }
             }
-
-
+            
+            
+            if (other.gameObject.CompareTag("CardHand") && IsNotGrabbed() && !inHand)
+            {
+                pokeInteractable.Disable();
+                other.GetComponent<CardHand>().AddToCardsInHand(gameObject);
+                inHand = true;
+            }
             
         }
         else
@@ -171,16 +169,16 @@ public class Card : MonoBehaviour
         {
             if (other.gameObject.CompareTag("Surface"))
             {
-                surfOffset = -1f;
+                surface.RemoveCardFromSurface(gameObject);
                 surface = null;
                 pokeInteractable.Disable();
-                other.gameObject.GetComponent<Surface>().DecreaseCardsOnSurface();
             }
         }
 
         if (other.gameObject.CompareTag("CardHand"))
         {
             other.GetComponent<CardHand>().RemoveFromCardsInHand(gameObject);
+            inHand = false;
         }
     }
 

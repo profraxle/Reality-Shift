@@ -361,7 +361,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1489187895248208979, guid: b6cac2af219985a4ab5e79ae58b794f7, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.0681
+      value: -0.0922
       objectReference: {fileID: 0}
     - target: {fileID: 1489187895248208979, guid: b6cac2af219985a4ab5e79ae58b794f7, type: 3}
       propertyPath: m_LocalRotation.w
@@ -403,6 +403,14 @@ PrefabInstance:
       propertyPath: deck
       value: 
       objectReference: {fileID: 4527961830016182781}
+    - target: {fileID: 6720798854561559304, guid: b6cac2af219985a4ab5e79ae58b794f7, type: 3}
+      propertyPath: _size.x
+      value: 405.0814
+      objectReference: {fileID: 0}
+    - target: {fileID: 6720798854561559304, guid: b6cac2af219985a4ab5e79ae58b794f7, type: 3}
+      propertyPath: _size.y
+      value: 812.8238
+      objectReference: {fileID: 0}
     - target: {fileID: 8588058629037698218, guid: b6cac2af219985a4ab5e79ae58b794f7, type: 3}
       propertyPath: m_Name
       value: DeckControls

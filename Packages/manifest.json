@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.meta.xr.sdk.avatars": "33.0.0",
     "com.meta.xr.sdk.core": "71.0.0",
     "com.meta.xr.sdk.interaction.ovr": "71.0.0",
     "com.meta.xr.sdk.platform": "71.0.0",
