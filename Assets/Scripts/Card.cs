@@ -24,7 +24,7 @@ public class Card : MonoBehaviour
     bool dragging;
     bool grabbed;
     bool tapped;
-    bool inHand;
+    public bool inHand;
     float doubleTapTimer;
 
     GameObject hand;
@@ -142,13 +142,18 @@ public class Card : MonoBehaviour
                     transform.SetPositionAndRotation(newPos, newRot);
                 }
             }
-            
+
+            if (other.gameObject.CompareTag("CardHand"))
+            {
+                other.GetComponent<CardHand>().AddToCardsInHand(gameObject);
+            }
             
             if (other.gameObject.CompareTag("CardHand") && IsNotGrabbed() && !inHand)
             {
                 pokeInteractable.Disable();
-                other.GetComponent<CardHand>().AddToCardsInHand(gameObject);
                 inHand = true;
+                other.GetComponent<CardHand>().FinalizeAdd(gameObject);
+                
             }
             
         }
