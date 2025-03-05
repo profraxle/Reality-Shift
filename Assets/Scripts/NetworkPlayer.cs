@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Oculus.Movement.AnimationRigging;
 using UnityEngine;
 using Unity.Netcode;
 using Unity.VisualScripting;
@@ -5,12 +7,13 @@ using Unity.VisualScripting;
 public class NetworkPlayer : NetworkBehaviour
 {
 
-    public Transform root;
-    public Transform head;
-    public Transform leftHand;
-    public Transform rightHand;
+   // public Transform root;
+   // public Transform head;
+    //public Transform leftHand;
+   // public Transform rightHand;
 
     public Renderer[] meshToDisable;
+    public SkinnedMeshRenderer[] skinnedMeshToDisable;
 
     public ulong ID;
 
@@ -22,6 +25,9 @@ public class NetworkPlayer : NetworkBehaviour
 
     [SerializeField]
     private GameObject cardHandPrefab;
+    
+    [SerializeField]
+    private float rigOffset;
 
     public override void OnNetworkSpawn()
     {
@@ -34,18 +40,25 @@ public class NetworkPlayer : NetworkBehaviour
                 r.enabled = false;
             }
 
+            foreach (SkinnedMeshRenderer s in skinnedMeshToDisable)
+            {
+                s.enabled = false;
+            }
+
             ID = NetworkManager.Singleton.LocalClientId;
 
-            VRRigReferences.Singleton.root.position = spawns[ID];
+            VRRigReferences.Singleton.root.position = spawns[ID] - new Vector3(0,rigOffset,0);
+            transform.position= spawns[ID]- new Vector3(0,rigOffset,0);
+            transform.eulerAngles = new Vector3(0, 90, 0);
 
             GameObject spawnedViewer = Instantiate(boardViewer);
 
             if (spawns[ID].x != 0)
             {
                 VRRigReferences.Singleton.root.eulerAngles = new Vector3(0, -90, 0);
+                transform.eulerAngles =new Vector3(0, -90, 0);
                 spawnedViewer.transform.eulerAngles = new Vector3(boardViewer.transform.eulerAngles.x, 90, 315);
             }
-
 
             
             spawnedViewer.transform.position = spawns[ID] + (VRRigReferences.Singleton.root.right*0.5f)+ (VRRigReferences.Singleton.root.forward * 0.2f);
@@ -65,6 +78,14 @@ public class NetworkPlayer : NetworkBehaviour
                 spawnedViewer.GetComponent<BoardViewer>().boardView = 0;
             }
             spawnedViewer.GetComponent<BoardViewer>().changeTex();
+
+            GameObject[] synthetics = GameObject.FindGameObjectsWithTag("Synthetic");
+
+            SkeletonProcessAggregator processor = GetComponent<SkeletonProcessAggregator>();
+            foreach (GameObject synthetic in synthetics)
+            {
+               processor.AddProcessor(synthetic.GetComponentInChildren<SkeletonHandAdjustment>());
+            }
         }
 
         
@@ -74,7 +95,7 @@ public class NetworkPlayer : NetworkBehaviour
         // Update is called once per frame
         void Update()
         {
-            if (IsOwner)
+           /* if (IsOwner)
             {
                 root.position = VRRigReferences.Singleton.root.position;
                 root.rotation = VRRigReferences.Singleton.root.rotation;
@@ -87,7 +108,7 @@ public class NetworkPlayer : NetworkBehaviour
 
                 rightHand.position = VRRigReferences.Singleton.rightHand.position;
                 rightHand.rotation = VRRigReferences.Singleton.rightHand.rotation;
-            }
+            }*/
         }
 }
 

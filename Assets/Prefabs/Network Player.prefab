@@ -198,10 +198,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc2099b130733914789502f7a5eead5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  root: {fileID: 1033040355874106572}
-  head: {fileID: 2267237970395009100}
-  leftHand: {fileID: 4685196688115882790}
-  rightHand: {fileID: 5349533201229727524}
   meshToDisable:
   - {fileID: 6782837432619480667}
   - {fileID: 8585374608382372691}

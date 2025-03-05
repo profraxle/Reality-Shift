@@ -10,19 +10,20 @@ TagManager:
   - Poses
   - Fingertip
   - CardHand
+  - Synthetic
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - HiddenMesh
   - Water
   - UI
   - GameBoard
   - 
   - 
   - 
-  - 
-  - 
+  - Character
+  - MirroredCharacter
   - 
   - 
   - 
