@@ -77,13 +77,13 @@ public class CardPile : NetworkBehaviour
                 TargetClientIds = new ulong[] { playerID.Value }
             }
         };
-        
+
         pileHeight.OnValueChanged += UpdatePileHeight;
 
         model.transform.localScale = new Vector3(100, 100, 0);
 
         cardSpawnedValid = false;
-        
+
     }
 
     // Update is called once per frame
@@ -145,19 +145,20 @@ public class CardPile : NetworkBehaviour
                         //get texture of adding card and set pile top texture to it
                         Texture2D tex = deckData.cardImages[cardToAdd.cardData.name];
                         modelMaterials[2].mainTexture = tex;
-                        
+
                         ChangePileTextureServerRpc(cardToAdd.cardData.name);
                     }
-                    
+
                     if (cardToAdd.surface)
                     {
                         cardToAdd.surface.RemoveCardFromSurface(cardToAdd.gameObject);
                     }
+
                     //destroy the owning card object
                     if (NetworkManager.Singleton.IsServer)
                     {
                         cardToAdd.gameObject.GetComponent<NetworkObject>().Despawn();
-                       
+
                         Destroy(cardToAdd.gameObject);
                         cardToAdd = null;
                     }
@@ -175,7 +176,7 @@ public class CardPile : NetworkBehaviour
             //if a card exists to be drawn
             if (drawableCard && cardSpawnedValid)
             {
-                
+
                 //get difference of cards pos from spawned pos
                 Vector3 diff = drawableCard.transform.position - new Vector3(transform.position.x,
                     surfHeight + (10f * pileHeight.Value * cardHeight) - surfOffset, transform.position.z);
@@ -184,7 +185,7 @@ public class CardPile : NetworkBehaviour
                 if (diff.magnitude > 0.01f)
                 {
                     cardSpawnedValid = false;
-                    
+
                     Debug.Log(diff.magnitude);
                     //unlock card, and pop top of stack
                     drawableCard.GetComponent<Card>().SetLocked(false);
@@ -297,10 +298,10 @@ public class CardPile : NetworkBehaviour
     public void SpawnDrawableCardServerRpc(string cardName)
     {
         SpawnDrawableCard(cardName);
-        
+
         NetworkObjectReference cardNetworkReference = new NetworkObjectReference(drawableCard);
-        
-        NewCardClientRpc(cardNetworkReference,clientRpcParams);
+
+        NewCardClientRpc(cardNetworkReference, clientRpcParams);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -308,7 +309,7 @@ public class CardPile : NetworkBehaviour
     {
         UpdateDrawableCard(cardName);
     }
-    
+
     [ServerRpc(RequireOwnership = false)]
     public void UpdateDrawableCardWithPeekServerRpc()
     {
@@ -316,20 +317,20 @@ public class CardPile : NetworkBehaviour
     }
 
 
-  
+
 
     //instatiate new drawable card and set tex and data from deckData
     public void SpawnDrawableCard(String cardName)
     {
-        
+
 
         Vector3 initPos = new Vector3(transform.position.x,
             surfHeight + (10f * cardsInPile.Count * cardHeight) - surfOffset, transform.position.z);
         Quaternion initQuat = Quaternion.Euler(new Vector3(cardRot, 0, 0) + transform.eulerAngles);
-        
+
         drawableCard = Instantiate(cardPrefab, initPos, initQuat);
-        
-        
+
+
         Card drawableCardObj = drawableCard.GetComponent<Card>();
         drawableCardObj.SetLocked(true);
         drawableCardObj.lockPos = model.transform.position;
@@ -354,7 +355,7 @@ public class CardPile : NetworkBehaviour
         pileHeight.Value = cardsInPile.Count;
 
         cardSpawnedValid = true;
-        
+
         NetworkObjectReference cardNetworkReference = new NetworkObjectReference(drawableCard);
         ChangeCardTexClientRpc(cardNetworkReference, cardName);
     }
@@ -384,7 +385,7 @@ public class CardPile : NetworkBehaviour
             }
         }
     }
-    
+
 
     [ClientRpc]
     public void NewCardClientRpc(NetworkObjectReference cardObjectReference, ClientRpcParams clientRpcParams)
@@ -399,10 +400,10 @@ public class CardPile : NetworkBehaviour
     {
 
         string cardName = cardInZone.cardData.name;
-        
+
         UpdateDrawableCard(cardName);
     }
-    
+
     public void UpdateDrawableCard(string cardName)
     {
         Card drawableCardObj = drawableCard.GetComponent<Card>();
@@ -426,8 +427,8 @@ public class CardPile : NetworkBehaviour
         transform.position = new Vector3(transform.position.x,
             surfHeight + (5f * cardsInPile.Count * cardHeight) + surfOffset, transform.position.z);
     }
-    
-    
+
+
     [ClientRpc]
     public void ChangeCardTexClientRpc(NetworkObjectReference cardNetworkReference, string cardName)
     {
@@ -444,7 +445,7 @@ public class CardPile : NetworkBehaviour
 
         changedCard.GetComponent<Card>().cardData = cardData;
     }
-    
+
 
     [ServerRpc(RequireOwnership = false)]
     protected void GetPileHeightServerRpc()
@@ -458,13 +459,13 @@ public class CardPile : NetworkBehaviour
         Texture2D tex = deckData.cardImages[cardAtTop];
         modelMaterials[2].mainTexture = tex;
     }
-    
+
     [ServerRpc(RequireOwnership = false)]
     protected void ChangePileTextureServerRpc(string cardAtTop)
     {
         Texture2D tex = deckData.cardImages[cardAtTop];
         modelMaterials[2].mainTexture = tex;
-        
+
         ChangePileTextureClientRpc(cardAtTop);
     }
 
@@ -475,11 +476,11 @@ public class CardPile : NetworkBehaviour
         {
             cardsInPile.Pop();
         }
-        
+
         UpdatePileHeight();
-        
+
     }
-    
+
 
     [ServerRpc(RequireOwnership = false)]
     protected void DestroyCardObjectServerRpc(NetworkObjectReference cardNetworkReference)
@@ -505,9 +506,14 @@ public class CardPile : NetworkBehaviour
 
     public void QuickDrawCards(int amount)
     {
+        StartCoroutine(QuickDrawCardsCoroutine(amount));
+    }
+
+    IEnumerator QuickDrawCardsCoroutine(int amount)
+    {
         GameObject oldDrawCard = drawableCard;
 
-        
+
         for (int i = 0; i < amount; i++)
         {
             drawableCard = null;
@@ -521,10 +527,9 @@ public class CardPile : NetworkBehaviour
                 cardSpawnedValid = false;
                 SpawnNextCardInPileServerRpc();
             }
-            
-            while (!cardSpawnedValid)
-            {
-            }
+
+            yield return new WaitUntil(GetCardSpawnedValid);
+
             drawableCard.GetComponent<Card>().SetLocked(false);
             drawableCard.transform.position = LocalPlayerManager.Singleton.localPlayerHand.transform.position;
             CheckAndPopCurrentPileServerRpc();
@@ -539,7 +544,11 @@ public class CardPile : NetworkBehaviour
         {
             UpdateDrawableCardWithPeekServerRpc();
         }
-
-
     }
+
+    bool GetCardSpawnedValid()
+    {
+        return cardSpawnedValid;
+    }
+
 }
