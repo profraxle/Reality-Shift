@@ -68,7 +68,7 @@ public class CardDataFetcher : MonoBehaviour
         //get all files from the directory
         var fileInfo = Directory.GetFiles(decklistFolder);
         
-        TextAsset[] textAssets = Resources.LoadAll<TextAsset>("DeckLists");
+        TextAsset[] textAssets = Resources.LoadAll<TextAsset>("DeckLists/");
         
         foreach (TextAsset textFile in textAssets)
         {
@@ -131,6 +131,11 @@ public class CardDataFetcher : MonoBehaviour
                         Debug.Log(line);
                     }
                 }
+            }
+
+            if (cardsStartOut.Count <= 0)
+            {
+                cardsStartOut.Add(cardsInDeck[0]);
             }
             newDeck.cardsInDeck = cardsInDeck;
             newDeck.cardsStartOut = cardsStartOut;
@@ -297,7 +302,7 @@ public class CardDataFetcher : MonoBehaviour
         texture.filterMode = FilterMode.Trilinear;
         texture.anisoLevel = 16;
         texture.wrapMode = TextureWrapMode.Repeat;
-
+/*
         if (SystemInfo.SupportsTextureFormat(TextureFormat.ASTC_4x4))
         {
             Texture2D newTexture = new Texture2D(texture.width, texture.height, TextureFormat.ASTC_4x4, false);
@@ -305,7 +310,7 @@ public class CardDataFetcher : MonoBehaviour
             newTexture.Apply();
             texture = newTexture;
         }
-
+*/
         return texture;
     }
     

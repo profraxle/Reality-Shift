@@ -15,6 +15,8 @@ public class NetworkPlayer : NetworkBehaviour
     public Renderer[] meshToDisable;
     public SkinnedMeshRenderer[] skinnedMeshToDisable;
 
+    public RetargetingLayer retargetingLayer;
+    
     public ulong ID;
 
     [SerializeField]
@@ -86,6 +88,10 @@ public class NetworkPlayer : NetworkBehaviour
             {
                processor.AddProcessor(synthetic.GetComponentInChildren<SkeletonHandAdjustment>());
             }
+        }
+        else
+        {
+            retargetingLayer.enabled = false;
         }
 
         

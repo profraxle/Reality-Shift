@@ -1424,6 +1424,10 @@ PrefabInstance:
       propertyPath: m_LocalRotation.z
       value: -0.000000820515
       objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 47a22db21ac40884ebe3ecd2278b685e, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6000407479487422213, guid: 47a22db21ac40884ebe3ecd2278b685e, type: 3}
       propertyPath: m_LocalRotation.w
       value: 0.9978471
@@ -1788,7 +1792,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1627517646055753996}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fff0960ef4ea6e04eac66b4a7fd2189d, type: 3}
   m_Name: 
@@ -1809,7 +1813,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3445519164
+  GlobalObjectIdHash: 4224398695
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -1878,6 +1882,7 @@ MonoBehaviour:
   meshToDisable: []
   skinnedMeshToDisable:
   - {fileID: 3554458040908983792}
+  retargetingLayer: {fileID: 1539416374653701822}
   ID: 0
   spawns:
   - {x: 0, y: 0, z: 0}
