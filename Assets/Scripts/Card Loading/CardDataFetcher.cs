@@ -67,10 +67,7 @@ public class CardDataFetcher : MonoBehaviour
 
         //get all files from the directory
         var fileInfo = Directory.GetFiles(decklistFolder);
-        
-        TextAsset[] textAssets = Resources.LoadAll<TextAsset>("DeckLists");
-        
-        foreach (TextAsset textFile in textAssets)
+        foreach (string file in fileInfo)
         {
             //create a deck struct for the current decklist being read
             DeckData newDeck = new DeckData { };
@@ -81,8 +78,7 @@ public class CardDataFetcher : MonoBehaviour
 
 
             //read all of the lines in the current decklist
-            //string[] lines = File.ReadAllLines(file);
-            string[] lines = textFile.text.Split(new[]{'\n','\r'});
+            string[] lines = File.ReadAllLines(file);
             
             foreach (string line in lines)
             {
@@ -113,9 +109,8 @@ public class CardDataFetcher : MonoBehaviour
                         else
                         {
                             //add to the deck list
-                            
+                            cardsInDeck.Add(cardName);
                         }
-                        cardsInDeck.Add(cardName);
                     }
                 }
                 else{
@@ -337,7 +332,7 @@ public class CardData
     public ImageUris image_uris;
 }
 
-public class DeckData
+public struct DeckData
 {
     public string deckName;
     public List<string> cardsInDeck;
