@@ -144,6 +144,8 @@ PlayerSettings:
   preloadedAssets:
   - {fileID: 11400000, guid: ee2dd7ac26f9ada4f86ac6a8591c70b8, type: 2}
   - {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  - {fileID: -1692703195300914688, guid: ea82db3757ef8834eb5ae762ae27c5e1, type: 2}
+  - {fileID: 11400000, guid: 4f786cdf6a0e2a2408f3a09418ccfdf6, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -165,7 +167,7 @@ PlayerSettings:
   androidMaxAspectRatio: 2.4
   androidMinAspectRatio: 1
   applicationIdentifier:
-    Android: com.UnityTechnologies.com.unity.template.urpblank
+    Android: com.fraxle.RealityShift
     Standalone: com.Unity-Technologies.com.unity.template.urp-blank
     iPhone: com.Unity-Technologies.com.unity.template.urp-blank
   buildNumber:
@@ -257,7 +259,7 @@ PlayerSettings:
   clonedFromGUID: 3c72c65a16f0acb438eed22b8b16c24a
   templatePackageId: com.unity.template.urp-blank@17.0.11
   templateDefaultScene: Assets/Scenes/SampleScene.unity
-  useCustomMainManifest: 0
+  useCustomMainManifest: 1
   useCustomLauncherManifest: 0
   useCustomMainGradleTemplate: 0
   useCustomLauncherGradleManifest: 0
@@ -958,6 +960,6 @@ PlayerSettings:
   hmiLoadingImage: {fileID: 0}
   platformRequiresReadableAssets: 0
   virtualTexturingSupportEnabled: 0
-  insecureHttpOption: 0
+  insecureHttpOption: 1
   androidVulkanDenyFilterList: []
   androidVulkanAllowFilterList: []
