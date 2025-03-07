@@ -1,30 +1,36 @@
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class CardHand : MonoBehaviour
 {
     public List<GameObject> cardsInHand;
     public float cardWidth = 0.15f;
-    public GameObject addingCard;
+    [FormerlySerializedAs("addingCard")] public GameObject movingCard;
+    private Card movingCardObj;
     private int lastSwap = -1;
     
-    public void FinalizeAdd(GameObject card)
+    public void FinalizeMove(GameObject card)
     {
-        card.transform.eulerAngles = gameObject.transform.eulerAngles + new Vector3(-20,-90,-270);
-        addingCard =  null;
+        //movingCard =  null;
         UpdateCardsPosition();
+    }
+
+    public void BeginMove(GameObject card)
+    {
+        movingCard = card;
+        movingCardObj = card.GetComponent<Card>();
     }
 
     public void AddToCardsInHand(GameObject card)
     {
-        if (!addingCard)
-        {
-            if(!cardsInHand.Contains(card)){
-                cardsInHand.Add(card);
-            }
-            addingCard = card;
+        if(!cardsInHand.Contains(card)){ 
+            cardsInHand.Add(card);
         }
+        movingCard = card;
+        movingCardObj = card.GetComponent<Card>();
+        UpdateCardsPosition();
     }
     
     
@@ -32,13 +38,26 @@ public class CardHand : MonoBehaviour
     {
         cardsInHand.Remove(card);
         UpdateCardsPosition();
+
+        if (card == movingCard)
+        {
+            movingCard = null;
+        }
     }
 
     void Update()
     {
-        if (addingCard)
+        if (movingCard)
         {
-            FindIndexAddingCard();
+            if (!movingCardObj.grabbed)
+            {
+                movingCard = null;
+                UpdateCardsPosition();
+            }
+            else
+            {
+                FindIndexAddingCard();
+            }
         }
     }
 
@@ -46,11 +65,11 @@ public class CardHand : MonoBehaviour
     {
         Vector3 startPos = gameObject.transform.position -gameObject.transform.forward * ((-cardsInHand.Count+1 * cardWidth * 0.5f));
         
-        float addDist = Vector3.Distance(startPos, addingCard.transform.position);
+        float addDist = Vector3.Distance(startPos, movingCard.transform.position);
      
         for (int i = 0; i < cardsInHand.Count; i++)
         {
-            if (cardsInHand[i] != addingCard)
+            if (cardsInHand[i] != movingCard)
             {
                 float currDist = Vector3.Distance(startPos, gameObject.transform.position -
                                                             gameObject.transform.forward *
@@ -63,8 +82,8 @@ public class CardHand : MonoBehaviour
                     {
                         Debug.Log(i);
                         lastSwap = i;
-                        cardsInHand.Remove(addingCard);
-                        cardsInHand.Insert(i, addingCard);
+                        cardsInHand.Remove(movingCard);
+                        cardsInHand.Insert(i, movingCard);
                         UpdateCardsPosition();
                     }
 
@@ -82,12 +101,14 @@ public class CardHand : MonoBehaviour
         
         for (int i = 0; i < cardsInHand.Count; i++)
         {
-            if (cardsInHand[i].GetComponent<Card>().inHand)
+            if (cardsInHand[i] != movingCard)
             {
                 cardsInHand[i].transform.position = gameObject.transform.position -
                                                     gameObject.transform.forward *
                                                     ((-cardsInHand.Count * cardWidth * 0.5f) + ((i) * cardWidth) +
                                                      (0.5f * cardWidth));
+                
+                cardsInHand[i].transform.eulerAngles = gameObject.transform.eulerAngles + new Vector3(-20,-90,-270);
             }
         }
         

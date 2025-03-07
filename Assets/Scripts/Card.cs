@@ -1,6 +1,8 @@
+using System;
 using Newtonsoft.Json.Bson;
 using Oculus.Interaction;
 using Oculus.Interaction.HandGrab;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -22,7 +24,7 @@ public class Card : MonoBehaviour
     HandGrabInteractable handGrabInteractable;
 
     bool dragging;
-    bool grabbed;
+    public bool grabbed;
     bool tapped;
     public bool inHand;
     float doubleTapTimer;
@@ -33,8 +35,6 @@ public class Card : MonoBehaviour
     
     public Surface surface;
 
-    public float surfOffset;
-
     private void Awake()
     {
         locked = true;
@@ -44,9 +44,6 @@ public class Card : MonoBehaviour
 
         tapped = false;
         doubleTapTimer = 0.0f;
-
-        surfOffset = -1f;
-        
 
         inHand = false;
     }
@@ -76,112 +73,57 @@ public class Card : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Surface"))
+        if (!locked)
         {
-            //if (!locked)
-            //{
+            if (other.CompareTag("Surface") && !inHand)
+            {
+                surface = other.GetComponent<Surface>();
+                surface.AddCardToSurface(this);
+                pokeInteractable.Enable();
+            }
 
-            
+            if (other.CompareTag("CardHand"))
+            {
+                other.GetComponent<CardHand>().AddToCardsInHand(gameObject);
+                inHand = true;
+                if (IsNotGrabbed())
+                {
+                    other.GetComponent<CardHand>().FinalizeMove(gameObject);
+                }
+                pokeInteractable.Disable();
+            }
         }
-
-        
     }
-
 
     private void OnTriggerStay(Collider other)
     {
-        //if able to be manipulated
-        if (!locked)
+        if (!locked&& !inHand)
         {
-
-            
-            
-            //when overlapping with the surface object
-            if (other.gameObject.CompareTag("Surface"))
+            if (other.CompareTag("Surface")  && !surface)
             {
-
-                if (!surface)
-                {
-                    surface = other.gameObject.GetComponent<Surface>();
-                }
-
-                if (surfOffset ==-1f)
-                {
-                    surface.AddCardToSurface(gameObject);
-                }
-                
+                surface = other.GetComponent<Surface>();
+                surface.AddCardToSurface(this);
                 pokeInteractable.Enable();
-                
-                
-                //set rotation and position of card to be sat on tabletop
-                Quaternion newRot = Quaternion.Euler(-90, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
-
-                Vector3 newPos = new Vector3(transform.position.x, other.transform.position.y+surfOffset, transform.position.z);
-
-                transform.SetPositionAndRotation(newPos, newRot);
-                
-                //if being dragged by player poking
-                if (dragging)
-                {
-                    //get difference in hand rotation this frame
-                    Quaternion handRotDiff = hand.transform.rotation * Quaternion.Inverse(handRotation);
-                    handRotation = hand.transform.rotation;
-
-                    //get difference in hand position this frame
-                    Vector3 handPosDiff = hand.transform.position - handPosition;
-                    handPosition = hand.transform.position;
-
-                    //increase cards y angle by the difference y angle
-                    newRot = Quaternion.Euler(-90, transform.rotation.eulerAngles.y + handRotDiff.eulerAngles.y, transform.rotation.eulerAngles.z);
-
-                    //add hand position diff to x and y axes
-                     newPos = new Vector3(transform.position.x + handPosDiff.x, transform.position.y, transform.position.z + handPosDiff.z);
-
-                    transform.SetPositionAndRotation(newPos, newRot);
-                }
-            }
-
-            if (other.gameObject.CompareTag("CardHand"))
-            {
-                other.GetComponent<CardHand>().AddToCardsInHand(gameObject);
-            }
-            
-            if (other.gameObject.CompareTag("CardHand") && IsNotGrabbed() && !inHand)
-            {
-                pokeInteractable.Disable();
-                inHand = true;
-                other.GetComponent<CardHand>().FinalizeAdd(gameObject);
-                
-            }
-            
-        }
-        else
-        {
-            if (other.gameObject.CompareTag("Surface"))
-            {
-               
-                pokeInteractable.Disable();
-                
             }
         }
     }
-
+    
+    
     private void OnTriggerExit(Collider other)
     {
         if (!locked)
         {
-            if (other.gameObject.CompareTag("Surface"))
+            if (other.CompareTag("Surface") && surface)
             {
-                surface.RemoveCardFromSurface(gameObject);
-                surface = null;
+                surface.RemoveCardFromSurface(this);
                 pokeInteractable.Disable();
             }
-        }
-
-        if (other.gameObject.CompareTag("CardHand"))
-        {
-            other.GetComponent<CardHand>().RemoveFromCardsInHand(gameObject);
-            inHand = false;
+            
+            if (other.CompareTag("CardHand"))
+            {
+                other.GetComponent<CardHand>().RemoveFromCardsInHand(gameObject);
+                inHand = false;
+            }
         }
     }
 
@@ -242,11 +184,20 @@ public class Card : MonoBehaviour
     void StartGrab(HandGrabInteractor grabInteractor)
     {
         grabbed =true;
+        if (inHand)
+        {
+            LocalPlayerManager.Singleton.localPlayerHand.GetComponent<CardHand>().BeginMove(gameObject);
+        }
     }
 
     void StopGrab(HandGrabInteractor grabInteractor)
     {
         grabbed = false;
+
+        if (inHand)
+        {
+            LocalPlayerManager.Singleton.localPlayerHand.GetComponent<CardHand>().FinalizeMove(gameObject);
+        }
     }
 
 

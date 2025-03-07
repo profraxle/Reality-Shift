@@ -149,11 +149,6 @@ public class CardPile : NetworkBehaviour
                         ChangePileTextureServerRpc(cardToAdd.cardData.name);
                     }
 
-                    if (cardToAdd.surface)
-                    {
-                        cardToAdd.surface.RemoveCardFromSurface(cardToAdd.gameObject);
-                    }
-
                     //destroy the owning card object
                     if (NetworkManager.Singleton.IsServer)
                     {
@@ -241,7 +236,7 @@ public class CardPile : NetworkBehaviour
                     Card otherCard = other.GetComponent<Card>();
                     if (!otherCard.locked)
                     {
-                        cardToAdd = other.GetComponent<Card>();
+                        cardToAdd = otherCard;
                         cardToAdd.SetLocked(true);
                     }
                 }
@@ -251,7 +246,7 @@ public class CardPile : NetworkBehaviour
                 Card otherCard = other.GetComponent<Card>();
                 if (!otherCard.locked)
                 {
-                    cardToAdd = other.GetComponent<Card>();
+                    cardToAdd = otherCard;
                     cardToAdd.SetLocked(true);
                 }
             }
