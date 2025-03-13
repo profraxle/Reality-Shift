@@ -7,10 +7,10 @@ using Unity.VisualScripting;
 public class NetworkPlayer : NetworkBehaviour
 {
 
-   // public Transform root;
-   // public Transform head;
-    //public Transform leftHand;
-   // public Transform rightHand;
+    public Transform root;
+    public Transform head;
+    public Transform leftHand;
+    public Transform rightHand;
 
     public Renderer[] meshToDisable;
     public SkinnedMeshRenderer[] skinnedMeshToDisable;
@@ -87,7 +87,7 @@ public class NetworkPlayer : NetworkBehaviour
                processor.AddProcessor(synthetic.GetComponentInChildren<SkeletonHandAdjustment>());
             }
         }
-
+        
 
         
     }
@@ -96,7 +96,7 @@ public class NetworkPlayer : NetworkBehaviour
         // Update is called once per frame
         void Update()
         {
-           /* if (IsOwner)
+            if (IsOwner)
             {
                 root.position = VRRigReferences.Singleton.root.position;
                 root.rotation = VRRigReferences.Singleton.root.rotation;
@@ -109,7 +109,7 @@ public class NetworkPlayer : NetworkBehaviour
 
                 rightHand.position = VRRigReferences.Singleton.rightHand.position;
                 rightHand.rotation = VRRigReferences.Singleton.rightHand.rotation;
-            }*/
+            }
         }
 }
 

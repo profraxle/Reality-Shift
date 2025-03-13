@@ -55,6 +55,28 @@ public class Card : MonoBehaviour
         {
             doubleTapTimer -= Time.deltaTime;
         }
+
+        if (dragging)
+        {
+            {
+                //get difference in hand rotation this frame
+                Quaternion handRotDiff = hand.transform.rotation * Quaternion.Inverse(handRotation);
+                handRotation = hand.transform.rotation;
+
+                //get difference in hand position this frame
+                Vector3 handPosDiff = hand.transform.position - handPosition;
+
+                handPosition = hand.transform.position;
+
+                Quaternion newRot = Quaternion.Euler(-90, transform.rotation.eulerAngles.y + handRotDiff.eulerAngles.y,
+                    transform.rotation.eulerAngles.z);
+
+                Vector3 newPos = new Vector3(transform.position.x + handPosDiff.x, transform.position.y,
+                    transform.position.z + handPosDiff.z);
+                
+                transform.SetPositionAndRotation(newPos, newRot);
+            }
+        }
     }
 
     private void OnEnable()

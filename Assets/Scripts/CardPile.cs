@@ -41,8 +41,16 @@ public class CardPile : NetworkBehaviour
 
     public bool cardSpawnedValid;
 
+    [SerializeField]
+    private GameObject searchableMenu;
+    
+    [SerializeField]
+    private GameObject searchCardItem;
+
     protected virtual void Start()
     {
+        DeckManager.Singleton.surface.GetComponent<Surface>().AddToPiles(gameObject);
+        
         if (faceUp)
         {
             cardRot = -90f;
@@ -544,6 +552,22 @@ public class CardPile : NetworkBehaviour
     bool GetCardSpawnedValid()
     {
         return cardSpawnedValid;
+    }
+
+    void SearchCards()
+    {
+        string[] searchable = cardsInPile.ToArray();
+
+        for (int i = 0; i < searchable.Length; i++)
+        {
+            Instantiate(searchCardItem,searchableMenu.transform);
+        }
+    }
+
+    public void UpdateDrawablePosition()
+    {
+        surfHeight = DeckManager.Singleton.surface.transform.position.y;   
+        drawableCard.transform.SetPositionAndRotation(new Vector3(transform.position.x, surfHeight + (10f * cardsInPile.Count * cardHeight) - surfOffset, transform.position.z),Quaternion.Euler(new Vector3(cardRot, 0, 0) + transform.eulerAngles));
     }
 
 }

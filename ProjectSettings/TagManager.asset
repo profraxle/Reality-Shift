@@ -11,6 +11,8 @@ TagManager:
   - Fingertip
   - CardHand
   - Synthetic
+  - LeftTip
+  - RightTip
   layers:
   - Default
   - TransparentFX

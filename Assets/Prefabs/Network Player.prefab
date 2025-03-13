@@ -198,16 +198,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc2099b130733914789502f7a5eead5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  root: {fileID: 1033040355874106572}
+  head: {fileID: 2267237970395009100}
+  leftHand: {fileID: 4685196688115882790}
+  rightHand: {fileID: 5349533201229727524}
   meshToDisable:
   - {fileID: 6782837432619480667}
   - {fileID: 8585374608382372691}
   - {fileID: 6507126673276555999}
+  skinnedMeshToDisable: []
   ID: 0
   spawns:
   - {x: 0, y: 0, z: 0}
   - {x: 1.368, y: 0, z: 0}
   boardViewer: {fileID: 8392602458135880650, guid: 6127f7fab4ef23b4ba4c3618dfa9ebe6, type: 3}
   cardHandPrefab: {fileID: 8076385209867189882, guid: f09d80e9eaf0651458bee79fa0bcd7d1, type: 3}
+  rigOffset: 0
 --- !u!114 &2093492145289322214
 MonoBehaviour:
   m_ObjectHideFlags: 0

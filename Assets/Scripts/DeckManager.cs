@@ -10,6 +10,7 @@ public class DeckManager : MonoBehaviour
     public bool spawnedDecks;
     public Vector3[] spawns;
     public Deck[] decks = new Deck[4];
+    public GameObject surface;
 
     private void Awake()
     {
