@@ -30,8 +30,6 @@ public class CardDataFetcher : MonoBehaviour
 
     public void Start()
     {
-
-        SetFFR();
         isFetching = true;
 
         //combine path to create save location
@@ -314,10 +312,7 @@ public class CardDataFetcher : MonoBehaviour
         return texture;
     }
     
-    public void SetFFR()
-    {
-        OVRManager.foveatedRenderingLevel = OVRManager.FoveatedRenderingLevel.High;
-    }
+
 }
 
 

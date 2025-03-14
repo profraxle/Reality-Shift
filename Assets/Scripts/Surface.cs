@@ -31,16 +31,19 @@ public class Surface : MonoBehaviour
         {
             if (firstPointConfirmed && secondPointConfirmed)
             {
-                AlignToLine(firstPoint,secondPoint);
+                Debug.Log("Aligning finish");
+                AlignToLine(firstPoint, secondPoint);
                 aligning = false;
+                firstPointConfirmed = false;
+                secondPointConfirmed = false;
             }
         }
     }
+    
+    public void LateUpdate(){
 
-    public void LateUpdate()
-    {
-        //iterate through cards on surface, align them to table if not
-        if (cardsOnSurface.Count != 0)
+    //iterate through cards on surface, align them to table if not
+    if (cardsOnSurface.Count != 0)
         {
             for (int i = 0; i < cardsOnSurface.Count; i++)
             {
@@ -63,9 +66,9 @@ public class Surface : MonoBehaviour
                             needsUpdate = true;
                         }
 
-                        if (cardObj.transform.eulerAngles.x != 0 && cardObj.transform.eulerAngles.z != 0)
+                        if (cardObj.transform.eulerAngles.x != 0)
                         {
-                            rotOnTable = Quaternion.Euler(-90, cardObj.transform.eulerAngles.y, 0);
+                            rotOnTable = Quaternion.Euler(-90, cardObj.transform.eulerAngles.y, cardObj.transform.eulerAngles.z);
                             needsUpdate = true;
                         }
 
@@ -76,6 +79,10 @@ public class Surface : MonoBehaviour
                             relativeRotations[i] = Quaternion.Euler(rotOnTable.eulerAngles-transform.eulerAngles);
                         }
                     }
+                }
+                else
+                {
+                    cardsOnSurface.RemoveAt(i);
                 }
             }
         }
@@ -99,11 +106,11 @@ public class Surface : MonoBehaviour
     
     public void AlignToLine(Vector3 point1,Vector3 point2)
     {
-        float gradient = (point2.z - point1.z) / (point2.x - point1.x);
+        float gradient =  (point2.x - point1.x) / (point2.z - point1.z);
     
         gradient = Mathf.Abs(gradient);
         
-        float angle = Mathf.Atan(-gradient)*Mathf.Rad2Deg;
+        float angle = Mathf.Atan(gradient)*Mathf.Rad2Deg;
         
         Vector3 newVec = point2-point1;
 
@@ -111,8 +118,7 @@ public class Surface : MonoBehaviour
 
         transform.position = point1+ (point2 - point1)/2f + (inverse.normalized*-0.25f);
         
-        
-        transform.rotation = Quaternion.Euler(0, VRRigReferences.Singleton.root.eulerAngles.y + angle, 0);
+        transform.rotation = Quaternion.Euler(0, VRRigReferences.Singleton.root.eulerAngles.y + angle-90, 0);
 
 
         for (int i = 0; i <cardsOnSurface.Count;i++)
@@ -137,9 +143,12 @@ public class Surface : MonoBehaviour
 
     public void UntapAllCards()
     {
+        int index = 0;
         foreach (Card card in cardsOnSurface)
         {
-            card.transform.SetPositionAndRotation(card.transform.position, Quaternion.Euler(new Vector3(card.transform.eulerAngles.x,this.transform.eulerAngles.y,card.transform.eulerAngles.z)));
+            index++;
+            Debug.Log(index);
+            card.transform.SetPositionAndRotation(card.transform.position, Quaternion.Euler(new Vector3(card.transform.eulerAngles.x,0,0)));
         }
     }
 

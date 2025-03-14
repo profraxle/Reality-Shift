@@ -41,16 +41,14 @@ public class CardPile : NetworkBehaviour
 
     public bool cardSpawnedValid;
 
-    [SerializeField]
-    private GameObject searchableMenu;
-    
-    [SerializeField]
-    private GameObject searchCardItem;
+    [SerializeField] private GameObject searchableMenu;
+
+    [SerializeField] private GameObject searchCardItem;
 
     protected virtual void Start()
     {
-        DeckManager.Singleton.surface.GetComponent<Surface>().AddToPiles(gameObject);
-        
+
+
         if (faceUp)
         {
             cardRot = -90f;
@@ -92,13 +90,22 @@ public class CardPile : NetworkBehaviour
 
         cardSpawnedValid = false;
 
+        StartCoroutine(AddToSurface());
     }
 
-    // Update is called once per frame
+    IEnumerator AddToSurface()
+    {
+        yield return new WaitForSeconds(0.5f);
+        DeckManager.Singleton.surface.GetComponent<Surface>().AddToPiles(gameObject);
+    }
+
+// Update is called once per frame
     protected virtual void Update()
     {
         if (playerID.Value == NetworkManager.Singleton.LocalClientId)
         {
+            
+            surfHeight = DeckManager.Singleton.surface.transform.position.y;
             if (NetworkManager.Singleton.IsServer)
             {
                 if (pileHeight.Value != cardsInPile.Count)
@@ -325,7 +332,6 @@ public class CardPile : NetworkBehaviour
     //instatiate new drawable card and set tex and data from deckData
     public void SpawnDrawableCard(String cardName)
     {
-
 
         Vector3 initPos = new Vector3(transform.position.x,
             surfHeight + (10f * cardsInPile.Count * cardHeight) - surfOffset, transform.position.z);
@@ -566,8 +572,13 @@ public class CardPile : NetworkBehaviour
 
     public void UpdateDrawablePosition()
     {
-        surfHeight = DeckManager.Singleton.surface.transform.position.y;   
-        drawableCard.transform.SetPositionAndRotation(new Vector3(transform.position.x, surfHeight + (10f * cardsInPile.Count * cardHeight) - surfOffset, transform.position.z),Quaternion.Euler(new Vector3(cardRot, 0, 0) + transform.eulerAngles));
+        if (drawableCard != null)
+        {
+            surfHeight = DeckManager.Singleton.surface.transform.position.y;
+            drawableCard.transform.SetPositionAndRotation(
+                new Vector3(transform.position.x, surfHeight + (10f * cardsInPile.Count * cardHeight) - surfOffset,
+                    transform.position.z), Quaternion.Euler(new Vector3(cardRot, 0, 0) + transform.eulerAngles));
+        }
     }
 
 }

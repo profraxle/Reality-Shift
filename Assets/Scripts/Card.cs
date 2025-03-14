@@ -28,6 +28,7 @@ public class Card : MonoBehaviour
     bool tapped;
     public bool inHand;
     float doubleTapTimer;
+    float dragTimer;
 
     GameObject hand;
     Quaternion handRotation;
@@ -55,9 +56,11 @@ public class Card : MonoBehaviour
         {
             doubleTapTimer -= Time.deltaTime;
         }
+       
 
         if (dragging)
         {
+            if (dragTimer >= 0.1f)
             {
                 //get difference in hand rotation this frame
                 Quaternion handRotDiff = hand.transform.rotation * Quaternion.Inverse(handRotation);
@@ -68,13 +71,17 @@ public class Card : MonoBehaviour
 
                 handPosition = hand.transform.position;
 
-                Quaternion newRot = Quaternion.Euler(-90, transform.rotation.eulerAngles.y + handRotDiff.eulerAngles.y,
-                    transform.rotation.eulerAngles.z);
+                Quaternion newRot = Quaternion.Euler(-90, transform.rotation.eulerAngles.y ,
+                    transform.rotation.eulerAngles.z+ handRotDiff.eulerAngles.y);
 
                 Vector3 newPos = new Vector3(transform.position.x + handPosDiff.x, transform.position.y,
                     transform.position.z + handPosDiff.z);
                 
                 transform.SetPositionAndRotation(newPos, newRot);
+            }
+            else
+            {
+                dragTimer += Time.deltaTime;
             }
         }
     }
@@ -163,19 +170,21 @@ public class Card : MonoBehaviour
             
         handRotation = hand.transform.rotation;
         handPosition = hand.transform.position;
+        
+        dragTimer = 0f;
             
         if (doubleTapTimer > 0)
         {
             if (!tapped)
             {
-                transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y +90, transform.rotation.eulerAngles.z);
+                transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y , transform.rotation.eulerAngles.z+90);
                 tapped = true;
 
             }
             else
             {
                 tapped = false;
-                transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y - 90, transform.rotation.eulerAngles.z);
+                transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y , transform.rotation.eulerAngles.z-90);
             }
             doubleTapTimer = 0.0f;
         }
