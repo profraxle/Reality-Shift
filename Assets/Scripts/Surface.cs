@@ -25,6 +25,12 @@ public class Surface : MonoBehaviour
     List<Vector3> relativePilePositions = new List<Vector3>();
     List<Quaternion> relativePileRotations = new List<Quaternion>();
 
+    public void Start()
+    {
+        leftTipObject = GameObject.FindGameObjectWithTag("LeftTip");
+        rightTipObject = GameObject.FindGameObjectWithTag("RightTip");
+    }
+
     public void Update()
     {
         if (aligning)
@@ -97,11 +103,14 @@ public class Surface : MonoBehaviour
     }
 
     public void RemoveCardFromSurface(Card card)
-    {
+    { 
         int index = cardsOnSurface.IndexOf(card);
-       cardsOnSurface.Remove(card);
-       relativePositions.RemoveAt(index);
-       relativeRotations.RemoveAt(index);
+        if (index != -1)
+        {
+            cardsOnSurface.Remove(card);
+            relativePositions.RemoveAt(index);
+            relativeRotations.RemoveAt(index);
+        }
     }
     
     public void AlignToLine(Vector3 point1,Vector3 point2)
@@ -148,7 +157,7 @@ public class Surface : MonoBehaviour
         {
             index++;
             Debug.Log(index);
-            card.transform.SetPositionAndRotation(card.transform.position, Quaternion.Euler(new Vector3(card.transform.eulerAngles.x,0,0)));
+            card.transform.SetPositionAndRotation(card.transform.position, Quaternion.Euler(new Vector3(card.transform.eulerAngles.x,0,card.transform.eulerAngles.y)));
         }
     }
 

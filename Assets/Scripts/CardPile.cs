@@ -15,7 +15,7 @@ public class CardPile : NetworkBehaviour
     //reference to card object being added at top of pile
     public Card cardToAdd;
 
-    protected Stack<string> cardsInPile;
+    public Stack<string> cardsInPile;
 
     [SerializeField] protected UpdateDrawZone drawZoneUpdater;
     [SerializeField] protected GameObject model;
@@ -23,6 +23,8 @@ public class CardPile : NetworkBehaviour
     public GameObject drawableCard;
 
     public DeckData deckData;
+    
+    public string topCardName;
 
     protected List<Material> modelMaterials;
 
@@ -45,10 +47,14 @@ public class CardPile : NetworkBehaviour
 
     [SerializeField] private GameObject searchCardItem;
 
+    public List<string> searchableList;
+
+    private GameObject cachedDrawable;
+
+    private bool addingTop;
+
     protected virtual void Start()
     {
-
-
         if (faceUp)
         {
             cardRot = -90f;
@@ -90,6 +96,8 @@ public class CardPile : NetworkBehaviour
 
         cardSpawnedValid = false;
 
+        addingTop = true;
+        
         StartCoroutine(AddToSurface());
     }
 
@@ -104,8 +112,13 @@ public class CardPile : NetworkBehaviour
     {
         if (playerID.Value == NetworkManager.Singleton.LocalClientId)
         {
+            //topCardName = cardsInPile.Peek();
             
-            surfHeight = DeckManager.Singleton.surface.transform.position.y;
+            if (DeckManager.Singleton.surface)
+            {
+                surfHeight = DeckManager.Singleton.surface.transform.position.y;
+            }
+
             if (NetworkManager.Singleton.IsServer)
             {
                 if (pileHeight.Value != cardsInPile.Count)
@@ -114,7 +127,7 @@ public class CardPile : NetworkBehaviour
                 }
             }
 
-            if (cardToAdd)
+            if (cardToAdd && !cachedDrawable)
             {
                 if (cardToAdd.IsNotGrabbed())
                 {
@@ -133,25 +146,42 @@ public class CardPile : NetworkBehaviour
                     }
                     else
                     {
-                        if (NetworkManager.Singleton.IsServer)
+                        if (addingTop)
                         {
-                            UpdateDrawableCard(cardToAdd);
-                        }
-                        else
-                        {
-                            UpdateDrawableCardServerRpc(cardToAdd.cardData.name);
+                            if (NetworkManager.Singleton.IsServer)
+                            {
+                                UpdateDrawableCard(cardToAdd);
+                            }
+                            else
+                            {
+                                UpdateDrawableCardServerRpc(cardToAdd.cardData.name);
 
+                            }
                         }
                     }
 
                     //add the card name to the cards in Zone
-                    if (NetworkManager.Singleton.IsServer)
+                    if (addingTop)
                     {
-                        cardsInPile.Push(cardToAdd.cardData.name);
+                        if (NetworkManager.Singleton.IsServer)
+                        {
+                            cardsInPile.Push(cardToAdd.cardData.name);
+                        }
+                        else
+                        {
+                            PushCardToPileServerRpc(cardToAdd.cardData.name);
+                        }
                     }
                     else
                     {
-                        PushCardToPileServerRpc(cardToAdd.cardData.name);
+                        if (NetworkManager.Singleton.IsServer)
+                        {
+                            AddCardOnBottom(cardToAdd.cardData.name);
+                        }
+                        else
+                        {
+                           AddCardOnBottomServerRpc(cardToAdd.cardData.name);
+                        }
                     }
 
 
@@ -192,7 +222,7 @@ public class CardPile : NetworkBehaviour
                     surfHeight + (10f * pileHeight.Value * cardHeight) - surfOffset, transform.position.z);
 
                 //when distance is greater than 0.01
-                if (diff.magnitude > 0.01f)
+                if (diff.magnitude > 0.01f && !cachedDrawable)
                 {
                     cardSpawnedValid = false;
 
@@ -507,6 +537,28 @@ public class CardPile : NetworkBehaviour
         UpdatePileHeight();
     }
 
+    protected void AddCardOnBottom(string cardName)
+    {
+        
+        string[] tempCardsInPile = cardsInPile.ToArray();
+        
+        cardsInPile.Clear();
+        cardsInPile.Push(cardName);
+
+        for (int i = tempCardsInPile.Length - 1; i >= 0; i--)
+        {
+            cardsInPile.Push(tempCardsInPile[i]);
+        }
+        
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    protected void AddCardOnBottomServerRpc(string cardName)
+    {
+        AddCardOnBottom(cardName);
+        UpdatePileHeight();
+    }
+
     protected void UpdatePileHeight()
     {
         pileHeight.Value = cardsInPile.Count;
@@ -560,14 +612,66 @@ public class CardPile : NetworkBehaviour
         return cardSpawnedValid;
     }
 
-    void SearchCards()
+    public void SearchCards()
     {
-        string[] searchable = cardsInPile.ToArray();
+        StartCoroutine(SearchCardsCoroutine());
+    }
 
-        for (int i = 0; i < searchable.Length; i++)
+    IEnumerator SearchCardsCoroutine()
+    {
+        drawableCard.GetComponent<Card>().SetDrawLocked(true);
+
+        cachedDrawable = drawableCard;
+        
+        string[] searchable = cardsInPile.ToArray();
+        searchableList = new List<string>(searchable);
+        
+        List<string> sortedList = new List<string>(searchable);
+        
+        sortedList.Sort();
+        
+
+        GameObject menuObject =Instantiate(searchableMenu);
+        SearchableMenu menu = menuObject.GetComponent<SearchableMenu>();
+        menu.owningPile = this;
+        for (int i = 0; i < sortedList.Count; i++)
         {
-            Instantiate(searchCardItem,searchableMenu.transform);
+            GameObject newItem = Instantiate(searchCardItem);
+            CardSearchCard cardSearchCard = newItem.GetComponent<CardSearchCard>();
+
+            cardSearchCard.owningPile = this;
+            cardSearchCard.cardData = deckData.cardData[sortedList[i]];
+            cardSearchCard.cardTexture = deckData.cardImages[sortedList[i]];
+            cardSearchCard.SetCardImage();
+            
+            menu.AddToMenu(newItem);
         }
+        menu.SetMenuItemsPositions();
+        yield return null;
+    }
+
+    public void FinishSearching()
+    {
+        //UpdateDrawableCard();
+        drawableCard = cachedDrawable;
+        drawableCard.GetComponent<Card>().SetDrawLocked(false);
+
+        cachedDrawable = null;
+        
+        FinishSearchingServerRpc();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void FinishSearchingServerRpc()
+    {
+        cardsInPile.Clear();
+        for (int i = searchableList.Count-1; i >= 0; i--)
+        {
+            cardsInPile.Push(searchableList[i]);
+        }
+        
+        UpdateDrawableCardWithPeekServerRpc();
+        
     }
 
     public void UpdateDrawablePosition()
@@ -581,4 +685,37 @@ public class CardPile : NetworkBehaviour
         }
     }
 
+    public void DrawSearchedCard(string searchedCardName)
+    {
+        StartCoroutine(DrawSearchedCardCoroutine(searchedCardName));
+    }
+    
+   
+    
+    IEnumerator  DrawSearchedCardCoroutine(string searchedCardName)
+    {
+        if (NetworkManager.Singleton.IsServer)
+        {
+            cardSpawnedValid = false;
+            SpawnDrawableCard(searchedCardName);
+        }
+        else
+        {
+            cardSpawnedValid = false;
+            SpawnDrawableCardServerRpc(searchedCardName);
+        }
+        
+        
+        yield return new WaitUntil(GetCardSpawnedValid);
+        
+        drawableCard.GetComponent<Card>().SetLocked(false);
+        drawableCard.transform.position = LocalPlayerManager.Singleton.localPlayerHand.transform.position;
+    }
+
+    public void ToggleAddingTop()
+    {
+        addingTop = !addingTop;
+    }
+    
+    
 }

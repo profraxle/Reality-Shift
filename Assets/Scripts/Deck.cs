@@ -94,6 +94,19 @@ public class Deck : CardPile
         cardsInPile = new Stack<string>(deckShuffle);
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    void ShuffleServerRpc()
+    {
+        shuffle();
+        
+        UpdateDrawableCardServerRpc(cardsInPile.Peek());
+    }
+
+    public void ShuffleButtonPressed()
+    {
+        ShuffleServerRpc();
+    }
+
     //load deck data from given name and send deck list info to other clients
     [ServerRpc]
     public void ClientConnectedServerRpc(string deckName, FixedString128Bytes[]nCurrentDeck )

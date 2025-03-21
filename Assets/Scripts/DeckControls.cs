@@ -7,14 +7,21 @@ public class DeckControls : MonoBehaviour
 
     [SerializeField]
     private TextMeshProUGUI drawText;
+    
+    [SerializeField]
+    private TextMeshProUGUI toggleText;
 
     [SerializeField]
     private Deck deck;
+
+    private bool targBottom;
     
     void Start()
     {
         cardsToDraw = 7;
         UpdateDrawText();
+        
+        targBottom = true;
     }
 
     public void IncreaseCardsToDraw()
@@ -42,8 +49,32 @@ public class DeckControls : MonoBehaviour
     {
         deck.QuickDrawCards(cardsToDraw);
     }
-    
-    
-    
+
+    public void SearchCards()
+    {
+        deck.SearchCards();
+    }
+
+    public void ShuffleDeck()
+    {
+        deck.ShuffleButtonPressed();
+    }
+
+    public void ToggleAddToTop()
+    {
+        deck.ToggleAddingTop();
+        targBottom = !targBottom;
+        if (targBottom)
+        {
+            toggleText.text = "Add Card to Bottom";
+        }
+        else
+        {
+           toggleText.text = "Add Card to Top"; 
+        }
+    }
+
+
+
 
 }

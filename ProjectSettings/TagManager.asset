@@ -13,6 +13,8 @@ TagManager:
   - Synthetic
   - LeftTip
   - RightTip
+  - boardCam2
+  - boardCam1
   layers:
   - Default
   - TransparentFX

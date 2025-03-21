@@ -372,7 +372,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &7777994587683258646
 RectTransform:
   m_ObjectHideFlags: 0
@@ -474,7 +474,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 8300564730708190693}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2282282892283655975}
+        m_TargetAssemblyTypeName: DeckControls, Assembly-CSharp
+        m_MethodName: SearchCards
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1544551011311732723
 GameObject:
   m_ObjectHideFlags: 0
@@ -1027,7 +1039,7 @@ GameObject:
   - component: {fileID: 8009581217952563603}
   - component: {fileID: 4212266670977524285}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: toggleText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1305,7 +1317,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &5723748290065975885
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1407,7 +1419,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5152371427055251356}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2282282892283655975}
+        m_TargetAssemblyTypeName: DeckControls, Assembly-CSharp
+        m_MethodName: ToggleAddToTop
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &6772669410853460734
 GameObject:
   m_ObjectHideFlags: 0
@@ -1700,7 +1724,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &3175191475583318321
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1802,7 +1826,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5633380648561247583}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2282282892283655975}
+        m_TargetAssemblyTypeName: DeckControls, Assembly-CSharp
+        m_MethodName: ShuffleDeck
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &8466828214886187676
 GameObject:
   m_ObjectHideFlags: 0
@@ -1883,7 +1919,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e08ab46e8fb05dc46b34e54466dc11e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _position: {x: 0, y: 0, z: 0}
+  _position: {x: 39.49, y: 0, z: 0}
   _size: {x: 235.07709, y: 753.173, z: 0.01}
 --- !u!114 &1800707939719783594
 MonoBehaviour:
@@ -1989,7 +2025,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &1316539061659957494
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2020,4 +2056,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   drawText: {fileID: 3526204083026472236}
+  toggleText: {fileID: 4212266670977524285}
   deck: {fileID: 0}

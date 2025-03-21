@@ -205,7 +205,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3655014483
+  GlobalObjectIdHash: 1135487812
   InScenePlacedSourceGlobalObjectIdHash: 3761565280
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -261,9 +261,15 @@ MonoBehaviour:
   cardToAdd: {fileID: 0}
   drawZoneUpdater: {fileID: 7960660424988747903}
   model: {fileID: 5697796911187114549}
+  drawableCard: {fileID: 0}
   surfOffset: 0
   cardHeight: 0
+  playerID:
+    m_InternalValue: 0
   faceUp: 0
+  cardSpawnedValid: 0
+  searchableMenu: {fileID: 7902168898731383009, guid: ff300cdb407a33946b0bd79dbd865a45, type: 3}
+  searchCardItem: {fileID: 5393902219241173360, guid: 81152787885620841a789d6b881e2ecd, type: 3}
   owningDeck: {fileID: 0}
 --- !u!65 &7571561252984267522
 BoxCollider:

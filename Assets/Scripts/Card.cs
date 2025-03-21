@@ -18,10 +18,8 @@ public class Card : MonoBehaviour
 
     public bool onStack = false;
 
-    [SerializeField]
-    public PokeInteractable pokeInteractable;
-    [SerializeField]
-    HandGrabInteractable handGrabInteractable;
+    [SerializeField] public PokeInteractable pokeInteractable;
+    [SerializeField] HandGrabInteractable handGrabInteractable;
 
     bool dragging;
     public bool grabbed;
@@ -29,17 +27,19 @@ public class Card : MonoBehaviour
     public bool inHand;
     float doubleTapTimer;
     float dragTimer;
+    private bool drawLocked;
 
     GameObject hand;
     Quaternion handRotation;
     Vector3 handPosition;
-    
+
     public Surface surface;
+
 
     private void Awake()
     {
         locked = true;
-        
+
         dragging = false;
         grabbed = false;
 
@@ -47,16 +47,18 @@ public class Card : MonoBehaviour
         doubleTapTimer = 0.0f;
 
         inHand = false;
+
+        pokeInteractable.enabled = false;
     }
 
     private void Update()
     {
         //tick down the doubletap timer every frame
-       if (doubleTapTimer > 0)
+        if (doubleTapTimer > 0)
         {
             doubleTapTimer -= Time.deltaTime;
         }
-       
+
 
         if (dragging)
         {
@@ -71,12 +73,12 @@ public class Card : MonoBehaviour
 
                 handPosition = hand.transform.position;
 
-                Quaternion newRot = Quaternion.Euler(-90, transform.rotation.eulerAngles.y ,
-                    transform.rotation.eulerAngles.z+ handRotDiff.eulerAngles.y);
+                Quaternion newRot = Quaternion.Euler(-90, transform.rotation.eulerAngles.y,
+                    transform.rotation.eulerAngles.z + handRotDiff.eulerAngles.y);
 
                 Vector3 newPos = new Vector3(transform.position.x + handPosDiff.x, transform.position.y,
                     transform.position.z + handPosDiff.z);
-                
+
                 transform.SetPositionAndRotation(newPos, newRot);
             }
             else
@@ -90,14 +92,14 @@ public class Card : MonoBehaviour
     {
         //bind functions to when this card is poked then disable component until card is on table
         pokeInteractable.WhenSelectingInteractorAdded.Action += StartDrag;
-        
+
         pokeInteractable.WhenSelectingInteractorRemoved.Action += StopDrag;
-        
+
         handGrabInteractable.WhenSelectingInteractorAdded.Action += StartGrab;
-        
+
         handGrabInteractable.WhenSelectingInteractorRemoved.Action += StopGrab;
-        
-        pokeInteractable.Disable();
+
+        pokeInteractable.enabled = false;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -119,25 +121,26 @@ public class Card : MonoBehaviour
                 {
                     other.GetComponent<CardHand>().FinalizeMove(gameObject);
                 }
-                pokeInteractable.Disable();
+
+                pokeInteractable.enabled = false;
             }
         }
     }
 
     private void OnTriggerStay(Collider other)
     {
-        if (!locked&& !inHand)
+        if (!locked && !inHand)
         {
-            if (other.CompareTag("Surface")  && !surface)
+            if (other.CompareTag("Surface") && !surface)
             {
                 surface = other.GetComponent<Surface>();
                 surface.AddCardToSurface(this);
-                pokeInteractable.Enable();
+                pokeInteractable.enabled = true;
             }
         }
     }
-    
-    
+
+
     private void OnTriggerExit(Collider other)
     {
         if (!locked)
@@ -145,9 +148,9 @@ public class Card : MonoBehaviour
             if (other.CompareTag("Surface") && surface)
             {
                 surface.RemoveCardFromSurface(this);
-                pokeInteractable.Disable();
+                pokeInteractable.enabled = false;
             }
-            
+
             if (other.CompareTag("CardHand"))
             {
                 other.GetComponent<CardHand>().RemoveFromCardsInHand(gameObject);
@@ -162,30 +165,33 @@ public class Card : MonoBehaviour
         locked = nLocked;
     }
 
-     void StartDrag(PokeInteractor pokeInteractor)
+    void StartDrag(PokeInteractor pokeInteractor)
     {
-        
+
         dragging = true;
         GetFingerTip(pokeInteractor);
-            
+
         handRotation = hand.transform.rotation;
         handPosition = hand.transform.position;
-        
+
         dragTimer = 0f;
-            
+
         if (doubleTapTimer > 0)
         {
             if (!tapped)
             {
-                transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y , transform.rotation.eulerAngles.z+90);
+                transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x,
+                    transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z + 90);
                 tapped = true;
 
             }
             else
             {
                 tapped = false;
-                transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y , transform.rotation.eulerAngles.z-90);
+                transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x,
+                    transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z - 90);
             }
+
             doubleTapTimer = 0.0f;
         }
         else
@@ -201,7 +207,7 @@ public class Card : MonoBehaviour
 
     void GetFingerTip(PokeInteractor pokeInteractor)
     {
-        Transform [] children = pokeInteractor.GetComponentsInChildren<Transform>();
+        Transform[] children = pokeInteractor.GetComponentsInChildren<Transform>();
 
         foreach (Transform child in children)
         {
@@ -210,11 +216,12 @@ public class Card : MonoBehaviour
                 hand = child.gameObject;
             }
         }
-        
+
     }
+
     void StartGrab(HandGrabInteractor grabInteractor)
     {
-        grabbed =true;
+        grabbed = true;
         if (inHand)
         {
             LocalPlayerManager.Singleton.localPlayerHand.GetComponent<CardHand>().BeginMove(gameObject);
@@ -245,4 +252,22 @@ public class Card : MonoBehaviour
         }
     }
 
+    public void SetDrawLocked(bool nLocked)
+    {
+        drawLocked = nLocked;
+
+        if (drawLocked)
+        {
+            handGrabInteractable.enabled = false;
+        }
+        else
+        {
+            handGrabInteractable.enabled = true;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        Destroy(pokeInteractable.gameObject);
+    }
 }

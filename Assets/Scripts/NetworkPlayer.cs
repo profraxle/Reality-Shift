@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Oculus.Movement.AnimationRigging;
 using UnityEngine;
@@ -29,6 +30,23 @@ public class NetworkPlayer : NetworkBehaviour
     [SerializeField]
     private float rigOffset;
 
+    private void Awake()
+    {
+        
+        GameObject[] surfaces = GameObject.FindGameObjectsWithTag("Surface");
+        GameObject closest = surfaces[0];
+        for (int i = 1; i < surfaces.Length; i++)
+        {
+            if (Vector3.Distance(surfaces[i].transform.position, VRRigReferences.Singleton.root.position) < Vector3.Distance(closest.transform.position, VRRigReferences.Singleton.root.position))
+            { 
+                closest = surfaces[i];
+            }
+                    
+        }
+
+        DeckManager.Singleton.surface = closest;
+    }
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -52,6 +70,7 @@ public class NetworkPlayer : NetworkBehaviour
             transform.eulerAngles = new Vector3(0, 90, 0);
 
             GameObject spawnedViewer = Instantiate(boardViewer);
+            spawnedViewer.transform.eulerAngles = new Vector3(90, 0, 45);
 
             if (spawns[ID].x != 0)
             {
@@ -67,12 +86,12 @@ public class NetworkPlayer : NetworkBehaviour
             cardHand.transform.position = spawns[ID] + (VRRigReferences.Singleton.root.forward * 0.1f) + (-VRRigReferences.Singleton.root.up * 0.3f);
             //cardHand.transform.eulerAngles = new Vector3(0,0);
 
-            LocalPlayerManager.Singleton.localPlayerHand = cardHand;
+            LocalPlayerManager.Singleton.localPlayerHand = cardHand.transform.Find("CardHand").gameObject;
 
             //STINKIEST OF ALL HACKS LOOK AWAY
             if (ID == 0)
             {
-                spawnedViewer.GetComponent<BoardViewer>().boardView = 1;
+                spawnedViewer.GetComponent<BoardViewer>().boardView = 0;
             }
             else{
                 spawnedViewer.GetComponent<BoardViewer>().boardView = 0;
@@ -81,10 +100,10 @@ public class NetworkPlayer : NetworkBehaviour
 
             GameObject[] synthetics = GameObject.FindGameObjectsWithTag("Synthetic");
 
-            SkeletonProcessAggregator processor = GetComponent<SkeletonProcessAggregator>();
+           // SkeletonProcessAggregator processor = GetComponent<SkeletonProcessAggregator>();
             foreach (GameObject synthetic in synthetics)
             {
-               processor.AddProcessor(synthetic.GetComponentInChildren<SkeletonHandAdjustment>());
+              // processor.AddProcessor(synthetic.GetComponentInChildren<SkeletonHandAdjustment>());
             }
         }
         

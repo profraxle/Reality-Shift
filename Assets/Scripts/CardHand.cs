@@ -10,8 +10,15 @@ public class CardHand : MonoBehaviour
     [FormerlySerializedAs("addingCard")] public GameObject movingCard;
     private Card movingCardObj;
     private int lastSwap = -1;
-    
-    public void FinalizeMove(GameObject card)
+    [SerializeField]
+    SurfaceMenu surfaceMenu;
+
+    void Start()
+    {
+        OVRManager.display.RecenteredPose += RecenterEventDispatcher;
+    }
+
+public void FinalizeMove(GameObject card)
     {
         //movingCard =  null;
         UpdateCardsPosition();
@@ -108,10 +115,16 @@ public class CardHand : MonoBehaviour
                                                     ((-cardsInHand.Count * cardWidth * 0.5f) + ((i) * cardWidth) +
                                                      (0.5f * cardWidth));
                 
-                cardsInHand[i].transform.eulerAngles = gameObject.transform.eulerAngles + new Vector3(-20,-90,-270);
+                cardsInHand[i].transform.eulerAngles = gameObject.transform.eulerAngles + new Vector3(-20,VRRigReferences.Singleton.transform.eulerAngles.y-180,-270);
             }
         }
         
+    }
+
+    void RecenterEventDispatcher()
+    {
+        gameObject.transform.position = VRRigReferences.Singleton.root.transform.position + (VRRigReferences.Singleton.root.forward * 0.1f) +
+                                  (-VRRigReferences.Singleton.root.up * 0.3f);
     }
 
     
