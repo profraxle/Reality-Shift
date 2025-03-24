@@ -63,8 +63,8 @@ public class SearchableMenu : MonoBehaviour
 
         foreach (PokeInteractor interactor in pokeInteractable.SelectingInteractors)
         {
-            pokeInteractor = interactor;
-            interactor.enabled = false;
+           // pokeInteractor = interactor;
+           // interactor.enabled = false;
         }
 
         Destroy(gameObject);
@@ -72,6 +72,6 @@ public class SearchableMenu : MonoBehaviour
 
     public void OnDestroy()
     {
-        pokeInteractor.enabled = true;
+        //pokeInteractor.enabled = true;
     }
 }

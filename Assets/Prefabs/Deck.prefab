@@ -185,7 +185,7 @@ Transform:
   m_GameObject: {fileID: 8407049900361872367}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.315, y: -0.344, z: -0.3401}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -206,7 +206,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3761565280
+  GlobalObjectIdHash: 434982269
   InScenePlacedSourceGlobalObjectIdHash: 3761565280
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -232,6 +232,7 @@ MonoBehaviour:
   drawZoneUpdater: {fileID: 7960660424988747903}
   model: {fileID: 5697796911187114549}
   drawableCard: {fileID: 0}
+  topCardName: 
   surfOffset: 0
   cardHeight: 0
   playerID:
@@ -240,6 +241,7 @@ MonoBehaviour:
   cardSpawnedValid: 0
   searchableMenu: {fileID: 7902168898731383009, guid: ff300cdb407a33946b0bd79dbd865a45, type: 3}
   searchCardItem: {fileID: 5393902219241173360, guid: 81152787885620841a789d6b881e2ecd, type: 3}
+  searchableList: []
   deckID:
     m_InternalValue: 0
   selector: {fileID: 0}
@@ -273,7 +275,7 @@ MonoBehaviour:
   UseQuaternionSynchronization: 0
   UseQuaternionCompression: 0
   UseHalfFloatPrecision: 0
-  InLocalSpace: 0
+  InLocalSpace: 1
   Interpolate: 1
   SlerpPosition: 0
 --- !u!65 &1906869745838849210

@@ -132,22 +132,35 @@ public class Surface : MonoBehaviour
 
         for (int i = 0; i <cardsOnSurface.Count;i++)
         {
-            Vector3 newPos = transform.position + relativePositions[i];
-            Quaternion newRot = Quaternion.Euler(transform.rotation.eulerAngles + relativeRotations[i].eulerAngles);
-            cardsOnSurface[i].transform.SetPositionAndRotation(newPos, newRot);
+          //  Vector3 newPos = transform.position + relativePositions[i];
+           // Quaternion newRot = Quaternion.Euler(transform.rotation.eulerAngles + relativeRotations[i].eulerAngles);
+           // cardsOnSurface[i].transform.SetPositionAndRotation(newPos, newRot);
         }
 
         for (int i = 0; i < cardPiles.Count; i++)
         {
-            Vector3 newPos = transform.position + relativePilePositions[i];
-            Quaternion newRot = Quaternion.Euler(transform.rotation.eulerAngles + relativePileRotations[i].eulerAngles);
+          //  Vector3 newPos = transform.position + relativePilePositions[i];
+         //   Quaternion newRot = Quaternion.Euler(transform.rotation.eulerAngles + relativePileRotations[i].eulerAngles);
             
-            cardPiles[i].transform.SetPositionAndRotation(newPos, newRot);
-            cardPiles[i].GetComponent<CardPile>().UpdateDrawablePosition();
+          //  cardPiles[i].transform.SetPositionAndRotation(newPos, newRot);
+           // cardPiles[i].GetComponent<CardPile>().UpdateDrawablePosition();
             
-            relativePilePositions[i] = cardPiles[i].transform.position-transform.position;
-            relativePileRotations[i] = Quaternion.Euler(cardPiles[i].transform.rotation.eulerAngles - transform.rotation.eulerAngles);
+           // relativePilePositions[i] = cardPiles[i].transform.position-transform.position;
+         //   relativePileRotations[i] = Quaternion.Euler(cardPiles[i].transform.rotation.eulerAngles - transform.rotation.eulerAngles);
         }
+
+        GameObject[] surfaces = GameObject.FindGameObjectsWithTag("Surface");
+
+        foreach (GameObject surface in surfaces)
+        {
+            if (surface != gameObject)
+            {
+                surface.transform.position = transform.position+transform.right*0.525f;
+        
+                surface.transform.rotation = Quaternion.Euler(0, VRRigReferences.Singleton.root.eulerAngles.y + angle-90, 0);
+            }
+        }
+        
     }
 
     public void UntapAllCards()
@@ -157,7 +170,7 @@ public class Surface : MonoBehaviour
         {
             index++;
             Debug.Log(index);
-            card.transform.SetPositionAndRotation(card.transform.position, Quaternion.Euler(new Vector3(card.transform.eulerAngles.x,0,card.transform.eulerAngles.y)));
+            card.transform.SetPositionAndRotation(card.transform.position, Quaternion.Euler(new Vector3(card.transform.eulerAngles.x,0,transform.eulerAngles.y)));
         }
     }
 

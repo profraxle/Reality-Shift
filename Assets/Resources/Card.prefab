@@ -195,7 +195,7 @@ MonoBehaviour:
   UseQuaternionSynchronization: 0
   UseQuaternionCompression: 0
   UseHalfFloatPrecision: 0
-  InLocalSpace: 0
+  InLocalSpace: 1
   Interpolate: 1
   SlerpPosition: 0
 --- !u!54 &4162159889787486790
@@ -365,7 +365,7 @@ MonoBehaviour:
   _maxInteractors: -1
   _maxSelectingInteractors: -1
   _data: {fileID: 0}
-  _pointableElement: {fileID: 6094614427578263634}
+  _pointableElement: {fileID: 0}
   _surfacePatch: {fileID: 1567870351948470362}
   _enterHoverNormal: 0.15
   _enterHoverTangent: 0

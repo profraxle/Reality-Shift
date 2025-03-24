@@ -30,6 +30,9 @@ public class NetworkPlayer : NetworkBehaviour
     [SerializeField]
     private float rigOffset;
 
+    [SerializeField] private GameObject anchorPrefab;
+
+    ClientRpcParams clientRpcParams;
     private void FindSurface()
     {
         
@@ -50,9 +53,22 @@ public class NetworkPlayer : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
+        
+
 
         if (IsOwner)
         {
+            
+            clientRpcParams = new ClientRpcParams
+            {
+                Send = new ClientRpcSendParams
+                {
+                    TargetClientIds = new ulong[] { NetworkManager.Singleton.LocalClientId }
+                }
+            };
+            
+            SpawnAnchorServerRpc(NetworkManager.Singleton.LocalClientId);
+            
             /*foreach (Renderer r in meshToDisable)
             {
                 r.enabled = false;
@@ -134,6 +150,30 @@ public class NetworkPlayer : NetworkBehaviour
                 rightHand.rotation = VRRigReferences.Singleton.rightHand.rotation;
                 */
             }
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        void SpawnAnchorServerRpc(ulong owner)
+        {
+            GameObject newAnchor = Instantiate(anchorPrefab);
+            
+            newAnchor.GetComponent<LocalSpaceAnchor>().ID = owner;
+            
+            newAnchor.GetComponent<NetworkObject>().SpawnWithOwnership(owner);
+            
+            NetworkObjectReference reference = new NetworkObjectReference(newAnchor);
+            
+            DeckManager.Singleton.anchors[owner] = newAnchor;
+            
+            SpawnAnchorClientRpc(owner,reference);
+        }
+
+        [ClientRpc]
+        void SpawnAnchorClientRpc(ulong owner, NetworkObjectReference reference)
+        {
+            reference.TryGet(out NetworkObject networkObject);
+
+            DeckManager.Singleton.anchors[owner] = networkObject.gameObject;
         }
 }
 

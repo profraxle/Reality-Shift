@@ -2,6 +2,7 @@ using System;
 using Newtonsoft.Json.Bson;
 using Oculus.Interaction;
 using Oculus.Interaction.HandGrab;
+using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -49,6 +50,8 @@ public class Card : MonoBehaviour
         inHand = false;
 
         pokeInteractable.enabled = false;
+
+        
     }
 
     private void Update()
@@ -64,6 +67,8 @@ public class Card : MonoBehaviour
         {
             if (dragTimer >= 0.1f)
             {
+                
+                
                 //get difference in hand rotation this frame
                 Quaternion handRotDiff = hand.transform.rotation * Quaternion.Inverse(handRotation);
                 handRotation = hand.transform.rotation;
@@ -74,12 +79,13 @@ public class Card : MonoBehaviour
                 handPosition = hand.transform.position;
 
                 Quaternion newRot = Quaternion.Euler(-90, transform.rotation.eulerAngles.y,
-                    transform.rotation.eulerAngles.z + handRotDiff.eulerAngles.y);
+                    transform.rotation.eulerAngles.z +  handRotDiff.eulerAngles.y );
 
                 Vector3 newPos = new Vector3(transform.position.x + handPosDiff.x, transform.position.y,
                     transform.position.z + handPosDiff.z);
 
                 transform.SetPositionAndRotation(newPos, newRot);
+               
             }
             else
             {
@@ -269,5 +275,11 @@ public class Card : MonoBehaviour
     private void OnDestroy()
     {
         Destroy(pokeInteractable.gameObject);
+    }
+
+    public void ParentToAnchor(ulong owner)
+    {
+        transform.SetParent(DeckManager.Singleton.anchors[owner].transform);
+        GetComponent<NetworkTransformClient>().InLocalSpace = true;
     }
 }

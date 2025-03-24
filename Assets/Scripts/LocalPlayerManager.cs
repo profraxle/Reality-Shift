@@ -10,6 +10,8 @@ public class LocalPlayerManager : MonoBehaviour
     public GameObject localPlayerHand;
 
     public Dictionary<string,DeckData> allDeckData = new Dictionary<string,DeckData> ();
+    
+    public GameObject localSpaceAnchor;
 
     private void Awake()
     {

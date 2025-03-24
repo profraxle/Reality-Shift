@@ -108,22 +108,6 @@ public class NetworkConnect : MonoBehaviour
         {
             if (NetworkManager.Singleton.ConnectedClientsList.Count >= 2   && !DeckManager.Singleton.spawnedDecks)
             {
-                /*
-                GameObject[] surfaces = GameObject.FindGameObjectsWithTag("Surface");
-                GameObject closest = surfaces[0];
-                for (int i = 1; i < surfaces.Length; i++)
-                {
-                    if (Vector3.Distance(surfaces[i].transform.position, VRRigReferences.Singleton.root.position) <
-                        Vector3.Distance(closest.transform.position, VRRigReferences.Singleton.root.position))
-                    {
-                        closest = surfaces[i];
-                    }
-                    
-                }
-
-                DeckManager.Singleton.surface = closest;
-                */
-               // GetComponent<SpawnNetworkPlayer>().SpawnPlayers();
                 
                 DeckManager.Singleton.SpawnDecks();
                 

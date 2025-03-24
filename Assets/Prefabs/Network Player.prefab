@@ -175,7 +175,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3329542205
+  GlobalObjectIdHash: 3875372239
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -200,10 +200,6 @@ MonoBehaviour:
   head: {fileID: 2267237970395009100}
   leftHand: {fileID: 4685196688115882790}
   rightHand: {fileID: 5349533201229727524}
-  meshToDisable:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
   skinnedMeshToDisable: []
   ID: 0
   spawns:
@@ -212,6 +208,7 @@ MonoBehaviour:
   boardViewer: {fileID: 8392602458135880650, guid: 6127f7fab4ef23b4ba4c3618dfa9ebe6, type: 3}
   cardHandPrefab: {fileID: 8193108667529990620, guid: 71c986d00412a144f9b9babd686da6b3, type: 3}
   rigOffset: 0
+  anchorPrefab: {fileID: 8631355968774324246, guid: 43610c2ad03dcbe42a07bddc9dcdc6fd, type: 3}
 --- !u!114 &2093492145289322214
 MonoBehaviour:
   m_ObjectHideFlags: 0

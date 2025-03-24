@@ -222,7 +222,7 @@ public class CardPile : NetworkBehaviour
                     surfHeight + (10f * pileHeight.Value * cardHeight) - surfOffset, transform.position.z);
 
                 //when distance is greater than 0.01
-                if (diff.magnitude > 0.01f && !cachedDrawable)
+                if (diff.magnitude > 0.01f && !cachedDrawable && cardSpawnedValid)
                 {
                     cardSpawnedValid = false;
 
@@ -390,6 +390,7 @@ public class CardPile : NetworkBehaviour
 
         var cardNetworkObject = drawableCard.GetComponent<NetworkObject>();
         cardNetworkObject.SpawnWithOwnership(playerID.Value);
+        drawableCardObj.ParentToAnchor(playerID.Value);
 
         pileHeight.Value = cardsInPile.Count;
 
@@ -431,7 +432,17 @@ public class CardPile : NetworkBehaviour
     {
         cardObjectReference.TryGet(out NetworkObject networkObject);
 
+        
+        
         drawableCard = networkObject.gameObject;
+        
+        //drawableCard.GetComponent<Card>().ParentToAnchor(playerID.Value);
+        
+        Vector3 initPos = new Vector3(transform.position.x,
+            surfHeight + (10f * cardsInPile.Count * cardHeight) - surfOffset, transform.position.z);
+        Quaternion initQuat = Quaternion.Euler(new Vector3(cardRot, 0, 0) + transform.eulerAngles);
+        drawableCard.transform.SetPositionAndRotation(initPos,initQuat);
+        
         cardSpawnedValid = true;
     }
 
@@ -631,7 +642,7 @@ public class CardPile : NetworkBehaviour
         sortedList.Sort();
         
 
-        GameObject menuObject =Instantiate(searchableMenu,LocalPlayerManager.Singleton.localPlayerHand.gameObject.transform.position+(Vector3.up*0.4f),Quaternion.Euler(new Vector3(0,VRRigReferences.Singleton.root.eulerAngles.y,0)));
+        GameObject menuObject =Instantiate(searchableMenu,LocalPlayerManager.Singleton.localPlayerHand.gameObject.transform.position+(Vector3.up*0.2f),Quaternion.Euler(new Vector3(0,VRRigReferences.Singleton.root.eulerAngles.y,0)));
         SearchableMenu menu = menuObject.GetComponent<SearchableMenu>();
         menu.owningPile = this;
         for (int i = 0; i < sortedList.Count; i++)
@@ -717,6 +728,23 @@ public class CardPile : NetworkBehaviour
     {
         addingTop = !addingTop;
     }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        StartCoroutine(HierarchyDelay());
+    }
+
+    IEnumerator HierarchyDelay()
+    {
+        yield return new WaitForSeconds(0.2f);
+        ChangeHierarchyServerRpc();
+    }
     
-    
+
+    [ServerRpc(RequireOwnership = false)]
+    void ChangeHierarchyServerRpc()
+    {
+        transform.SetParent(DeckManager.Singleton.anchors[playerID.Value].transform,true);
+    }
 }
