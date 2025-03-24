@@ -115,7 +115,7 @@ public void FinalizeMove(GameObject card)
                                                     ((-cardsInHand.Count * cardWidth * 0.5f) + ((i) * cardWidth) +
                                                      (0.5f * cardWidth));
                 
-                cardsInHand[i].transform.eulerAngles = gameObject.transform.eulerAngles + new Vector3(-20,VRRigReferences.Singleton.transform.eulerAngles.y-180,-270);
+                cardsInHand[i].transform.eulerAngles = gameObject.transform.eulerAngles + new Vector3(-20,gameObject.transform.eulerAngles.y-VRRigReferences.Singleton.transform.eulerAngles.y,-270);
             }
         }
         

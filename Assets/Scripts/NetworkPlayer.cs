@@ -13,7 +13,7 @@ public class NetworkPlayer : NetworkBehaviour
     public Transform leftHand;
     public Transform rightHand;
 
-    public Renderer[] meshToDisable;
+    //public Renderer[] meshToDisable;
     public SkinnedMeshRenderer[] skinnedMeshToDisable;
     
     public ulong ID;
@@ -30,7 +30,7 @@ public class NetworkPlayer : NetworkBehaviour
     [SerializeField]
     private float rigOffset;
 
-    private void Awake()
+    private void FindSurface()
     {
         
         GameObject[] surfaces = GameObject.FindGameObjectsWithTag("Surface");
@@ -53,7 +53,7 @@ public class NetworkPlayer : NetworkBehaviour
 
         if (IsOwner)
         {
-            foreach (Renderer r in meshToDisable)
+            /*foreach (Renderer r in meshToDisable)
             {
                 r.enabled = false;
             }
@@ -61,7 +61,7 @@ public class NetworkPlayer : NetworkBehaviour
             foreach (SkinnedMeshRenderer s in skinnedMeshToDisable)
             {
                 s.enabled = false;
-            }
+            }*/
 
             ID = NetworkManager.Singleton.LocalClientId;
 
@@ -76,7 +76,7 @@ public class NetworkPlayer : NetworkBehaviour
             {
                 VRRigReferences.Singleton.root.eulerAngles = new Vector3(0, -90, 0);
                 transform.eulerAngles =new Vector3(0, -90, 0);
-                spawnedViewer.transform.eulerAngles = new Vector3(boardViewer.transform.eulerAngles.x, 90, 315);
+                spawnedViewer.transform.eulerAngles = new Vector3(90,135,0);
             }
 
             
@@ -84,14 +84,14 @@ public class NetworkPlayer : NetworkBehaviour
             
             GameObject cardHand = Instantiate(cardHandPrefab);
             cardHand.transform.position = spawns[ID] + (VRRigReferences.Singleton.root.forward * 0.1f) + (-VRRigReferences.Singleton.root.up * 0.3f);
-            //cardHand.transform.eulerAngles = new Vector3(0,0);
+            cardHand.transform.eulerAngles = new Vector3(0,VRRigReferences.Singleton.root.eulerAngles.y-90,0);
 
             LocalPlayerManager.Singleton.localPlayerHand = cardHand.transform.Find("CardHand").gameObject;
 
             //STINKIEST OF ALL HACKS LOOK AWAY
             if (ID == 0)
             {
-                spawnedViewer.GetComponent<BoardViewer>().boardView = 0;
+                spawnedViewer.GetComponent<BoardViewer>().boardView = 1;
             }
             else{
                 spawnedViewer.GetComponent<BoardViewer>().boardView = 0;
@@ -105,9 +105,12 @@ public class NetworkPlayer : NetworkBehaviour
             {
               // processor.AddProcessor(synthetic.GetComponentInChildren<SkeletonHandAdjustment>());
             }
+            
+            
+            FindSurface();
         }
         
-
+        
         
     }
     
@@ -117,6 +120,7 @@ public class NetworkPlayer : NetworkBehaviour
         {
             if (IsOwner)
             {
+                /*
                 root.position = VRRigReferences.Singleton.root.position;
                 root.rotation = VRRigReferences.Singleton.root.rotation;
 
@@ -128,6 +132,7 @@ public class NetworkPlayer : NetworkBehaviour
 
                 rightHand.position = VRRigReferences.Singleton.rightHand.position;
                 rightHand.rotation = VRRigReferences.Singleton.rightHand.rotation;
+                */
             }
         }
 }

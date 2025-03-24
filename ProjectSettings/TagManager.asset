@@ -15,6 +15,7 @@ TagManager:
   - RightTip
   - boardCam2
   - boardCam1
+  - NetworkPlayer
   layers:
   - Default
   - TransparentFX

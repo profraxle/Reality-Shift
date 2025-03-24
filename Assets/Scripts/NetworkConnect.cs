@@ -106,7 +106,7 @@ public class NetworkConnect : MonoBehaviour
 
         if (NetworkManager.Singleton.IsServer)
         {
-            if (NetworkManager.Singleton.ConnectedClientsList.Count >= 1   && !DeckManager.Singleton.spawnedDecks)
+            if (NetworkManager.Singleton.ConnectedClientsList.Count >= 2   && !DeckManager.Singleton.spawnedDecks)
             {
                 /*
                 GameObject[] surfaces = GameObject.FindGameObjectsWithTag("Surface");
@@ -123,6 +123,8 @@ public class NetworkConnect : MonoBehaviour
 
                 DeckManager.Singleton.surface = closest;
                 */
+               // GetComponent<SpawnNetworkPlayer>().SpawnPlayers();
+                
                 DeckManager.Singleton.SpawnDecks();
                 
                 

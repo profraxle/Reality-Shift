@@ -19,9 +19,6 @@ public class BoardViewer : MonoBehaviour
     [SerializeField] private GameObject secondPoint;
 
     private Vector3 size;
-
-    [SerializeField]
-    private GameObject debugMesh;
     
     [SerializeField]
     private GameObject cardPreview;
@@ -93,8 +90,6 @@ public class BoardViewer : MonoBehaviour
         string cameraTag = "boardCam" + camNum.ToString();
         
         GameObject camera = GameObject.FindGameObjectWithTag(cameraTag);
-        
-        Instantiate(debugMesh, camera.transform.position+rotatedPosition , Quaternion.identity);
     
         RaycastHit[] hits = Physics.RaycastAll(camera.transform.position+rotatedPosition,Vector3.down, Mathf.Infinity,LayerMask.GetMask("GameBoard"),QueryTriggerInteraction.Collide);
 

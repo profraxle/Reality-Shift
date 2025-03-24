@@ -631,12 +631,13 @@ public class CardPile : NetworkBehaviour
         sortedList.Sort();
         
 
-        GameObject menuObject =Instantiate(searchableMenu);
+        GameObject menuObject =Instantiate(searchableMenu,LocalPlayerManager.Singleton.localPlayerHand.gameObject.transform.position+(Vector3.up*0.4f),Quaternion.Euler(new Vector3(0,VRRigReferences.Singleton.root.eulerAngles.y,0)));
         SearchableMenu menu = menuObject.GetComponent<SearchableMenu>();
         menu.owningPile = this;
         for (int i = 0; i < sortedList.Count; i++)
         {
             GameObject newItem = Instantiate(searchCardItem);
+            
             CardSearchCard cardSearchCard = newItem.GetComponent<CardSearchCard>();
 
             cardSearchCard.owningPile = this;
