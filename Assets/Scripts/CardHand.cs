@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -101,10 +102,18 @@ public void FinalizeMove(GameObject card)
         }
     }
 
-    void UpdateCardsPosition()
+    public void UpdateCardsPosition()
     {
         //set the collider scale to be bigger for each card in the hand
-        gameObject.transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, cardWidth * cardsInHand.Count);
+        if (cardsInHand.Count == 0)
+        {
+            gameObject.transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, cardWidth);
+        }
+        else
+        {
+            gameObject.transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, cardWidth * cardsInHand.Count);
+        }
+       
         
         for (int i = 0; i < cardsInHand.Count; i++)
         {
@@ -123,9 +132,16 @@ public void FinalizeMove(GameObject card)
 
     void RecenterEventDispatcher()
     {
-        gameObject.transform.position = VRRigReferences.Singleton.root.transform.position + (VRRigReferences.Singleton.root.forward * 0.1f) +
-                                  (-VRRigReferences.Singleton.root.up * 0.3f);
+        StartCoroutine(DelayFixPos());
     }
 
-    
+    IEnumerator DelayFixPos()
+    {
+        yield return new WaitForSeconds(0.2f);
+        gameObject.transform.position = VRRigReferences.Singleton.root.transform.position + (VRRigReferences.Singleton.root.forward * 0.2f) +
+                                        (-VRRigReferences.Singleton.root.up * 0.3f);
+        UpdateCardsPosition();
+    }
+
+
 }

@@ -2,6 +2,7 @@ using System;
 using Newtonsoft.Json.Bson;
 using Oculus.Interaction;
 using Oculus.Interaction.HandGrab;
+using Oculus.Interaction.Surfaces;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -22,6 +23,8 @@ public class Card : MonoBehaviour
     [SerializeField] public PokeInteractable pokeInteractable;
     [SerializeField] HandGrabInteractable handGrabInteractable;
 
+    [SerializeField] private PlaneSurface planeSurface;
+    
     bool dragging;
     public bool grabbed;
     bool tapped;
@@ -30,12 +33,15 @@ public class Card : MonoBehaviour
     float dragTimer;
     private bool drawLocked;
 
+    public bool faceUp;
+
     GameObject hand;
     Quaternion handRotation;
     Vector3 handPosition;
 
     public Surface surface;
 
+    public float flipRot;
 
     private void Awake()
     {
@@ -50,7 +56,10 @@ public class Card : MonoBehaviour
         inHand = false;
 
         pokeInteractable.enabled = false;
-
+        
+        faceUp = false;
+        
+        flipRot = -90.0f;
         
     }
 
@@ -62,23 +71,45 @@ public class Card : MonoBehaviour
             doubleTapTimer -= Time.deltaTime;
         }
 
+        float angle = Vector3.Angle(transform.forward, Vector3.up);
+
+        if (angle != 0f && angle != 180f)
+        {
+            
+            if (Vector3.Angle(transform.forward, Vector3.up) > 90)
+            {
+                faceUp = false;
+                flipRot = 90f;
+                planeSurface.Facing = PlaneSurface.NormalFacing.Backward;
+            }
+            else
+            {
+                faceUp = true;
+                flipRot = -90f;
+                planeSurface.Facing = PlaneSurface.NormalFacing.Forward;
+            }
+        }
+
 
         if (dragging)
         {
             if (dragTimer >= 0.1f)
             {
-                
-                
                 //get difference in hand rotation this frame
                 Quaternion handRotDiff = hand.transform.rotation * Quaternion.Inverse(handRotation);
                 handRotation = hand.transform.rotation;
+
+                if (!faceUp)
+                {
+                    handRotDiff.eulerAngles = new Vector3(0f, handRotDiff.eulerAngles.y * -1f, 0f);
+                }
 
                 //get difference in hand position this frame
                 Vector3 handPosDiff = hand.transform.position - handPosition;
 
                 handPosition = hand.transform.position;
 
-                Quaternion newRot = Quaternion.Euler(-90, transform.rotation.eulerAngles.y,
+                Quaternion newRot = Quaternion.Euler(flipRot, transform.rotation.eulerAngles.y,
                     transform.rotation.eulerAngles.z +  handRotDiff.eulerAngles.y );
 
                 Vector3 newPos = new Vector3(transform.position.x + handPosDiff.x, transform.position.y,
@@ -116,7 +147,7 @@ public class Card : MonoBehaviour
             {
                 surface = other.GetComponent<Surface>();
                 surface.AddCardToSurface(this);
-                pokeInteractable.Enable();
+                pokeInteractable.enabled = true;
             }
 
             if (other.CompareTag("CardHand"))
@@ -128,6 +159,12 @@ public class Card : MonoBehaviour
                     other.GetComponent<CardHand>().FinalizeMove(gameObject);
                 }
 
+                if (surface != null)
+                {
+                    surface.RemoveCardFromSurface(this);
+                    surface = null;
+                }
+
                 pokeInteractable.enabled = false;
             }
         }
@@ -137,7 +174,7 @@ public class Card : MonoBehaviour
     {
         if (!locked && !inHand)
         {
-            if (other.CompareTag("Surface") && !surface)
+            if (other.CompareTag("Surface") && !pokeInteractable.enabled)
             {
                 surface = other.GetComponent<Surface>();
                 surface.AddCardToSurface(this);
@@ -155,6 +192,7 @@ public class Card : MonoBehaviour
             {
                 surface.RemoveCardFromSurface(this);
                 pokeInteractable.enabled = false;
+                surface = null;
             }
 
             if (other.CompareTag("CardHand"))
@@ -232,6 +270,12 @@ public class Card : MonoBehaviour
         {
             LocalPlayerManager.Singleton.localPlayerHand.GetComponent<CardHand>().BeginMove(gameObject);
         }
+
+        if (surface)
+        {
+            surface.RemoveCardFromSurface(this);
+            pokeInteractable.enabled = false;
+        }
     }
 
     void StopGrab(HandGrabInteractor grabInteractor)
@@ -242,6 +286,7 @@ public class Card : MonoBehaviour
         {
             LocalPlayerManager.Singleton.localPlayerHand.GetComponent<CardHand>().FinalizeMove(gameObject);
         }
+        
     }
 
 

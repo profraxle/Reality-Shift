@@ -1,4 +1,5 @@
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class HideModel : MonoBehaviour
@@ -14,7 +15,10 @@ public class HideModel : MonoBehaviour
             mesh1.gameObject.layer = LayerMask.NameToLayer("HiddenMesh");
             mesh2.gameObject.layer = LayerMask.NameToLayer("HiddenMesh");
         }
-        
+
+        transform.parent.AddComponent<AttachToAnchor>();
+        transform.parent.GetComponent<AttachToAnchor>().AddToAnchor();
+
     }
     
 }

@@ -398,6 +398,7 @@ public class CardPile : NetworkBehaviour
 
         NetworkObjectReference cardNetworkReference = new NetworkObjectReference(drawableCard);
         ChangeCardTexClientRpc(cardNetworkReference, cardName);
+        
     }
 
     //peek top and spawn card with that name
@@ -578,7 +579,10 @@ public class CardPile : NetworkBehaviour
 
     public void QuickDrawCards(int amount)
     {
-        StartCoroutine(QuickDrawCardsCoroutine(amount));
+        if (!cachedDrawable)
+        {
+            StartCoroutine(QuickDrawCardsCoroutine(amount));
+        }
     }
 
     IEnumerator QuickDrawCardsCoroutine(int amount)
@@ -665,9 +669,17 @@ public class CardPile : NetworkBehaviour
     public void FinishSearching()
     {
         //UpdateDrawableCard();
-        drawableCard = cachedDrawable;
-        drawableCard.GetComponent<Card>().SetDrawLocked(false);
+        if (cardsInPile.Count > 0)
+        {
 
+            drawableCard = cachedDrawable;
+            drawableCard.GetComponent<Card>().SetDrawLocked(false);
+        }
+        else
+        {
+            Destroy(drawableCard);
+            drawableCard = null;
+        }
         cachedDrawable = null;
         
         FinishSearchingServerRpc();
@@ -737,7 +749,7 @@ public class CardPile : NetworkBehaviour
 
     IEnumerator HierarchyDelay()
     {
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(1f);
         ChangeHierarchyServerRpc();
     }
     

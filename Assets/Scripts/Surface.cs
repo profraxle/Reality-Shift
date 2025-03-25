@@ -42,6 +42,7 @@ public class Surface : MonoBehaviour
                 aligning = false;
                 firstPointConfirmed = false;
                 secondPointConfirmed = false;
+                LocalPlayerManager.Singleton.localPlayerHand.GetComponentInChildren<CardHand>().UpdateCardsPosition();
             }
         }
     }
@@ -74,7 +75,7 @@ public class Surface : MonoBehaviour
 
                         if (cardObj.transform.eulerAngles.x != 0)
                         {
-                            rotOnTable = Quaternion.Euler(-90, cardObj.transform.eulerAngles.y, cardObj.transform.eulerAngles.z);
+                            rotOnTable = Quaternion.Euler(cardsOnSurface[i].flipRot, cardObj.transform.eulerAngles.y, cardObj.transform.eulerAngles.z);
                             needsUpdate = true;
                         }
 

@@ -23,6 +23,9 @@ public class BoardViewer : MonoBehaviour
     [SerializeField]
     private GameObject cardPreview;
     
+    [SerializeField]
+    private GameObject debugMesh;
+    
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     private void OnEnable()
@@ -41,6 +44,10 @@ public class BoardViewer : MonoBehaviour
         size = size / 2;
         
         Debug.Log(size);
+        
+        List<Material> materials2 = new List<Material>();
+        cardPreview.GetComponent<Renderer>().GetMaterials(materials2);
+        materials2[0].mainTexture = null;
     }
 
     public void changeTex()
@@ -68,14 +75,20 @@ public class BoardViewer : MonoBehaviour
 
         //localTouchPos = transform.InverseTransformPoint(interactor.TouchPoint);
         
-        Quaternion rotation1 = Quaternion.FromToRotation(interactor.TouchNormal, Vector3.up);
-        Quaternion rotation2 = Quaternion.FromToRotation(transform.right, Vector3.forward);
+        int camNum = boardView + 1;
+        string cameraTag = "boardCam" + camNum.ToString();
+        
+        GameObject camera = GameObject.FindGameObjectWithTag(cameraTag);
+        
+        
+        Quaternion rotation1 = Quaternion.FromToRotation(interactor.TouchNormal, -camera.transform.forward);
+        Quaternion rotation2 = Quaternion.FromToRotation(transform.right, camera.transform.right);
         
         Quaternion rotation3 = Quaternion.Euler(new Vector3(0,0,0));
-        if (boardView == 1)
-        {
+       // if (boardView == 1)
+      //  {
             rotation3 = Quaternion.Euler(new Vector3(0,180,0));
-        }
+      //  }
 
         
         Vector3 rotatedPosition = rotation1 * localTouchPos;
@@ -86,10 +99,7 @@ public class BoardViewer : MonoBehaviour
         
         rotatedPosition  = new Vector3(rotatedPosition .x * (0.93f/2f), 0, rotatedPosition .z * (0.52f/2f));
 
-        int camNum = boardView + 1;
-        string cameraTag = "boardCam" + camNum.ToString();
-        
-        GameObject camera = GameObject.FindGameObjectWithTag(cameraTag);
+        //Instantiate(debugMesh, camera.transform.position+rotatedPosition, Quaternion.identity);
     
         RaycastHit[] hits = Physics.RaycastAll(camera.transform.position+rotatedPosition,Vector3.down, Mathf.Infinity,LayerMask.GetMask("GameBoard"),QueryTriggerInteraction.Collide);
 
@@ -101,15 +111,19 @@ public class BoardViewer : MonoBehaviour
                 {
                     GameObject card = hit.collider.gameObject;
 
-                    List<Material> materials1 = new List<Material>();
-                    card.GetComponent<Renderer>().GetMaterials(materials1);
+                    if (card.GetComponent<Card>().faceUp)
+                    {
 
-                    Texture tex = materials1[2].mainTexture;
+                        List<Material> materials1 = new List<Material>();
+                        card.GetComponent<Renderer>().GetMaterials(materials1);
 
-                    List<Material> materials2 = new List<Material>();
-                    cardPreview.GetComponent<Renderer>().GetMaterials(materials2);
-                    materials2[0].mainTexture = tex;
-                    break;
+                        Texture tex = materials1[2].mainTexture;
+
+                        List<Material> materials2 = new List<Material>();
+                        cardPreview.GetComponent<Renderer>().GetMaterials(materials2);
+                        materials2[0].mainTexture = tex;
+                        break;
+                    }
                 }
             }
         }

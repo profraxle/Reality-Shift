@@ -143,9 +143,12 @@ MonoBehaviour:
   onStack: 0
   pokeInteractable: {fileID: 3006248668507783480}
   handGrabInteractable: {fileID: 2277477639641365896}
+  planeSurface: {fileID: 1167788790751835059}
   grabbed: 0
   inHand: 0
+  faceUp: 0
   surface: {fileID: 0}
+  flipRot: 0
 --- !u!114 &492710792303958492
 MonoBehaviour:
   m_ObjectHideFlags: 0
