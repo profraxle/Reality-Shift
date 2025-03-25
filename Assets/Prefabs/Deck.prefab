@@ -247,6 +247,7 @@ MonoBehaviour:
   selector: {fileID: 0}
   cardZonePrefab: {fileID: 8407049900361872367, guid: a50fc8cf97c7abc4eb305a18ce750b75, type: 3}
   lifeTrackerPrefab: {fileID: 1018536335586205269, guid: ab99c618ee84324478b346072ec951b7, type: 3}
+  tokenTexture: {fileID: 2800000, guid: 8f01542908d886247b9d2073e8fb55f2, type: 3}
 --- !u!114 &-3413710207807501180
 MonoBehaviour:
   m_ObjectHideFlags: 0

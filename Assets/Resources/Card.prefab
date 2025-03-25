@@ -149,6 +149,8 @@ MonoBehaviour:
   faceUp: 0
   surface: {fileID: 0}
   flipRot: 0
+  counters: []
+  counterPrefab: {fileID: 1018536335586205269, guid: f827fd32e44a94b41ae81a1469e18c8e, type: 3}
 --- !u!114 &492710792303958492
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -18,4 +18,14 @@ public class SurfaceMenu : MonoBehaviour
     {
         surface.StartAligning();
     }
+
+    public void SpawnToken()
+    {
+        LocalPlayerManager.Singleton.localPlayerDeckObj.SpawnTokenServerRpc();
+    }
+
+    public void AddCounter()
+    {
+        LocalPlayerManager.Singleton.addingToken = true;
+    }
 }

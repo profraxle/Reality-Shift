@@ -20,6 +20,9 @@ public class Deck : CardPile
 
     [SerializeField]
     private GameObject lifeTrackerPrefab;
+    
+    [SerializeField]
+    private Texture tokenTexture;
 
     void Awake()
     {
@@ -36,6 +39,8 @@ public class Deck : CardPile
         {
             deckData = LocalPlayerManager.Singleton.GetLocalPlayerDeck();
 
+            LocalPlayerManager.Singleton.localPlayerDeckObj = this;
+            
             foreach (string card in deckData.cardsInDeck)
             {
                 cardsInPile.Push(card);
@@ -168,6 +173,32 @@ public class Deck : CardPile
         newTracker.GetComponent<NetworkObject>().SpawnWithOwnership(playerID.Value);
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    public void SpawnTokenServerRpc()
+    {
+        GameObject newToken = Instantiate(cardPrefab,DeckManager.Singleton.surface.transform.position,Quaternion.Euler(-90,0,0));
+
+        newToken.GetComponent<Card>().cardData = new CardData();
+        newToken.GetComponent<Card>().cardData.name = "Token";
+        
+        newToken.GetComponent<NetworkObject>().SpawnWithOwnership(playerID.Value);
+        
+        NetworkObjectReference reference = new NetworkObjectReference(newToken);
+        
+        SpawnTokenClientRpc(reference);
+    }
+
+    [ClientRpc]
+    public void SpawnTokenClientRpc(NetworkObjectReference reference)
+    {
+        reference.TryGet(out NetworkObject networkObject);
+
+        networkObject.GetComponent<Card>().locked = false;
+        
+        List<Material> materials = new List<Material>();
+        networkObject.gameObject.GetComponent<Renderer>().GetMaterials(materials);
+        materials[2].mainTexture = tokenTexture;
+    }
 
 
     

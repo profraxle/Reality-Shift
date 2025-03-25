@@ -6,12 +6,15 @@ public class LocalPlayerManager : MonoBehaviour
 {
     public static LocalPlayerManager Singleton;
     public DeckData localPlayerDeck;
+    public Deck localPlayerDeckObj;
 
     public GameObject localPlayerHand;
 
     public Dictionary<string,DeckData> allDeckData = new Dictionary<string,DeckData> ();
     
     public GameObject localSpaceAnchor;
+
+    public bool addingToken;
 
     private void Awake()
     {
@@ -22,6 +25,8 @@ public class LocalPlayerManager : MonoBehaviour
         }
         Singleton = this;
         DontDestroyOnLoad(gameObject);
+        
+        addingToken = false;
     }
 
     public void SetLocalPlayerDeck(DeckData deckData)

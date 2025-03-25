@@ -5,9 +5,11 @@ using UnityEngine;
 
 public class LifeTracker : NetworkBehaviour
 {
-    private NetworkVariable<int> life  = new NetworkVariable<int>(40);
+    private NetworkVariable<int> life  = new NetworkVariable<int>(20);
     [SerializeField]
     private TextMeshProUGUI lifeText;
+    [SerializeField]
+    private TextMeshProUGUI lifeText2;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -36,6 +38,7 @@ public class LifeTracker : NetworkBehaviour
     void SetLifeText(int oldValue, int newValue)
     {
         lifeText.text = newValue.ToString();
+        lifeText2.text = newValue.ToString();
     }
     
    

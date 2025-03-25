@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json.Bson;
 using Oculus.Interaction;
 using Oculus.Interaction.HandGrab;
@@ -43,6 +44,9 @@ public class Card : MonoBehaviour
 
     public float flipRot;
 
+    public List<CardCounter> counters = new List<CardCounter>();
+    [SerializeField] private GameObject counterPrefab;
+
     private void Awake()
     {
         locked = true;
@@ -65,6 +69,14 @@ public class Card : MonoBehaviour
 
     private void Update()
     {
+        foreach (CardCounter counter in counters)
+        {
+            if (!counter)
+            {
+                counters.Remove(counter);
+            }
+        }
+        
         //tick down the doubletap timer every frame
         if (doubleTapTimer > 0)
         {
@@ -212,6 +224,12 @@ public class Card : MonoBehaviour
     void StartDrag(PokeInteractor pokeInteractor)
     {
 
+        if (LocalPlayerManager.Singleton.addingToken)
+        {
+            AddCounterToCardServerRpc();
+            LocalPlayerManager.Singleton.addingToken = false;
+        }
+        
         dragging = true;
         GetFingerTip(pokeInteractor);
 
@@ -242,6 +260,33 @@ public class Card : MonoBehaviour
         {
             doubleTapTimer = 0.5f;
         }
+    }
+
+    [ServerRpc]
+    public void AddCounterToCardServerRpc()
+    {
+        if (counters.Count == 0)
+        {
+            GameObject newCounter = Instantiate(counterPrefab, transform);
+            
+            newCounter.GetComponent<NetworkObject>().SpawnWithOwnership(GetComponent<NetworkObject>().OwnerClientId);
+            
+            newCounter.transform.SetParent(this.transform,true);
+            
+            NetworkObjectReference reference = new NetworkObjectReference(newCounter);
+            
+            AddCounterToCardClientRpc(reference);
+        }
+    }
+    
+    [ClientRpc]
+    public void AddCounterToCardClientRpc(NetworkObjectReference reference)
+    {
+        reference.TryGet(out NetworkObject networkObject);
+
+        counters.Add(networkObject.gameObject.GetComponent<CardCounter>());
+        networkObject.gameObject.transform.localRotation = Quaternion.Euler(180,0,-90);
+        networkObject.gameObject.transform.localPosition = new Vector3(0,0,0.00001f);
     }
 
     void StopDrag(PokeInteractor pokeInteractor)

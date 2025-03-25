@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Oculus.Interaction;
 using Oculus.Interaction.HandGrab;
+using TMPro;
 using UnityEngine;
 
 public class BoardViewer : MonoBehaviour
@@ -25,6 +26,8 @@ public class BoardViewer : MonoBehaviour
     
     [SerializeField]
     private GameObject debugMesh;
+
+    [SerializeField] private TextMeshPro counterText;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
@@ -114,6 +117,15 @@ public class BoardViewer : MonoBehaviour
                     if (card.GetComponent<Card>().faceUp)
                     {
 
+                        if (card.GetComponent<Card>().counters.Count > 0)
+                        {
+                            counterText.text = card.GetComponent<Card>().counters[0].counter.Value.ToString();
+                        }
+                        else
+                        {
+                            counterText.text = "";
+                        }
+                        
                         List<Material> materials1 = new List<Material>();
                         card.GetComponent<Renderer>().GetMaterials(materials1);
 
