@@ -9,7 +9,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-public class Card : MonoBehaviour
+public class Card : NetworkBehaviour
 {
 
     Texture2D cardImage;
@@ -262,12 +262,13 @@ public class Card : MonoBehaviour
         }
     }
 
-    [ServerRpc]
+    [ServerRpc (RequireOwnership = false)]
     public void AddCounterToCardServerRpc()
     {
         if (counters.Count == 0)
         {
             GameObject newCounter = Instantiate(counterPrefab, transform);
+            counters.Add(newCounter.GetComponent<CardCounter>());
             
             newCounter.GetComponent<NetworkObject>().SpawnWithOwnership(GetComponent<NetworkObject>().OwnerClientId);
             
@@ -286,7 +287,7 @@ public class Card : MonoBehaviour
 
         counters.Add(networkObject.gameObject.GetComponent<CardCounter>());
         networkObject.gameObject.transform.localRotation = Quaternion.Euler(180,0,-90);
-        networkObject.gameObject.transform.localPosition = new Vector3(0,0,0.00001f);
+        networkObject.gameObject.transform.localPosition = new Vector3(0,0.0f,0.00001f);
     }
 
     void StopDrag(PokeInteractor pokeInteractor)

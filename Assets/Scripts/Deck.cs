@@ -173,6 +173,11 @@ public class Deck : CardPile
         newTracker.GetComponent<NetworkObject>().SpawnWithOwnership(playerID.Value);
     }
 
+    public void SpawnToken()
+    {
+        SpawnTokenServerRpc();
+    }
+    
     [ServerRpc(RequireOwnership = false)]
     public void SpawnTokenServerRpc()
     {
@@ -194,6 +199,9 @@ public class Deck : CardPile
         reference.TryGet(out NetworkObject networkObject);
 
         networkObject.GetComponent<Card>().locked = false;
+        networkObject.GetComponent<Card>().faceUp = true;
+        
+        networkObject.gameObject.transform.SetPositionAndRotation(DeckManager.Singleton.surface.transform.position,Quaternion.Euler(-90,0,DeckManager.Singleton.surface.transform.eulerAngles.y));
         
         List<Material> materials = new List<Material>();
         networkObject.gameObject.GetComponent<Renderer>().GetMaterials(materials);

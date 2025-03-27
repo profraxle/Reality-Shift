@@ -1255,9 +1255,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 3461469171782722230}
         m_TargetAssemblyTypeName: Surface, Assembly-CSharp
-        m_MethodName: StartAligning
+        m_MethodName: 
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

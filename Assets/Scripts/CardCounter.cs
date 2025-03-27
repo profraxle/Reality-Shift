@@ -16,12 +16,14 @@ public class CardCounter : NetworkBehaviour
         SetCounterText(counter.Value,counter.Value);
     }
 
-    public void IncrementCounter()
+    [ServerRpc(RequireOwnership = false)]
+    public void IncrementCounterServerRpc()
     {
         counter.Value++;
     }
 
-    public void DecrementCounter()
+    [ServerRpc(RequireOwnership = false)]
+    public void DecrementCounterServerRpc()
     {
         counter.Value--;
     }

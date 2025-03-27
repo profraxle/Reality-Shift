@@ -21,7 +21,7 @@ public class SurfaceMenu : MonoBehaviour
 
     public void SpawnToken()
     {
-        LocalPlayerManager.Singleton.localPlayerDeckObj.SpawnTokenServerRpc();
+        LocalPlayerManager.Singleton.localPlayerDeckObj.SpawnToken();
     }
 
     public void AddCounter()
