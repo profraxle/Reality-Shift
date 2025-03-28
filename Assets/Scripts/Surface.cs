@@ -126,9 +126,9 @@ public class Surface : MonoBehaviour
 
         Vector3 inverse = new Vector3(newVec.z,0,-newVec.x);
 
-        transform.position = point1+ (point2 - point1)/2f + (inverse.normalized*-0.25f) + (Vector3.up*0.02f);
+        transform.position = point1+ (point2 - point1)/2f + (inverse.normalized*-0.25f);
         
-        transform.rotation = Quaternion.Euler(0,  angle, 0);
+        transform.rotation = Quaternion.Euler(0, VRRigReferences.Singleton.root.eulerAngles.y + angle-90, 0);
 
 
         for (int i = 0; i <cardsOnSurface.Count;i++)
@@ -158,7 +158,7 @@ public class Surface : MonoBehaviour
             {
                 surface.transform.position = transform.position+transform.right*0.525f;
         
-                surface.transform.rotation = Quaternion.Euler(0, angle, 0);
+                surface.transform.rotation = Quaternion.Euler(0, VRRigReferences.Singleton.root.eulerAngles.y + angle-90, 0);
             }
         }
         
