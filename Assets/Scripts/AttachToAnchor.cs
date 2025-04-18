@@ -8,7 +8,7 @@ public class AttachToAnchor : NetworkBehaviour
 
     public void AddToAnchor()
     {
-        
+        //calls a coroutine for the anchor getting to allow for a delay
         StartCoroutine(AnchorDelay());
     }
 
@@ -16,12 +16,9 @@ public class AttachToAnchor : NetworkBehaviour
     {
         yield return new WaitForSeconds(1f);
 
-        //if (IsServer)
-       // {
-            transform.SetParent(DeckManager.Singleton.anchors[NetworkManager.Singleton.LocalClientId].transform);
-            GetComponent<ClientNetworkTransform>().InLocalSpace = true;
-       // }
-
+        //wait for a second and get the required anchor object from the manager, then ensure object only replicates in local space
+        transform.SetParent(DeckManager.Singleton.anchors[NetworkManager.Singleton.LocalClientId].transform);
+        GetComponent<ClientNetworkTransform>().InLocalSpace = true;
     }
 
 }

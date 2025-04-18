@@ -20,12 +20,18 @@ public class CardDataFetcher : MonoBehaviour
     
     //declare path for storing deckLists
     private string decklistFolder;
+    
+    //list of loaded card names
     private List<string> cardNames = new List<string>{};
+    
+    //list to store every deck
     private List<DeckData> decks = new List<DeckData>{};
 
+    //dictionarys to store all of the combined card data and iomages
     Dictionary<string, CardData> allCardData = new Dictionary<string, CardData> { };
     Dictionary<string, Texture2D> allCardImages = new Dictionary<string, Texture2D> { };
 
+    //flag if currently loading
     public bool isFetching;
 
     public void Start()
@@ -40,32 +46,36 @@ public class CardDataFetcher : MonoBehaviour
         decklistFolder = Path.Combine(Application.persistentDataPath,  "Decklists");
         Directory.CreateDirectory(decklistFolder);
         
-        //define cardNames to search
         
-        
+        //read decklists from files
         ReadDecklists();
+        
+        //save the card data from remote database
         StartCoroutine(DownloadAndSaveCards(cardNames));
-
-
     }
 
+    //return the save folder path
     public string GetSaveFolder()
     {
         return saveFolder;
     }
 
+    //return list of decks
     public List<DeckData> GetDecks()
     {
         return decks;
     }
 
+    
     private void ReadDecklists()
     {
+        //flag for detecting the commander creature
         bool isCommander = false;
 
         //get all files from the directory
         var fileInfo = Directory.GetFiles(decklistFolder);
         
+        //get the directory of decklists
         TextAsset[] textAssets = Resources.LoadAll<TextAsset>("DeckLists/");
         
         foreach (TextAsset textFile in textAssets)
@@ -79,7 +89,6 @@ public class CardDataFetcher : MonoBehaviour
 
 
             //read all of the lines in the current decklist
-            //string[] lines = File.ReadAllLines(file);
             string[] lines = textFile.text.Split(new[]{'\n','\r'});
             
             foreach (string line in lines)
@@ -130,33 +139,35 @@ public class CardDataFetcher : MonoBehaviour
                     }
                 }
             }
-
+            
+            //add the first card to be the face card if none exist
             if (cardsStartOut.Count <= 0)
             {
                 cardsStartOut.Add(cardsInDeck[0]);
             }
+            
+            //load the new created deck value to the deck array
             newDeck.cardsInDeck = cardsInDeck;
             newDeck.cardsStartOut = cardsStartOut;
             decks.Add(newDeck);
         }
     }
-
-
-
+    
     private IEnumerator DownloadAndSaveCards(List<string> cardNames)
     {
-
-       
-
         foreach (string cardName in cardNames)
         {
+            //clean the card name so it will be valid
             string sanitizedCardName = SanitizeFileName(cardName);
+            
+            //set path for data and card image storage
             string cardDataPath = Path.Combine(saveFolder, sanitizedCardName + ".json");
             string cardImagePath = Path.Combine(saveFolder, sanitizedCardName + ".png");
             
             if (File.Exists(cardDataPath)&& File.Exists(cardImagePath))
             {
 
+                //if the card data already exists, load the texture from the downloaded image, and add to card data and images dictionary
                 byte[] fileData;
                 if (File.Exists(cardImagePath))
                 {
@@ -183,12 +194,15 @@ public class CardDataFetcher : MonoBehaviour
                 continue;
             }
             
+            //add the card name to the api request url
             string url = baseURL + UnityWebRequest.EscapeURL(cardName);
-
+            
+            //make request to the scryfall api
             using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
             {
                 yield return webRequest.SendWebRequest();
 
+                //handle error
                 if (webRequest.result == UnityWebRequest.Result.ConnectionError ||
                     webRequest.result == UnityWebRequest.Result.ProtocolError)
                 {
@@ -197,13 +211,15 @@ public class CardDataFetcher : MonoBehaviour
                 }
                 else
                 {
+                    //read the response as a json, and save the json as card data
                     string jsonResponse = webRequest.downloadHandler.text;
                     Debug.Log($"Response: {jsonResponse}");
                     File.WriteAllText(cardDataPath,jsonResponse);
 
+                    //serialise the card data from json into CardData type
                     CardData card = JsonUtility.FromJson<CardData>(jsonResponse);
                     
-                    
+                    //if the card exists, display the information in the debug log, and add to dictionary under the card name
                     if (card != null)
                     {
                         if (!allCardData.ContainsKey(cardName))
@@ -214,13 +230,15 @@ public class CardDataFetcher : MonoBehaviour
                         Debug.Log($"Card Type:{card.type_line}");
                         Debug.Log($"Mana Cost: {card.mana_cost}");
                         Debug.Log($"Image URI: {card.image_uris?.normal}");
-
+                        
+                        //wait for download and save image function to execute
                         yield return DownloadAndSaveImage(card.image_uris.normal,cardImagePath, cardName);
                     }
                 }
             }
         }
 
+        //for every deck, load the correct information with the newdeckversion object
         for (int i = 0; i< decks.Count; i++)
         {
             DeckData newDeckVersion = new DeckData { };
@@ -228,6 +246,7 @@ public class CardDataFetcher : MonoBehaviour
             Dictionary<string, Texture2D> cardImages = new Dictionary<string, Texture2D> { };
 
 
+            //load both arrays for cards already in deck and cards starting on the table
             foreach (string cardName in decks[i].cardsInDeck)
             {
                 if (!(cardData.ContainsKey(cardName))){
@@ -245,26 +264,31 @@ public class CardDataFetcher : MonoBehaviour
                 }
             }
 
+            //set the information of the new deck version
             newDeckVersion.cardImages = cardImages;
             newDeckVersion.cardData = cardData;
             newDeckVersion.cardsInDeck = decks[i].cardsInDeck;
             newDeckVersion.cardsStartOut = decks[i].cardsStartOut;
             newDeckVersion.deckName = decks[i].deckName;
 
+            //overwrite the deck at the index, and add to the local player manager
             decks[i] = newDeckVersion;
             LocalPlayerManager.Singleton.allDeckData.Add(newDeckVersion.deckName,newDeckVersion);
 
         }
 
+        //call function to display the decks to be chosen by the player
         this.gameObject.GetComponent<DeckSelector>().ShowDecks();
     }
 
     private IEnumerator DownloadAndSaveImage(string imageUrl, string savePath, string cardName)
     {
+        //get the image from the image url request
         using (UnityWebRequest webRequest = UnityWebRequestTexture.GetTexture(imageUrl))
         {
             yield return webRequest.SendWebRequest();
-
+            
+            //handle errors
             if (webRequest.result == UnityWebRequest.Result.ConnectionError ||
                 webRequest.result == UnityWebRequest.Result.ProtocolError)
             {
@@ -297,10 +321,14 @@ public class CardDataFetcher : MonoBehaviour
     
     private Texture2D ConfigureTexture(Texture2D texture)
     {
+        //set the texture settings to make texture clear
         texture.filterMode = FilterMode.Trilinear;
         texture.anisoLevel = 16;
         texture.wrapMode = TextureWrapMode.Repeat;
-/*
+        
+        
+        
+/*      this condition doesnt seem to work as intended, removed
         if (SystemInfo.SupportsTextureFormat(TextureFormat.ASTC_4x4))
         {
             Texture2D newTexture = new Texture2D(texture.width, texture.height, TextureFormat.ASTC_4x4, false);
@@ -317,6 +345,7 @@ public class CardDataFetcher : MonoBehaviour
 
 
 
+//create serialisable data types to load information easily into
 [System.Serializable]
 public class ImageUris
 {
@@ -337,6 +366,7 @@ public class CardData
     public ImageUris image_uris;
 }
 
+//structure of deck information
 public class DeckData
 {
     public string deckName;

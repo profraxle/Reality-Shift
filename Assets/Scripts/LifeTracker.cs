@@ -19,6 +19,7 @@ public class LifeTracker : NetworkBehaviour
         SetLifeText(life.Value,life.Value);
     }
     
+    //increment and decrement methods as well as a setter for the life value
     [ServerRpc(RequireOwnership = false)]
     public void IncreaseLifeServerRpc(int amount)
     {
@@ -35,6 +36,8 @@ public class LifeTracker : NetworkBehaviour
         life.Value = newValue;
     }
 
+    //set the text components displaying the life total to the new value
+    
     void SetLifeText(int oldValue, int newValue)
     {
         lifeText.text = newValue.ToString();

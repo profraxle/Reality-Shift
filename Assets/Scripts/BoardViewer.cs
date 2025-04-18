@@ -16,6 +16,7 @@ public class BoardViewer : MonoBehaviour
 
     private Vector3 localTouchPos;
 
+    //opposing empty game objects that are placed at the corners of the plane to determine the plane's size
     [SerializeField] private GameObject firstPoint;
     [SerializeField] private GameObject secondPoint;
 
@@ -42,15 +43,15 @@ public class BoardViewer : MonoBehaviour
 
     void Start()
     {
+        //determine the size of the plane on the viewer by finding the difference in the position of the corners
         size = secondPoint.transform.position - firstPoint.transform.position;
         size = new Vector3(Mathf.Abs(size.x), Mathf.Abs(size.y), Mathf.Abs(size.z));
         size = size / 2;
         
-        Debug.Log(size);
-        
-        List<Material> materials2 = new List<Material>();
-        cardPreview.GetComponent<Renderer>().GetMaterials(materials2);
-        materials2[0].mainTexture = null;
+        //
+        List<Material> materials = new List<Material>();
+        cardPreview.GetComponent<Renderer>().GetMaterials(materials);
+        materials[0].mainTexture = null;
     }
 
     public void changeTex()
@@ -73,10 +74,6 @@ public class BoardViewer : MonoBehaviour
     void OnPoke(PokeInteractor interactor)
     {
         localTouchPos = Vector3.ProjectOnPlane(interactor.TouchPoint,interactor.TouchNormal) - Vector3.ProjectOnPlane(transform.position,interactor.TouchNormal);
-
-        //localTouchPos = Vector3.ProjectOnPlane(localTouchPos, Vector3.up);
-
-        //localTouchPos = transform.InverseTransformPoint(interactor.TouchPoint);
         
         int camNum = boardView + 1;
         string cameraTag = "boardCam" + camNum.ToString();
@@ -88,10 +85,9 @@ public class BoardViewer : MonoBehaviour
         Quaternion rotation2 = Quaternion.FromToRotation(transform.right, camera.transform.right);
         
         Quaternion rotation3 = Quaternion.Euler(new Vector3(0,0,0));
-       // if (boardView == 1)
-      //  {
-            rotation3 = Quaternion.Euler(new Vector3(0,180,0));
-      //  }
+
+        rotation3 = Quaternion.Euler(new Vector3(0,180,0));
+
 
         
         Vector3 rotatedPosition = rotation1 * localTouchPos;
