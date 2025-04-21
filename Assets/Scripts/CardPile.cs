@@ -8,6 +8,7 @@ using UnityEngine;
 //base class for any pile of cards, such as the Deck or Zones (Graveyard, Exile, Face down Exile)
 public class CardPile : NetworkBehaviour
 {
+    #region Header
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     public GameObject cardPrefab;
@@ -15,55 +16,72 @@ public class CardPile : NetworkBehaviour
     //reference to card object being added at top of pile
     public Card cardToAdd;
 
+    //stack of all card names currently in the pile of cards
     public Stack<string> cardsInPile;
-
-    [SerializeField] protected UpdateDrawZone drawZoneUpdater;
+    
+    //the model of the deck to scale with stack size
     [SerializeField] protected GameObject model;
 
+    //object representing the card that can be drawn from the deck
     public GameObject drawableCard;
 
+    //data descriptor of the deck
     public DeckData deckData;
     
+    //the name of the top card on deck
     public string topCardName;
 
+    //list of materials to edit model 
     protected List<Material> modelMaterials;
 
+    //the Y position of the surface
     protected float surfHeight;
+    
+    //the offset of the cards from the surface
     public float surfOffset;
+    
+    //the height of card objects
     public float cardHeight;
 
+    //network synced variable to hold the ID of the deck's player
     public NetworkVariable<ulong> playerID;
 
+    //the parameters of the client RPC
     protected ClientRpcParams clientRpcParams;
 
+    //bool to track if deck is faceup or facedown
     public bool faceUp;
+    //stores what rotation to spawn card at depending on being faceup or facedown
     private float cardRot;
 
+    //network synced variable storing the amount of cards in the pile
     private NetworkVariable<int> pileHeight = new NetworkVariable<int>(0);
 
+    //bool for callback in card spawning over network
     public bool cardSpawnedValid;
 
+    //the menu to be spawned for searching cards
     [SerializeField] private GameObject searchableMenu;
 
+    //the item selected from the searching menu
     [SerializeField] private GameObject searchCardItem;
 
+    //a sorted list of the cards remaining in the pile
     public List<string> searchableList;
 
+    //a cached card stored when the 
     private GameObject cachedDrawable;
 
+    //bool to check if cards should be added to the 
     private bool addingTop;
-
+    
+    #endregion 
+    
     protected virtual void Start()
     {
-        if (faceUp)
-        {
-            cardRot = -90f;
-        }
-        else
-        {
-            cardRot = 90f;
-        }
-
+        //set the card rotation if its faceup or facedown
+        cardRot = faceUp ? -90f : 90f;
+        
         //load card prefab from game resources folder
         cardPrefab = Resources.Load<GameObject>("Card");
 
@@ -73,15 +91,19 @@ public class CardPile : NetworkBehaviour
         //create stack to store cards in pile
         cardsInPile = new Stack<string>();
 
+        //get materials of model and store them
         modelMaterials = new List<Material>();
         model.GetComponent<Renderer>().GetMaterials(modelMaterials);
 
+        //set the surface height to the height of the surface object
         surfHeight = GameObject.FindGameObjectWithTag("Surface").transform.position.y;
         cardHeight = 3e-05f;
         surfOffset = cardHeight / 2f;
 
+        //set the position of this to the surface + the offset
         transform.position = new Vector3(transform.position.x, surfHeight + surfOffset, transform.position.z);
 
+        //define the client RPC parameters
         clientRpcParams = new ClientRpcParams
         {
             Send = new ClientRpcSendParams
@@ -90,35 +112,43 @@ public class CardPile : NetworkBehaviour
             }
         };
 
+        //bind function to when update pile height is updated
         pileHeight.OnValueChanged += UpdatePileHeight;
 
+        //set the scale to 100 times the model because the model's too small 
         model.transform.localScale = new Vector3(100, 100, 0);
 
+        //bool to check if the spawned card is valid
         cardSpawnedValid = false;
 
+        //bool to set where new added cards go, on top or bottom
         addingTop = true;
         
+        //wait a delay and give reference of this to surface
         StartCoroutine(AddToSurface());
     }
 
+    //give reference of this to the surface
     IEnumerator AddToSurface()
     {
         yield return new WaitForSeconds(0.5f);
         DeckManager.Singleton.surface.GetComponent<Surface>().AddToPiles(gameObject);
     }
 
-// Update is called once per frame
+    // Update is called once per frame
     protected virtual void Update()
     {
+        //if this pile is being controlled by the local player
         if (playerID.Value == NetworkManager.Singleton.LocalClientId)
         {
-            //topCardName = cardsInPile.Peek();
             
+            //if the surface exists, set the surface height to the surface's height
             if (DeckManager.Singleton.surface)
             {
                 surfHeight = DeckManager.Singleton.surface.transform.position.y;
             }
 
+            //if this is being processed on the server, update the pile height
             if (NetworkManager.Singleton.IsServer)
             {
                 if (pileHeight.Value != cardsInPile.Count)
@@ -127,25 +157,31 @@ public class CardPile : NetworkBehaviour
                 }
             }
 
+            //if a card's being added
             if (cardToAdd && !cachedDrawable)
             {
+                
+                //add to the pile when released
                 if (cardToAdd.IsNotGrabbed())
                 {
+                    //if there's not an objects for a drawable card, spawn with with correct data
                     if (!drawableCard)
                     {
                         cardSpawnedValid = false;
+                        
+                        //handle on server or client
                         if (NetworkManager.Singleton.IsServer)
                         {
                             SpawnDrawableCard(cardToAdd);
                         }
                         else
                         {
-
                             SpawnDrawableCardServerRpc(cardToAdd.cardData.name);
                         }
                     }
                     else
                     {
+                        //if adding to the top, update the card data of the drawable card
                         if (addingTop)
                         {
                             if (NetworkManager.Singleton.IsServer)
@@ -163,6 +199,7 @@ public class CardPile : NetworkBehaviour
                     //add the card name to the cards in Zone
                     if (addingTop)
                     {
+                        //handle on server or client request to server
                         if (NetworkManager.Singleton.IsServer)
                         {
                             cardsInPile.Push(cardToAdd.cardData.name);
@@ -174,6 +211,7 @@ public class CardPile : NetworkBehaviour
                     }
                     else
                     {
+                        //add card to bottom on server or remote call to server
                         if (NetworkManager.Singleton.IsServer)
                         {
                             AddCardOnBottom(cardToAdd.cardData.name);
@@ -204,8 +242,8 @@ public class CardPile : NetworkBehaviour
                     }
                     else
                     {
-                        NetworkObjectReference cardNetworkObjectReference =
-                            new NetworkObjectReference(cardToAdd.gameObject);
+                        //send reference of card to be destroyed to server
+                        NetworkObjectReference cardNetworkObjectReference = new NetworkObjectReference(cardToAdd.gameObject);
                         DestroyCardObjectServerRpc(cardNetworkObjectReference);
                         cardToAdd = null;
 
@@ -237,6 +275,7 @@ public class CardPile : NetworkBehaviour
                     //if there are still cards in the pile
                     if (pileHeight.Value > 0)
                     {
+                        //spawn the next card if there's one in the pile
                         if (NetworkManager.Singleton.IsServer)
                         {
                             SpawnNextCardInPile();
@@ -250,7 +289,6 @@ public class CardPile : NetworkBehaviour
                         }
                         else
                         {
-                            Debug.Log("Spawning Next Card In Pile!!");
                             SpawnNextCardInPileServerRpc();
                         }
 
@@ -258,6 +296,7 @@ public class CardPile : NetworkBehaviour
                     }
                     else
                     {
+                        //set the deck texture to null if face up
                         if (faceUp)
                         {
                             modelMaterials[2].mainTexture = null;
@@ -276,6 +315,7 @@ public class CardPile : NetworkBehaviour
         {
             if (drawableCard)
             {
+                //if the compared card is a new card, lock it so it doesnt align to surface
                 if (other.gameObject != drawableCard)
                 {
                     Card otherCard = other.GetComponent<Card>();
@@ -305,6 +345,7 @@ public class CardPile : NetworkBehaviour
         {
             if (drawableCard)
             {
+                //unlock card if its leaving zone
                 if (other.gameObject != drawableCard)
                 {
                     if (cardToAdd)
@@ -362,7 +403,7 @@ public class CardPile : NetworkBehaviour
     //instatiate new drawable card and set tex and data from deckData
     public void SpawnDrawableCard(String cardName)
     {
-
+        //initialise the card object at the top of the deck
         Vector3 initPos = new Vector3(transform.position.x,
             surfHeight + (10f * cardsInPile.Count * cardHeight) - surfOffset, transform.position.z);
         Quaternion initQuat = Quaternion.Euler(new Vector3(cardRot, 0, 0) + transform.eulerAngles);
@@ -370,6 +411,7 @@ public class CardPile : NetworkBehaviour
         drawableCard = Instantiate(cardPrefab, initPos, initQuat);
 
 
+        //intialise the card component's values 
         Card drawableCardObj = drawableCard.GetComponent<Card>();
         drawableCardObj.SetLocked(true);
         drawableCardObj.lockPos = model.transform.position;
@@ -455,6 +497,7 @@ public class CardPile : NetworkBehaviour
         UpdateDrawableCard(cardName);
     }
 
+    //update the drawable card data with the new card
     public void UpdateDrawableCard(string cardName)
     {
         Card drawableCardObj = drawableCard.GetComponent<Card>();
@@ -471,7 +514,8 @@ public class CardPile : NetworkBehaviour
         NetworkObjectReference cardNetworkReference = new NetworkObjectReference(drawableCard);
         ChangeCardTexClientRpc(cardNetworkReference, cardName);
     }
-
+    
+    //update the model's height
     private void UpdatePileHeight(int previousValue, int newValue)
     {
         model.transform.localScale = new Vector3(100, 100, 100 * newValue);
@@ -480,6 +524,7 @@ public class CardPile : NetworkBehaviour
     }
 
 
+    //change the texture of the card using the card name in the dictionary
     [ClientRpc]
     public void ChangeCardTexClientRpc(NetworkObjectReference cardNetworkReference, string cardName)
     {
@@ -498,12 +543,14 @@ public class CardPile : NetworkBehaviour
     }
 
 
+    //return the card pile height from server
     [ServerRpc(RequireOwnership = false)]
     protected void GetPileHeightServerRpc()
     {
         pileHeight.Value = cardsInPile.Count;
     }
 
+    //callback for changing card texture from server
     [ClientRpc]
     protected void ChangePileTextureClientRpc(string cardAtTop)
     {
@@ -511,6 +558,7 @@ public class CardPile : NetworkBehaviour
         modelMaterials[2].mainTexture = tex;
     }
 
+    //change the texture of the model on the server and callback for the client
     [ServerRpc(RequireOwnership = false)]
     protected void ChangePileTextureServerRpc(string cardAtTop)
     {
@@ -520,6 +568,7 @@ public class CardPile : NetworkBehaviour
         ChangePileTextureClientRpc(cardAtTop);
     }
 
+    //check the top of the deck and pop it on the server
     [ServerRpc(RequireOwnership = false)]
     protected void CheckAndPopCurrentPileServerRpc()
     {
@@ -533,6 +582,7 @@ public class CardPile : NetworkBehaviour
     }
 
 
+    //deference and destroy the card object on the server
     [ServerRpc(RequireOwnership = false)]
     protected void DestroyCardObjectServerRpc(NetworkObjectReference cardNetworkReference)
     {
@@ -542,6 +592,7 @@ public class CardPile : NetworkBehaviour
         Destroy(networkObject.gameObject);
     }
 
+    //push card to pile on server
     [ServerRpc(RequireOwnership = false)]
     protected void PushCardToPileServerRpc(string cardName)
     {
@@ -549,6 +600,7 @@ public class CardPile : NetworkBehaviour
         UpdatePileHeight();
     }
 
+    //add card to the bottom of the deck by deconstructing stack and reconstucting it
     protected void AddCardOnBottom(string cardName)
     {
         
@@ -564,6 +616,7 @@ public class CardPile : NetworkBehaviour
         
     }
 
+    //call AddCardOnBottom from the server
     [ServerRpc(RequireOwnership = false)]
     protected void AddCardOnBottomServerRpc(string cardName)
     {
@@ -571,12 +624,14 @@ public class CardPile : NetworkBehaviour
         UpdatePileHeight();
     }
 
+    //update the height of the pile
     protected void UpdatePileHeight()
     {
         pileHeight.Value = cardsInPile.Count;
     }
 
 
+    //start coroutine of quickdrawing cards
     public void QuickDrawCards(int amount)
     {
         if (!cachedDrawable)
@@ -585,13 +640,16 @@ public class CardPile : NetworkBehaviour
         }
     }
 
+    //coroutine to spawn cards in the player's hand up to a specified amount
     IEnumerator QuickDrawCardsCoroutine(int amount)
     {
+        //cache the card on the top of the deck
         GameObject oldDrawCard = drawableCard;
 
-
+        //loop until the 
         for (int i = 0; i < amount; i++)
         {
+            //dereference the drawable card and spawn a new one
             drawableCard = null;
             if (NetworkManager.Singleton.IsServer)
             {
@@ -604,14 +662,19 @@ public class CardPile : NetworkBehaviour
                 SpawnNextCardInPileServerRpc();
             }
 
+            //wait until the card spawned (if called from client)
             yield return new WaitUntil(GetCardSpawnedValid);
 
+            //set the position of the new card to the card hand
             drawableCard.GetComponent<Card>().SetLocked(false);
             drawableCard.transform.position = LocalPlayerManager.Singleton.localPlayerHand.transform.position;
             CheckAndPopCurrentPileServerRpc();
         }
 
+        //set the drawable card to the cached card
         drawableCard = oldDrawCard;
+        
+        //update the drawable card to the top of the deck
         if (NetworkManager.Singleton.IsServer)
         {
             UpdateDrawableCard(cardsInPile.Peek());
@@ -621,7 +684,7 @@ public class CardPile : NetworkBehaviour
             UpdateDrawableCardWithPeekServerRpc();
         }
     }
-
+    
     bool GetCardSpawnedValid()
     {
         return cardSpawnedValid;
@@ -632,6 +695,7 @@ public class CardPile : NetworkBehaviour
         StartCoroutine(SearchCardsCoroutine());
     }
 
+    //
     IEnumerator SearchCardsCoroutine()
     {
         drawableCard.GetComponent<Card>().SetDrawLocked(true);
