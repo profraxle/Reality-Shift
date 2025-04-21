@@ -11,7 +11,7 @@ public class AttachToAnchor : NetworkBehaviour
         //calls a coroutine for the anchor getting to allow for a delay
         StartCoroutine(AnchorDelay());
     }
-
+    
     IEnumerator AnchorDelay()
     {
         yield return new WaitForSeconds(1f);

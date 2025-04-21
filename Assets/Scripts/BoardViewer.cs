@@ -7,33 +7,44 @@ using UnityEngine;
 
 public class BoardViewer : MonoBehaviour
 {
+    //list of rendertextures for the board viewin g
     public RenderTexture[] boards;
+    
+    //integer storing the target board to view
     public int boardView;
 
+    //reference to the component handling hand grabs
     [SerializeField] HandGrabInteractable handGrabInteractable;
 
+    //reference to the component handling pokes
     [SerializeField] PokeInteractable pokeInteractable;
 
+    //vector storing the local position of the touch
     private Vector3 localTouchPos;
 
     //opposing empty game objects that are placed at the corners of the plane to determine the plane's size
     [SerializeField] private GameObject firstPoint;
     [SerializeField] private GameObject secondPoint;
 
+    //vector 3 storing the size of this object
     private Vector3 size;
     
+    //the plane to display the selected card to the player
     [SerializeField]
     private GameObject cardPreview;
     
+    //a mesh used for debugging where the tapped location is on the board
     [SerializeField]
     private GameObject debugMesh;
 
+    //the text to be drawn if there's a counter
     [SerializeField] private TextMeshPro counterText;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     private void OnEnable()
     {
+        //bind functions to starting and ending grab and poke interactions
         handGrabInteractable.WhenSelectingInteractorAdded.Action += OnGrab;
         handGrabInteractable.WhenSelectingInteractorAdded.Action += OnRelease;
         
@@ -48,7 +59,7 @@ public class BoardViewer : MonoBehaviour
         size = new Vector3(Mathf.Abs(size.x), Mathf.Abs(size.y), Mathf.Abs(size.z));
         size = size / 2;
         
-        //
+        //set the material of the card preview to a null texture
         List<Material> materials = new List<Material>();
         cardPreview.GetComponent<Renderer>().GetMaterials(materials);
         materials[0].mainTexture = null;
@@ -56,6 +67,7 @@ public class BoardViewer : MonoBehaviour
 
     public void changeTex()
     {
+        //change the texture of the boardviewer to the correct render texture
         Renderer renderer = GetComponent<Renderer>();
         Material mat = renderer.material;
         mat.SetTexture("_BaseMap", boards[boardView]);
@@ -63,11 +75,13 @@ public class BoardViewer : MonoBehaviour
 
     void OnGrab(HandGrabInteractor interactor)
     {
+        //disable the poke interactor on grab to avoid interference
         pokeInteractable.enabled = false;
     }
 
     void OnRelease(HandGrabInteractor interactor)
     {
+        //enable the poke interactor on grab release
         pokeInteractable.enabled = true;
     }
 
