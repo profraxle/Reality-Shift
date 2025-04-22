@@ -5,38 +5,48 @@ using UnityEngine;
 public class Surface : MonoBehaviour
 {
     
+    //list of cards on the surface
     List<Card> cardsOnSurface = new List<Card>();
+    //list of the relative positions of cards to surface
     List<Vector3> relativePositions = new List<Vector3>();
+    //list of the relative rotations of cards to surface
     List<Quaternion> relativeRotations = new List<Quaternion>();
 
+    //variables used for aligning the table to real surface
     private bool aligning;
     private bool firstPointConfirmed,secondPointConfirmed;
     Vector3 firstPoint,secondPoint;
     
+    //objects attached to fingertips
     [SerializeField]
     GameObject leftTipObject;
-    
     [SerializeField]
     GameObject rightTipObject;
     
+    //offset for each card to counteract Z-Fighting
     float surfOffsetAmount = 0.0001f;
     
+    //list of all cardpiles, their relative positions and rotations
     List<GameObject> cardPiles = new List<GameObject>();
     List<Vector3> relativePilePositions = new List<Vector3>();
     List<Quaternion> relativePileRotations = new List<Quaternion>();
 
     public void Start()
     {
+        //get the left and right fingertip objects
         leftTipObject = GameObject.FindGameObjectWithTag("LeftTip");
         rightTipObject = GameObject.FindGameObjectWithTag("RightTip");
     }
 
     public void Update()
     {
+        //if aligning
         if (aligning)
         {
+            //wait until both points are confirmed
             if (firstPointConfirmed && secondPointConfirmed)
             {
+                //call the align function and reset all bools, update the cards position in the hand
                 Debug.Log("Aligning finish");
                 AlignToLine(firstPoint, secondPoint);
                 aligning = false;
@@ -54,10 +64,13 @@ public class Surface : MonoBehaviour
         {
             for (int i = 0; i < cardsOnSurface.Count; i++)
             {
+                //check for validation
                 if (cardsOnSurface[i])
                 {
+                    //if the card isnt grabbed
                     if (!cardsOnSurface[i].grabbed)
                     {
+                        //if the card's position isnt on the table, align it to the table surface, apply a y value offset to avoid z fighting
                         bool needsUpdate = false;
 
                         GameObject cardObj = cardsOnSurface[i].gameObject;
@@ -96,6 +109,7 @@ public class Surface : MonoBehaviour
     }
 
 
+    //add a card to the list of cards in surface
     public void AddCardToSurface(Card card)
     {
         cardsOnSurface.Add(card);
@@ -103,6 +117,7 @@ public class Surface : MonoBehaviour
         relativeRotations.Add(Quaternion.Euler(card.transform.rotation.eulerAngles - transform.rotation.eulerAngles) );
     }
 
+    //remove the card from the surface if it exists within the list
     public void RemoveCardFromSurface(Card card)
     { 
         int index = cardsOnSurface.IndexOf(card);
@@ -114,42 +129,31 @@ public class Surface : MonoBehaviour
         }
     }
     
+    //specify two points and align the surface to the line between them
     public void AlignToLine(Vector3 point1,Vector3 point2)
     {
+        //get the gradient between the two points
         float gradient =  (point2.x - point1.x) / (point2.z - point1.z);
     
+        //calculate the gradient
         gradient = Mathf.Abs(gradient);
         
+        //convert gradient from radians to degrees
         float angle = Mathf.Atan(gradient)*Mathf.Rad2Deg;
         
+        //get the vector between both points
         Vector3 newVec = point2-point1;
 
+        //get the inverse of this angle for offsetting
         Vector3 inverse = new Vector3(newVec.z,0,-newVec.x);
 
+        //set the position to the midpoint of the two ligns multiplied by the inverse (perpendicular)
         transform.position = point1+ (point2 - point1)/2f + (inverse.normalized*-0.25f);
         
+        //offset the rotation by the angle + the rotation of the player doing alignment
         transform.rotation = Quaternion.Euler(0, VRRigReferences.Singleton.root.eulerAngles.y + angle-90, 0);
-
-
-        for (int i = 0; i <cardsOnSurface.Count;i++)
-        {
-          //  Vector3 newPos = transform.position + relativePositions[i];
-           // Quaternion newRot = Quaternion.Euler(transform.rotation.eulerAngles + relativeRotations[i].eulerAngles);
-           // cardsOnSurface[i].transform.SetPositionAndRotation(newPos, newRot);
-        }
-
-        for (int i = 0; i < cardPiles.Count; i++)
-        {
-          //  Vector3 newPos = transform.position + relativePilePositions[i];
-         //   Quaternion newRot = Quaternion.Euler(transform.rotation.eulerAngles + relativePileRotations[i].eulerAngles);
-            
-          //  cardPiles[i].transform.SetPositionAndRotation(newPos, newRot);
-           // cardPiles[i].GetComponent<CardPile>().UpdateDrawablePosition();
-            
-           // relativePilePositions[i] = cardPiles[i].transform.position-transform.position;
-         //   relativePileRotations[i] = Quaternion.Euler(cardPiles[i].transform.rotation.eulerAngles - transform.rotation.eulerAngles);
-        }
-
+        
+        //find all other surfaces and offset them too for continuity
         GameObject[] surfaces = GameObject.FindGameObjectsWithTag("Surface");
 
         foreach (GameObject surface in surfaces)
@@ -164,6 +168,7 @@ public class Surface : MonoBehaviour
         
     }
 
+    //get all cards and untap them
     public void UntapAllCards()
     {
         int index = 0;
@@ -175,6 +180,7 @@ public class Surface : MonoBehaviour
         }
     }
 
+    //begin alignment on button pressed
     public void StartAligning()
     {
         aligning = true;
@@ -182,6 +188,8 @@ public class Surface : MonoBehaviour
         secondPointConfirmed = false;
     }
 
+    
+    //this function gets called when right thumbs up pose is detected when aligning, sets first point to left fingertip
     public void AddFirstPoint()
     {
         if (!firstPointConfirmed && !secondPointConfirmed)
@@ -191,6 +199,7 @@ public class Surface : MonoBehaviour
         }
     }
 
+    //this function gets called when left thumbs up pose is detected when aligning, sets second point to right fingertip
     public void AddSecondPoint()
     {
         if (firstPointConfirmed && !secondPointConfirmed)
@@ -200,6 +209,7 @@ public class Surface : MonoBehaviour
         }
     }
 
+    //add the a cardpile to this list of piles on surface
     public void AddToPiles(GameObject newPile)
     {
         cardPiles.Add(newPile);

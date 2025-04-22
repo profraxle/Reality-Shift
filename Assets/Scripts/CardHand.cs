@@ -6,31 +6,43 @@ using UnityEngine.Serialization;
 
 public class CardHand : MonoBehaviour
 {
+    //list of cards within the habd
     public List<GameObject> cardsInHand;
+    
+    //width of every card
     public float cardWidth = 0.15f;
+    
+    //the card thats currently moving
     [FormerlySerializedAs("addingCard")] public GameObject movingCard;
     private Card movingCardObj;
+    
+    //the last index moving card swapped with
     private int lastSwap = -1;
+    
+    //the menu of gameplay shortcuts
     [SerializeField]
     SurfaceMenu surfaceMenu;
 
+    //bind function to when the user recenters
     void Start()
     {
         OVRManager.display.RecenteredPose += RecenterEventDispatcher;
     }
 
-public void FinalizeMove(GameObject card)
+    //update the position of cards
+    public void FinalizeMove(GameObject card)
     {
-        //movingCard =  null;
         UpdateCardsPosition();
     }
 
+    //get a reference to card being moved
     public void BeginMove(GameObject card)
     {
         movingCard = card;
         movingCardObj = card.GetComponent<Card>();
     }
 
+    //add a card into the card hand
     public void AddToCardsInHand(GameObject card)
     {
         if(!cardsInHand.Contains(card)){ 
@@ -41,7 +53,7 @@ public void FinalizeMove(GameObject card)
         UpdateCardsPosition();
     }
     
-    
+    //remove the card from the card hand
     public void RemoveFromCardsInHand(GameObject card)
     {
         cardsInHand.Remove(card);
@@ -53,6 +65,7 @@ public void FinalizeMove(GameObject card)
         }
     }
 
+    //if a card is being moved, once its no longer being grabbed update the card position, otherwise update the index based on position
     void Update()
     {
         if (movingCard)
@@ -69,6 +82,7 @@ public void FinalizeMove(GameObject card)
         }
     }
 
+    //compare the moving card's position to the other ones in the hand, and find what index it should be at that position
     void FindIndexAddingCard()
     {
         Vector3 startPos = gameObject.transform.position -gameObject.transform.forward * ((-cardsInHand.Count+1 * cardWidth * 0.5f));
@@ -86,6 +100,7 @@ public void FinalizeMove(GameObject card)
 
                 if (currDist > addDist)
                 {
+                    //change the index of the moving card to the found index, if its not the last swapped card
                     if (lastSwap != i - 1)
                     {
                         Debug.Log(i);
@@ -102,6 +117,7 @@ public void FinalizeMove(GameObject card)
         }
     }
 
+    //set the position of the card objects along the card hand based on their index in the list
     public void UpdateCardsPosition()
     {
         //set the collider scale to be bigger for each card in the hand
@@ -130,6 +146,7 @@ public void FinalizeMove(GameObject card)
         
     }
 
+    //update the position of the card hand, and cards on recenter
     void RecenterEventDispatcher()
     {
         StartCoroutine(DelayFixPos());

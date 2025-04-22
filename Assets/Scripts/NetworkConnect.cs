@@ -13,30 +13,33 @@ using System.Net.Sockets;
 
 public class NetworkConnect : MonoBehaviour
 {
-    public int maxConnection = 4;
+    //the maximum connections
+    public int maxConnection = 2;
+    
+    //unity transport
     public UnityTransport transport;
 
+    //the lobby
     private Lobby currentLobby;
+    
+    //the heartbeat to pulse on the lobby screen
     private float heartBeatTimer;
-
-   
-
+    
     private async void Awake()
     {
+        //initialise unity services
         await UnityServices.InitializeAsync();
+        
+        //log in to the authentication service
         await AuthenticationService.Instance.SignInAnonymouslyAsync();
-
-        if (IsPortInUse(transport.ConnectionData.Port))
-        {
-            transport.ConnectionData.Port += 10;
-        }
         
-        
+        //either join or create a lobby
         JoinOrCreate();
     }
 
     public async void JoinOrCreate()
     {
+        //try to join a lobby with the lobbies service using the joincode got from the lobby listed 
         try
         {
             currentLobby = await Lobbies.Instance.QuickJoinLobbyAsync();
@@ -47,36 +50,45 @@ public class NetworkConnect : MonoBehaviour
             transport.SetClientRelayData(allocation.RelayServer.IpV4, (ushort)allocation.RelayServer.Port,
                 allocation.AllocationIdBytes, allocation.Key, allocation.ConnectionData, allocation.HostConnectionData);
 
+            //start a client to connect to the found lobby
             NetworkManager.Singleton.StartClient();
         }
         catch
         {
+            //create a lobby if none are found
             Create();
         }
     }
 
     public async void Create()
     {
-
+        //make an allocation with the relay (rerouting) service
         Allocation allocation = await RelayService.Instance.CreateAllocationAsync(maxConnection);
+        //create a join code for to connect through relay
         string newJoinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
 
+        //output the join code in the console
         Debug.LogError(newJoinCode);
 
+        //initialise the data for the relay and set the transport data
         transport.SetHostRelayData(allocation.RelayServer.IpV4,(ushort) allocation.RelayServer.Port,
             allocation.AllocationIdBytes,allocation.Key,allocation.ConnectionData);
 
+        //create the lobby information and tie the join code to the listing registered to the list of lobbies
         CreateLobbyOptions lobbyOptions = new CreateLobbyOptions();
         lobbyOptions.IsPrivate = false;
         lobbyOptions.Data = new Dictionary<string, DataObject>();
         DataObject dataObject = new DataObject(DataObject.VisibilityOptions.Public, newJoinCode);
         lobbyOptions.Data.Add("JOIN_CODE",dataObject);
 
+        //register the create lobby to the lobbies service
         currentLobby = await Lobbies.Instance.CreateLobbyAsync("Lobby Name", maxConnection,lobbyOptions);
 
+        //start hosting
         NetworkManager.Singleton.StartHost();
     }
 
+    //join a lobby in the lobbies list with the join code
     public async void Join()
     {
         currentLobby = await Lobbies.Instance.QuickJoinLobbyAsync();
@@ -89,9 +101,10 @@ public class NetworkConnect : MonoBehaviour
 
         NetworkManager.Singleton.StartClient();
     }
-
+    
     private void Update()
-    {
+    {   
+        //countdown the heartbeat timer then send out a heartbeat ping to keep the server in the list
         if (heartBeatTimer > 15)
         {
             heartBeatTimer -= 15;
@@ -104,9 +117,10 @@ public class NetworkConnect : MonoBehaviour
         }
         heartBeatTimer += Time.deltaTime;
 
+        //if this is the server, spawn the decks when 2 or more people are connected
         if (NetworkManager.Singleton.IsServer)
         {
-            if (NetworkManager.Singleton.ConnectedClientsList.Count >= 2   && !DeckManager.Singleton.spawnedDecks)
+            if (NetworkManager.Singleton.ConnectedClientsList.Count >= 1   && !DeckManager.Singleton.spawnedDecks)
             {
                 
                 DeckManager.Singleton.SpawnDecks();
@@ -116,25 +130,5 @@ public class NetworkConnect : MonoBehaviour
         }
     }
     
-    public bool IsPortInUse(int port)
-    {
-        bool isInUse = false;
-
-        TcpListener listener = null;
-        try
-        {
-            listener = new TcpListener(IPAddress.Any, port);
-            listener.Start();
-        }
-        catch (SocketException)
-        {
-            isInUse = true;
-        }
-        finally
-        {
-            listener?.Stop();
-        }
-
-        return isInUse;
-    }
+    
 }

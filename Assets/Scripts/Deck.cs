@@ -8,22 +8,26 @@ using Unity.Collections;
 using Oculus.Interaction;
 using Vector3 = UnityEngine.Vector3;
 
-
+//extension of the cardpile to be used as the deck the players use to play the game
+//creates the other zones the player uses
 public class Deck : CardPile
 {
+    //network synced deck ID
     public NetworkVariable<ulong> deckID;
 
-    public SelectorUnityEventWrapper selector;
-
+    //prefab for the card zones
     [SerializeField]
     private GameObject cardZonePrefab;
 
+    //the life tracker that will be created for the players
     [SerializeField]
     private GameObject lifeTrackerPrefab;
     
+    //texture for spawned tokens
     [SerializeField]
     private Texture tokenTexture;
 
+    //set this to be facedown
     void Awake()
     {
         faceUp = false;
@@ -35,20 +39,25 @@ public class Deck : CardPile
         base.Start();
         faceUp = false;
         
+        //if this is local to the client
         if (deckID.Value == NetworkManager.LocalClientId)
         {
+            //load in the deckdata from the previous scene
             deckData = LocalPlayerManager.Singleton.GetLocalPlayerDeck();
-
+            //set this as the local player deck
             LocalPlayerManager.Singleton.localPlayerDeckObj = this;
             
+            //construct the cards in pile from the deck data
             foreach (string card in deckData.cardsInDeck)
             {
                 cardsInPile.Push(card);
             }
+            //shuffle the deck
             shuffle();
             
             //creates a first card to be grabbable on top of the deck
 
+            //send the information from this shuffled deck to the server
             List<FixedString128Bytes> currentDeckSendable = new List<FixedString128Bytes>(cardsInPile.Count);
 
             foreach (var cardName in cardsInPile)
@@ -69,6 +78,7 @@ public class Deck : CardPile
                 SpawnNextCardInPileServerRpc();
             }
             
+            //spawn the cardzones for GY and Exile
             StartCoroutine(SpawnZones());
         }
 
@@ -87,7 +97,7 @@ public class Deck : CardPile
 
     void shuffle()
     {
-        //fisher-yates shuffle algo
+        //fisher-yates shuffle algorithm
         string[] deckShuffle = cardsInPile.ToArray();
 
         for (int i = deckShuffle.Length - 1; i > 0; i--)
@@ -99,6 +109,7 @@ public class Deck : CardPile
         cardsInPile = new Stack<string>(deckShuffle);
     }
 
+    //call a shuffle on the server
     [ServerRpc(RequireOwnership = false)]
     void ShuffleServerRpc()
     {
@@ -107,6 +118,7 @@ public class Deck : CardPile
         UpdateDrawableCardServerRpc(cardsInPile.Peek());
     }
 
+    //call a shuffle on the server
     public void ShuffleButtonPressed()
     {
         ShuffleServerRpc();
@@ -142,6 +154,7 @@ public class Deck : CardPile
         }
     }
 
+    //spawn the other cardpiles to be used by the player
     [ServerRpc(RequireOwnership = false)]
     public void SpawnZonesServerRpc()
     {
@@ -158,6 +171,7 @@ public class Deck : CardPile
         }
     }
 
+    //callback for the client for the zone creation
     [ClientRpc]
     public void NewZoneClientRpc(NetworkObjectReference cardObjectReference)
     {
@@ -166,6 +180,7 @@ public class Deck : CardPile
         networkObject.GetComponent<CardZone>().PassDeckData(this);
     }
 
+    //create the lifetracker
     [ServerRpc(RequireOwnership = false)]
     public void SpawnLifeTrackerServerRpc()
     {
@@ -173,11 +188,13 @@ public class Deck : CardPile
         newTracker.GetComponent<NetworkObject>().SpawnWithOwnership(playerID.Value);
     }
 
+    //spawn a token object
     public void SpawnToken()
     {
         SpawnTokenServerRpc();
     }
     
+    //spawn a card with the token texture and name Token
     [ServerRpc(RequireOwnership = false)]
     public void SpawnTokenServerRpc()
     {
@@ -193,6 +210,7 @@ public class Deck : CardPile
         SpawnTokenClientRpc(reference);
     }
 
+    //get the reference of the spawend token and set its position on the client
     [ClientRpc]
     public void SpawnTokenClientRpc(NetworkObjectReference reference)
     {

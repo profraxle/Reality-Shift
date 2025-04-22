@@ -6,23 +6,31 @@ using UnityEngine;
 
 public class SearchableMenu : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
     
+    //list of buttons selectable by the player
     public List<GameObject> menuItems;
+    
+    //the container for the objects to be scrolled through
     public GameObject scrollableContent;
+    
+    //the pile that spawned this menu
     public CardPile owningPile;
 
+    //the component that handles poke interactions
     public PokeInteractable pokeInteractable;
+    
+    //the player's hand which pokes the menu
     private PokeInteractor pokeInteractor;
     
     public void SetMenuItemsPositions()
     {
-        
         StartCoroutine(SetMenuItemsPositionsCoroutine());
     }
 
     IEnumerator SetMenuItemsPositionsCoroutine()
     {
+        //update all the positions of the menu items to be in a grid
         int xAlong = 0;
         int yAlong = 0;
         for (int i = 0; i < menuItems.Count; i++)
@@ -39,6 +47,7 @@ public class SearchableMenu : MonoBehaviour
         yield return null;
     }
 
+    //add the option to the scrollable content
     public void AddToMenu(GameObject menuItem)
     {
         menuItems.Add(menuItem);
@@ -46,6 +55,7 @@ public class SearchableMenu : MonoBehaviour
         menuItem.GetComponent<CardSearchCard>().owningMenu = this;
     }
 
+    //remove the option form the scrollable content
     public void RemoveFromMenu(GameObject menuItem)
     {
         owningPile.searchableList.Remove(menuItem.GetComponent<CardSearchCard>().cardData.name);
@@ -53,6 +63,7 @@ public class SearchableMenu : MonoBehaviour
         menuItems.Remove(menuItem);
     }
 
+    //clean up this object and all menu objects
     public void DestroyMenu()
     {
         owningPile.FinishSearching();
@@ -60,18 +71,9 @@ public class SearchableMenu : MonoBehaviour
         {
             Destroy(menuItem);
         }
-
-        foreach (PokeInteractor interactor in pokeInteractable.SelectingInteractors)
-        {
-           // pokeInteractor = interactor;
-           // interactor.enabled = false;
-        }
+        
 
         Destroy(gameObject);
     }
-
-    public void OnDestroy()
-    {
-        //pokeInteractor.enabled = true;
-    }
+    
 }

@@ -11,6 +11,7 @@ public class CardZone : CardPile
 
     private void Awake()
     {
+        //set to being faceup
         faceUp = true;
     }
 
@@ -23,6 +24,7 @@ public class CardZone : CardPile
 
     public void PassDeckData(Deck owningDeck)
     {
+        //pass in the deck data from the owning deck
         deckData = owningDeck.deckData;
     }
 

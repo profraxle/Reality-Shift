@@ -87,14 +87,18 @@ public class BoardViewer : MonoBehaviour
 
     void OnPoke(PokeInteractor interactor)
     {
+        //get the local position of where the pokeInteractor has touched the plane
         localTouchPos = Vector3.ProjectOnPlane(interactor.TouchPoint,interactor.TouchNormal) - Vector3.ProjectOnPlane(transform.position,interactor.TouchNormal);
         
+        //get the camera number
         int camNum = boardView + 1;
         string cameraTag = "boardCam" + camNum.ToString();
         
+        //get the camera that this viewer is looking at
         GameObject camera = GameObject.FindGameObjectWithTag(cameraTag);
         
         
+        //rotate the point to be from the local point to facing up
         Quaternion rotation1 = Quaternion.FromToRotation(interactor.TouchNormal, -camera.transform.forward);
         Quaternion rotation2 = Quaternion.FromToRotation(transform.right, camera.transform.right);
         
@@ -103,25 +107,30 @@ public class BoardViewer : MonoBehaviour
         rotation3 = Quaternion.Euler(new Vector3(0,180,0));
 
 
-        
+        //apply rotations to the position
         Vector3 rotatedPosition = rotation1 * localTouchPos;
         rotatedPosition = rotation2 * rotatedPosition;
         rotatedPosition = rotation3 * rotatedPosition;
         
+        //cast the rotated position from the bounds of the board viewer to the bounds of the table
         rotatedPosition  = new Vector3(rotatedPosition .x/(0.54f/2f), rotatedPosition .y, rotatedPosition .z/(0.3f/2f)); 
         
         rotatedPosition  = new Vector3(rotatedPosition .x * (0.93f/2f), 0, rotatedPosition .z * (0.52f/2f));
-
-        //Instantiate(debugMesh, camera.transform.position+rotatedPosition, Quaternion.identity);
+        
     
+        //do a raycast from the selected point downwards, to hit a card
         RaycastHit[] hits = Physics.RaycastAll(camera.transform.position+rotatedPosition,Vector3.down, Mathf.Infinity,LayerMask.GetMask("GameBoard"),QueryTriggerInteraction.Collide);
 
+        //for each object hit
         foreach (RaycastHit hit in hits)
         {
             if (hit.collider != null)
             {
+                //if the collider is a card
                 if (hit.collider.gameObject.tag == "Card")
                 {
+                    
+                    //get the card counter value and texture and set the smaller plane's texture to the card texture
                     GameObject card = hit.collider.gameObject;
 
                     if (card.GetComponent<Card>().faceUp)

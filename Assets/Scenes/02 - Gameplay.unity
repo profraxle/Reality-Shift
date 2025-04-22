@@ -282,6 +282,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7071126246535397586, guid: 35f4d528b74321f4d833d7e0da82ec54, type: 3}
+      propertyPath: m_BackGroundColor.b
+      value: 0.34901962
+      objectReference: {fileID: 0}
+    - target: {fileID: 7071126246535397586, guid: 35f4d528b74321f4d833d7e0da82ec54, type: 3}
+      propertyPath: m_BackGroundColor.g
+      value: 0.77254903
+      objectReference: {fileID: 0}
+    - target: {fileID: 7071126246535397586, guid: 35f4d528b74321f4d833d7e0da82ec54, type: 3}
+      propertyPath: m_BackGroundColor.r
+      value: 0.4392157
+      objectReference: {fileID: 0}
     - target: {fileID: 7464891045430859738, guid: 35f4d528b74321f4d833d7e0da82ec54, type: 3}
       propertyPath: leftTipObject
       value: 
@@ -639,15 +651,15 @@ PrefabInstance:
       objectReference: {fileID: 8400000, guid: 4c0a6c11f82315b40b06862214aace9a, type: 2}
     - target: {fileID: 7071126246535397586, guid: 35f4d528b74321f4d833d7e0da82ec54, type: 3}
       propertyPath: m_BackGroundColor.b
-      value: 0.6981132
+      value: 0.34901962
       objectReference: {fileID: 0}
     - target: {fileID: 7071126246535397586, guid: 35f4d528b74321f4d833d7e0da82ec54, type: 3}
       propertyPath: m_BackGroundColor.g
-      value: 0.5908484
+      value: 0.77254903
       objectReference: {fileID: 0}
     - target: {fileID: 7071126246535397586, guid: 35f4d528b74321f4d833d7e0da82ec54, type: 3}
       propertyPath: m_BackGroundColor.r
-      value: 0.13040222
+      value: 0.4392157
       objectReference: {fileID: 0}
     - target: {fileID: 5165561973635257208, guid: 5265515d14a29d841afd04f6333adf9a, type: 3}
       propertyPath: GlobalObjectIdHash

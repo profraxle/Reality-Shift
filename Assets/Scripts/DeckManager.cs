@@ -4,12 +4,15 @@ using UnityEngine;
 
 public class DeckManager : MonoBehaviour
 {
+    //this manager class manages the decks and is used to get reference to them
     public static DeckManager Singleton;
     public GameObject DeckPrefab;
 
     public bool spawnedDecks;
     public Vector3[] spawns;
     public Deck[] decks = new Deck[4];
+    
+    //the surface reference and anchor references are also stored here as it doesnt make sense to make new managers
     public GameObject surface;
     
     public GameObject [] anchors = new GameObject[4];
@@ -43,9 +46,7 @@ public class DeckManager : MonoBehaviour
                 newDeckObject.GetComponent<Deck>().playerID = new NetworkVariable<ulong>((ulong)i);
 
                 newDeckObject.GetComponent<NetworkObject>().SpawnWithOwnership((ulong)i);
-
                 
-                //decks[i] = newDeckObject.GetComponent<Deck>();
             }
             spawnedDecks = true;
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -414,7 +415,6 @@ public class CardPile : NetworkBehaviour
         //intialise the card component's values 
         Card drawableCardObj = drawableCard.GetComponent<Card>();
         drawableCardObj.SetLocked(true);
-        drawableCardObj.lockPos = model.transform.position;
         drawableCardObj.pokeInteractable.Disable();
 
         Texture2D tex = deckData.cardImages[cardName];
@@ -692,16 +692,19 @@ public class CardPile : NetworkBehaviour
 
     public void SearchCards()
     {
-        StartCoroutine(SearchCardsCoroutine());
+        SearchCardsAsync();
     }
 
-    //
-    IEnumerator SearchCardsCoroutine()
+    //create the search menu and add all cards from the card pile as buttons into it in alphabetical order
+    async void SearchCardsAsync()
     {
+        //lock cards from being drawed while menu is open
         drawableCard.GetComponent<Card>().SetDrawLocked(true);
-
+        
+        //cache the drawable card for later
         cachedDrawable = drawableCard;
         
+        //turn the stack pile into a sorted array
         string[] searchable = cardsInPile.ToArray();
         searchableList = new List<string>(searchable);
         
@@ -710,6 +713,7 @@ public class CardPile : NetworkBehaviour
         sortedList.Sort();
         
 
+        //create menu object, and then create a button for each card to be spawned
         GameObject menuObject =Instantiate(searchableMenu,LocalPlayerManager.Singleton.localPlayerHand.gameObject.transform.position+(Vector3.up*0.2f),Quaternion.Euler(new Vector3(0,VRRigReferences.Singleton.root.eulerAngles.y,0)));
         SearchableMenu menu = menuObject.GetComponent<SearchableMenu>();
         menu.owningPile = this;
@@ -726,13 +730,16 @@ public class CardPile : NetworkBehaviour
             
             menu.AddToMenu(newItem);
         }
+        //update the menu item's positions
         menu.SetMenuItemsPositions();
-        yield return null;
+        await Task.Yield();
     }
 
+    //finalise searching for a card
     public void FinishSearching()
     {
-        //UpdateDrawableCard();
+        
+        //set the drawable card if there's one cached, else delete the drawable card and set everything to null
         if (cardsInPile.Count > 0)
         {
 
@@ -749,6 +756,7 @@ public class CardPile : NetworkBehaviour
         FinishSearchingServerRpc();
     }
 
+    //call the finish searching on the server
     [ServerRpc(RequireOwnership = false)]
     public void FinishSearchingServerRpc()
     {
@@ -762,6 +770,7 @@ public class CardPile : NetworkBehaviour
         
     }
 
+    //update the position of the drawable card NOT USED ANYMORE
     public void UpdateDrawablePosition()
     {
         if (drawableCard != null)
@@ -773,13 +782,14 @@ public class CardPile : NetworkBehaviour
         }
     }
 
+    //spawn the searched card
     public void DrawSearchedCard(string searchedCardName)
     {
         StartCoroutine(DrawSearchedCardCoroutine(searchedCardName));
     }
     
    
-    
+    //spawn the searched card
     IEnumerator  DrawSearchedCardCoroutine(string searchedCardName)
     {
         if (NetworkManager.Singleton.IsServer)
@@ -805,6 +815,7 @@ public class CardPile : NetworkBehaviour
         addingTop = !addingTop;
     }
 
+    //parent this to the anchor object so it moves properly across the network
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -817,7 +828,7 @@ public class CardPile : NetworkBehaviour
         ChangeHierarchyServerRpc();
     }
     
-
+    
     [ServerRpc(RequireOwnership = false)]
     void ChangeHierarchyServerRpc()
     {

@@ -4,6 +4,7 @@ public class SurfaceMenu : MonoBehaviour
 {
     public Surface surface;
 
+    //different buttons that call functions within the surface or the local player deck
     public void Start()
     {
         surface = DeckManager.Singleton.surface.GetComponent<Surface>();
