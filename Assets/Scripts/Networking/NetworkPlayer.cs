@@ -90,13 +90,17 @@ public class NetworkPlayer : NetworkBehaviour
             //offset the board viewer
             spawnedViewer.transform.position = spawns[ID] + (VRRigReferences.Singleton.root.right*0.5f)+ (VRRigReferences.Singleton.root.forward * 0.2f);
             
+            FindSurface();
+            
             //create the card hand
             GameObject cardHand = Instantiate(cardHandPrefab);
-            cardHand.transform.position = spawns[ID] + (VRRigReferences.Singleton.root.forward * 0.1f) + (-VRRigReferences.Singleton.root.up * 0.3f);
+            cardHand.transform.position = DeckManager.Singleton.surface.transform.position + (-DeckManager.Singleton.surface.transform.right * 0.35f);
             cardHand.transform.eulerAngles = new Vector3(0,VRRigReferences.Singleton.root.eulerAngles.y-90,0);
-        
+            
             //store the cardhand within the cardHand prefab
             LocalPlayerManager.Singleton.localPlayerHand = cardHand.transform.Find("CardHand").gameObject;
+
+            LocalPlayerManager.Singleton.localPlayerHandParent = cardHand;
 
             //really hacky way to set the board viewer's target but hey, it works
             if (ID == 0)
@@ -119,7 +123,7 @@ public class NetworkPlayer : NetworkBehaviour
             }
             
             
-            FindSurface();
+
         }
         
         

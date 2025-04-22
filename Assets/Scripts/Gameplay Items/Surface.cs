@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using UnityEngine;
+using UnityEngine.UIElements;
+using Quaternion = UnityEngine.Quaternion;
+using Vector3 = UnityEngine.Vector3;
 
 public class Surface : MonoBehaviour
 {
@@ -132,6 +136,8 @@ public class Surface : MonoBehaviour
     //specify two points and align the surface to the line between them
     public void AlignToLine(Vector3 point1,Vector3 point2)
     {
+        LocalPlayerManager.Singleton.localPlayerHand.GetComponent<CardHand>().MoveHandRealign();
+        
         //get the gradient between the two points
         float gradient =  (point2.x - point1.x) / (point2.z - point1.z);
     
@@ -147,8 +153,8 @@ public class Surface : MonoBehaviour
         //get the inverse of this angle for offsetting
         Vector3 inverse = new Vector3(newVec.z,0,-newVec.x);
 
-        //set the position to the midpoint of the two ligns multiplied by the inverse (perpendicular)
-        transform.position = point1+ (point2 - point1)/2f + (inverse.normalized*-0.25f);
+        //set the position to the midpoint of the two points multiplied by the inverse (perpendicular)
+        transform.position = point1+ (point2 - point1)/2f + (inverse.normalized*-0.25f) + Vector3.up * 0.01f;
         
         //offset the rotation by the angle + the rotation of the player doing alignment
         transform.rotation = Quaternion.Euler(0, VRRigReferences.Singleton.root.eulerAngles.y + angle-90, 0);
@@ -166,6 +172,9 @@ public class Surface : MonoBehaviour
             }
         }
         
+        LocalPlayerManager.Singleton.localPlayerHandParent.transform.rotation = transform.rotation;
+        LocalPlayerManager.Singleton.localPlayerHandParent.transform.position = transform.position+transform.right*-0.35f;
+        LocalPlayerManager.Singleton.localPlayerHand.GetComponent<CardHand>().RecenterEventDispatcher();
     }
 
     //get all cards and untap them

@@ -428,4 +428,5 @@ public class Card : NetworkBehaviour
         transform.SetParent(DeckManager.Singleton.anchors[owner].transform);
         GetComponent<NetworkTransformClient>().InLocalSpace = true;
     }
+    
 }

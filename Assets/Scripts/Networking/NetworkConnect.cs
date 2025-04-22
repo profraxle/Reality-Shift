@@ -39,24 +39,33 @@ public class NetworkConnect : MonoBehaviour
 
     public async void JoinOrCreate()
     {
-        //try to join a lobby with the lobbies service using the joincode got from the lobby listed 
-        try
+        if (LocalPlayerManager.Singleton.playerCount == 1)
         {
-            currentLobby = await Lobbies.Instance.QuickJoinLobbyAsync();
-            string relayJoinCode = currentLobby.Data["JOIN_CODE"].Value;
-
-            JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(relayJoinCode);
-
-            transport.SetClientRelayData(allocation.RelayServer.IpV4, (ushort)allocation.RelayServer.Port,
-                allocation.AllocationIdBytes, allocation.Key, allocation.ConnectionData, allocation.HostConnectionData);
-
-            //start a client to connect to the found lobby
-            NetworkManager.Singleton.StartClient();
+            CreateLocalHost();
         }
-        catch
+        else
         {
-            //create a lobby if none are found
-            Create();
+
+            //try to join a lobby with the lobbies service using the joincode got from the lobby listed 
+            try
+            {
+                currentLobby = await Lobbies.Instance.QuickJoinLobbyAsync();
+                string relayJoinCode = currentLobby.Data["JOIN_CODE"].Value;
+
+                JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(relayJoinCode);
+
+                transport.SetClientRelayData(allocation.RelayServer.IpV4, (ushort)allocation.RelayServer.Port,
+                    allocation.AllocationIdBytes, allocation.Key, allocation.ConnectionData,
+                    allocation.HostConnectionData);
+
+                //start a client to connect to the found lobby
+                NetworkManager.Singleton.StartClient();
+            }
+            catch
+            {
+                //create a lobby if none are found
+                Create();
+            }
         }
     }
 
@@ -85,6 +94,23 @@ public class NetworkConnect : MonoBehaviour
         currentLobby = await Lobbies.Instance.CreateLobbyAsync("Lobby Name", maxConnection,lobbyOptions);
 
         //start hosting
+        NetworkManager.Singleton.StartHost();
+    }
+
+    //use this for singleplayer games!
+    public async void CreateLocalHost()
+    {
+        UnityTransport []transports = GetComponents<UnityTransport>();
+        foreach (UnityTransport nTransport in transports)
+        {
+            if (nTransport.Protocol == UnityTransport.ProtocolType.UnityTransport)
+            {
+                NetworkManager.Singleton.NetworkConfig.NetworkTransport = nTransport;
+                transport = nTransport;
+            }
+        }
+        
+        //starts hosting without registering to lobby
         NetworkManager.Singleton.StartHost();
     }
 
@@ -120,7 +146,7 @@ public class NetworkConnect : MonoBehaviour
         //if this is the server, spawn the decks when 2 or more people are connected
         if (NetworkManager.Singleton.IsServer)
         {
-            if (NetworkManager.Singleton.ConnectedClientsList.Count >= 1   && !DeckManager.Singleton.spawnedDecks)
+            if (NetworkManager.Singleton.ConnectedClientsList.Count >= LocalPlayerManager.Singleton.playerCount   && !DeckManager.Singleton.spawnedDecks)
             {
                 
                 DeckManager.Singleton.SpawnDecks();

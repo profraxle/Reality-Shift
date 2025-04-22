@@ -51,8 +51,17 @@ public class DeckSelector : MonoBehaviour
         //load decks from the card fetcher
         decks = cardFetcher.GetDecks();
 
+        int xCounter = 0;
+        int yCounter = 0;
+        
         for (int i = 0; i < decks.Count; i++)
         {
+            if (xCounter >= 3)
+            {
+                xCounter = 0;
+                yCounter++;
+            }
+            
             //create the panel
             GameObject newPanel = Instantiate(deckChoicePrefab);
 
@@ -64,7 +73,7 @@ public class DeckSelector : MonoBehaviour
             //set panel position
             deckChoicePanel.transform.SetParent(canvasObject.transform, false);
             deckChoicePanel.transform.localScale = Vector3.one;
-            deckChoicePanel.transform.localPosition = new Vector3(-800 + (i * 350), 200, 0);
+            deckChoicePanel.transform.localPosition = new Vector3(-800 + (xCounter * 350), 200-yCounter * 450, 0);
 
             //parent this to the panel
             deckChoicePanel.selector = this;
@@ -74,7 +83,7 @@ public class DeckSelector : MonoBehaviour
             Sprite sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f);
             deckChoicePanel.SetImage(sprite);
 
-            
+            xCounter++;
         }
     }
 

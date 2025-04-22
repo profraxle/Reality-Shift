@@ -140,25 +140,36 @@ public class CardHand : MonoBehaviour
                                                     ((-cardsInHand.Count * cardWidth * 0.5f) + ((i) * cardWidth) +
                                                      (0.5f * cardWidth));
                 
-                cardsInHand[i].transform.eulerAngles = gameObject.transform.eulerAngles + new Vector3(-20,gameObject.transform.eulerAngles.y-VRRigReferences.Singleton.transform.eulerAngles.y,-270);
+                cardsInHand[i].transform.eulerAngles = gameObject.transform.eulerAngles + new Vector3(-20,- 90,-270);
             }
         }
         
     }
 
     //update the position of the card hand, and cards on recenter
-    void RecenterEventDispatcher()
+    public void RecenterEventDispatcher()
     {
         StartCoroutine(DelayFixPos());
     }
 
     IEnumerator DelayFixPos()
     {
-        yield return new WaitForSeconds(0.2f);
-        gameObject.transform.position = VRRigReferences.Singleton.root.transform.position + (VRRigReferences.Singleton.root.forward * 0.2f) +
-                                        (-VRRigReferences.Singleton.root.up * 0.3f);
+        yield return new WaitForSeconds(0.05f);
         UpdateCardsPosition();
+        
+        foreach (GameObject card in cardsInHand)
+        {
+            card.GetComponent<Card>().SetLocked(false);
+        }
     }
 
+    //function to lock all the cards in the hand while aligning to avoid weird behaviours
+    public void MoveHandRealign()
+    {
+        foreach (GameObject card in cardsInHand)
+        {
+            card.GetComponent<Card>().SetLocked(true);
+        }
+    }
 
 }

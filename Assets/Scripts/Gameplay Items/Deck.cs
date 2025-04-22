@@ -75,14 +75,18 @@ public class Deck : CardPile
             {
                 
                 ClientConnectedServerRpc(deckData.deckName, currentDeckSendable.ToArray());
-                SpawnNextCardInPileServerRpc();
+                StartCoroutine(SpawnCardDelay());
             }
             
             //spawn the cardzones for GY and Exile
             StartCoroutine(SpawnZones());
         }
+    }
 
-       
+    IEnumerator SpawnCardDelay()
+    {
+        yield return new WaitForSeconds(0.2f);
+        SpawnNextCardInPileServerRpc();
     }
 
     IEnumerator SpawnZones()

@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -75,6 +77,8 @@ public class CardPile : NetworkBehaviour
 
     //bool to check if cards should be added to the 
     private bool addingTop;
+
+    private bool searching;
     
     #endregion 
     
@@ -124,6 +128,8 @@ public class CardPile : NetworkBehaviour
 
         //bool to set where new added cards go, on top or bottom
         addingTop = true;
+
+        searching = false;
         
         //wait a delay and give reference of this to surface
         StartCoroutine(AddToSurface());
@@ -161,93 +167,110 @@ public class CardPile : NetworkBehaviour
             //if a card's being added
             if (cardToAdd && !cachedDrawable)
             {
+
+                
                 
                 //add to the pile when released
                 if (cardToAdd.IsNotGrabbed())
                 {
-                    //if there's not an objects for a drawable card, spawn with with correct data
-                    if (!drawableCard)
+                    if (cardToAdd.cardData.name == "Token")
                     {
-                        cardSpawnedValid = false;
-                        
-                        //handle on server or client
-                        if (NetworkManager.Singleton.IsServer)
-                        {
-                            SpawnDrawableCard(cardToAdd);
-                        }
-                        else
-                        {
-                            SpawnDrawableCardServerRpc(cardToAdd.cardData.name);
-                        }
+                        DestroyCardObjectServerRpc(cardToAdd.gameObject);
+                        cardToAdd = null;
                     }
                     else
                     {
-                        //if adding to the top, update the card data of the drawable card
-                        if (addingTop)
+
+
+                        //if there's not an objects for a drawable card, spawn with with correct data
+                        if (!drawableCard)
                         {
+                            cardSpawnedValid = false;
+
+                            //handle on server or client
                             if (NetworkManager.Singleton.IsServer)
                             {
-                                UpdateDrawableCard(cardToAdd);
+                                SpawnDrawableCard(cardToAdd);
                             }
                             else
                             {
-                                UpdateDrawableCardServerRpc(cardToAdd.cardData.name);
-
+                                SpawnDrawableCardServerRpc(cardToAdd.cardData.name);
                             }
                         }
-                    }
-
-                    //add the card name to the cards in Zone
-                    if (addingTop)
-                    {
-                        //handle on server or client request to server
-                        if (NetworkManager.Singleton.IsServer)
+                        else
                         {
-                            cardsInPile.Push(cardToAdd.cardData.name);
+                            //if adding to the top, update the card data of the drawable card
+                            if (addingTop)
+                            {
+                                if (NetworkManager.Singleton.IsServer)
+                                {
+                                    UpdateDrawableCard(cardToAdd);
+                                }
+                                else
+                                {
+                                    UpdateDrawableCardServerRpc(cardToAdd.cardData.name);
+
+                                }
+                            }
+                        }
+
+                        //add the card name to the cards in Zone
+                        if (addingTop)
+                        {
+                            //handle on server or client request to server
+                            if (NetworkManager.Singleton.IsServer)
+                            {
+                                cardsInPile.Push(cardToAdd.cardData.name);
+                            }
+                            else
+                            {
+                                cardsInPile.Push(cardToAdd.cardData.name);
+                                PushCardToPileServerRpc(cardToAdd.cardData.name);
+                            }
                         }
                         else
                         {
-                            PushCardToPileServerRpc(cardToAdd.cardData.name);
+                            //add card to bottom on server or remote call to server
+                            if (NetworkManager.Singleton.IsServer)
+                            {
+                                AddCardOnBottom(cardToAdd.cardData.name);
+                            }
+                            else
+                            {
+                                AddCardOnBottomServerRpc(cardToAdd.cardData.name);
+                            }
                         }
-                    }
-                    else
-                    {
-                        //add card to bottom on server or remote call to server
+
+
+                        if (faceUp)
+                        {
+                            //get texture of adding card and set pile top texture to it
+                            if (deckData.cardImages.ContainsKey(cardToAdd.cardData.name))
+                            {
+                                Texture2D tex = deckData.cardImages[cardToAdd.cardData.name];
+                                modelMaterials[2].mainTexture = tex;
+
+                                ChangePileTextureServerRpc(cardToAdd.cardData.name);
+                            }
+                        }
+
+                        //destroy the owning card object
                         if (NetworkManager.Singleton.IsServer)
                         {
-                            AddCardOnBottom(cardToAdd.cardData.name);
+                            cardToAdd.gameObject.GetComponent<NetworkObject>().Despawn();
+
+                            Destroy(cardToAdd.gameObject);
+                            cardToAdd = null;
                         }
                         else
                         {
-                           AddCardOnBottomServerRpc(cardToAdd.cardData.name);
+                            //send reference of card to be destroyed to server
+                            NetworkObjectReference cardNetworkObjectReference =
+                                new NetworkObjectReference(cardToAdd.gameObject);
+                            DestroyCardObjectServerRpc(cardNetworkObjectReference);
+                            cardToAdd = null;
+
                         }
-                    }
-
-
-                    if (faceUp)
-                    {
-                        //get texture of adding card and set pile top texture to it
-                        Texture2D tex = deckData.cardImages[cardToAdd.cardData.name];
-                        modelMaterials[2].mainTexture = tex;
-
-                        ChangePileTextureServerRpc(cardToAdd.cardData.name);
-                    }
-
-                    //destroy the owning card object
-                    if (NetworkManager.Singleton.IsServer)
-                    {
-                        cardToAdd.gameObject.GetComponent<NetworkObject>().Despawn();
-
-                        Destroy(cardToAdd.gameObject);
-                        cardToAdd = null;
-                    }
-                    else
-                    {
-                        //send reference of card to be destroyed to server
-                        NetworkObjectReference cardNetworkObjectReference = new NetworkObjectReference(cardToAdd.gameObject);
-                        DestroyCardObjectServerRpc(cardNetworkObjectReference);
-                        cardToAdd = null;
-
                     }
                 }
             }
@@ -306,6 +329,7 @@ public class CardPile : NetworkBehaviour
                     }
                 }
             }
+           
         }
     }
 
@@ -692,7 +716,11 @@ public class CardPile : NetworkBehaviour
 
     public void SearchCards()
     {
-        SearchCardsAsync();
+        if (!searching)
+        {
+            searching = true;
+            SearchCardsAsync();
+        }
     }
 
     //create the search menu and add all cards from the card pile as buttons into it in alphabetical order
@@ -738,12 +766,62 @@ public class CardPile : NetworkBehaviour
     //finalise searching for a card
     public void FinishSearching()
     {
-        
+        searching = false;
         //set the drawable card if there's one cached, else delete the drawable card and set everything to null
-        if (cardsInPile.Count > 0)
-        {
+        
+        List<FixedString128Bytes> currentDeckSendable = new List<FixedString128Bytes>(searchableList.Count);
 
+        foreach (var cardName in searchableList)
+        {
+            currentDeckSendable.Add(new FixedString128Bytes(cardName));
+        }
+        
+        FinishSearchingServerRpc(currentDeckSendable.ToArray());
+    }
+    
+
+    //call the finish searching on the server
+    [ServerRpc(RequireOwnership = false)]
+    public void FinishSearchingServerRpc(FixedString128Bytes[]nCurrentDeck)
+    {
+        
+        FinishSearchingClientRpc(nCurrentDeck);
+        cardsInPile.Clear();
+        cardsInPile = new Stack<String>();
+        for (int i = nCurrentDeck.Count() - 1; i >= 0; i--)
+        {
+            cardsInPile.Push(nCurrentDeck[i].ToString());
+        }
+    }
+    
+    //callback to ensure deck data is synced
+    [ClientRpc]
+    public void FinishSearchingClientRpc( FixedString128Bytes[] nCurrentDeck)
+    {
+        //empty out the pile and reconstruct it
+        cardsInPile.Clear();
+        bool updateDrawable = true;
+        for (int i = nCurrentDeck.Count() - 1; i >= 0; i--)
+        { 
+            cardsInPile.Push(nCurrentDeck[i].ToString());
+            
+            //if top card still exists dont update once over
+            if (nCurrentDeck[i].ToString() == cachedDrawable.GetComponent<Card>().cardData.name)
+            {
+                updateDrawable = false;
+            }
+        }
+        
+        
+        if (nCurrentDeck.Count() > 0)
+        {
             drawableCard = cachedDrawable;
+            if (updateDrawable)
+            {
+                UpdateDrawableCardWithPeekServerRpc();
+            }
+
+
             drawableCard.GetComponent<Card>().SetDrawLocked(false);
         }
         else
@@ -752,21 +830,6 @@ public class CardPile : NetworkBehaviour
             drawableCard = null;
         }
         cachedDrawable = null;
-        
-        FinishSearchingServerRpc();
-    }
-
-    //call the finish searching on the server
-    [ServerRpc(RequireOwnership = false)]
-    public void FinishSearchingServerRpc()
-    {
-        cardsInPile.Clear();
-        for (int i = searchableList.Count-1; i >= 0; i--)
-        {
-            cardsInPile.Push(searchableList[i]);
-        }
-        
-        UpdateDrawableCardWithPeekServerRpc();
         
     }
 

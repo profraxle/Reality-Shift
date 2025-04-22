@@ -13,12 +13,16 @@ public class LocalPlayerManager : MonoBehaviour
 
     //the local players hand
     public GameObject localPlayerHand;
+    public GameObject localPlayerHandParent;
     
     //all of the loaded deck data
     public Dictionary<string,DeckData> allDeckData = new Dictionary<string,DeckData> ();
     
     //the local anchor 
     public GameObject localSpaceAnchor;
+
+    //count of players before the game begins
+    public int playerCount;
 
     //a bool to pass if a token is being added
     public bool addingToken;
@@ -34,6 +38,7 @@ public class LocalPlayerManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         
         addingToken = false;
+        playerCount = 2;
     }
 
     //set the local player deck
@@ -45,6 +50,18 @@ public class LocalPlayerManager : MonoBehaviour
     public DeckData GetLocalPlayerDeck()
     {
         return localPlayerDeck;
+    }
+
+    public void SetPlayerCount(bool singleplayer)
+    {
+        if (singleplayer)
+        {
+            playerCount = 1;
+        }
+        else
+        {
+            playerCount = 2;
+        }
     }
 }
 
