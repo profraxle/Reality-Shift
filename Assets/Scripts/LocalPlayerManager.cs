@@ -27,8 +27,15 @@ public class LocalPlayerManager : MonoBehaviour
     //a bool to pass if a token is being added
     public bool addingToken;
 
+    public bool lockedTable = false;
+
     private void Awake()
     {
+        if (GameObject.FindObjectsByType<LocalPlayerManager>(FindObjectsSortMode.None).Length > 1)
+        {
+            Destroy(gameObject);
+        }
+        
         //get reference to self and set so persists through scenes
         if (Singleton != null) {
             Destroy(gameObject);

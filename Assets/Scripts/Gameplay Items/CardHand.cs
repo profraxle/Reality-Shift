@@ -26,7 +26,7 @@ public class CardHand : MonoBehaviour
     //bind function to when the user recenters
     void Start()
     {
-        OVRManager.display.RecenteredPose += RecenterEventDispatcher;
+        //OVRManager.display.RecenteredPose += RecenterEventDispatcher;
     }
 
     //update the position of cards

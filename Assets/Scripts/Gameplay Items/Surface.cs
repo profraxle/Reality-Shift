@@ -35,28 +35,46 @@ public class Surface : MonoBehaviour
     List<Vector3> relativePilePositions = new List<Vector3>();
     List<Quaternion> relativePileRotations = new List<Quaternion>();
 
+    OVRSpatialAnchor anchor;
+    
     public void Start()
     {
         //get the left and right fingertip objects
         leftTipObject = GameObject.FindGameObjectWithTag("LeftTip");
         rightTipObject = GameObject.FindGameObjectWithTag("RightTip");
+
+      
+    }
+
+    public void Awake()
+    {
+        if (GameObject.FindObjectsByType<Surface>(FindObjectsSortMode.None).Length > 1)
+        {
+            Destroy(gameObject);
+        }
     }
 
     public void Update()
     {
-        //if aligning
-        if (aligning)
+        if (!anchor)
         {
-            //wait until both points are confirmed
-            if (firstPointConfirmed && secondPointConfirmed)
+            //if aligning
+            if (aligning)
             {
-                //call the align function and reset all bools, update the cards position in the hand
-                Debug.Log("Aligning finish");
-                AlignToLine(firstPoint, secondPoint);
-                aligning = false;
-                firstPointConfirmed = false;
-                secondPointConfirmed = false;
-                LocalPlayerManager.Singleton.localPlayerHand.GetComponentInChildren<CardHand>().UpdateCardsPosition();
+                //wait until both points are confirmed
+                if (firstPointConfirmed && secondPointConfirmed)
+                {
+                    //call the align function and reset all bools, update the cards position in the hand
+                    Debug.Log("Aligning finish");
+                    AlignToLine(firstPoint, secondPoint);
+                    aligning = false;
+                    firstPointConfirmed = false;
+                    secondPointConfirmed = false;
+                    LocalPlayerManager.Singleton.localPlayerHand.GetComponentInChildren<CardHand>()
+                        .UpdateCardsPosition();
+
+
+                }
             }
         }
     }
@@ -226,4 +244,13 @@ public class Surface : MonoBehaviour
         relativePileRotations.Add(Quaternion.Euler(newPile.transform.rotation.eulerAngles - transform.rotation.eulerAngles));
     }
 
+    public void LockToSurface()
+    {
+        if (!anchor)
+        {
+            gameObject.AddComponent<OVRSpatialAnchor>();
+            DontDestroyOnLoad(gameObject);
+            LocalPlayerManager.Singleton.lockedTable = true;
+        }
+    }
 }

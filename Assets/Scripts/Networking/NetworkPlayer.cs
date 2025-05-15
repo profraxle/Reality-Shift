@@ -105,7 +105,7 @@ public class NetworkPlayer : NetworkBehaviour
             //really hacky way to set the board viewer's target but hey, it works
             if (ID == 0)
             {
-                spawnedViewer.GetComponent<BoardViewer>().boardView = 1;
+                spawnedViewer.GetComponent<BoardViewer>().boardView = 0;
             }
             else{
                 spawnedViewer.GetComponent<BoardViewer>().boardView = 0;

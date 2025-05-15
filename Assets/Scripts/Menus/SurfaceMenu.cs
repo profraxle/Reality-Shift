@@ -17,7 +17,10 @@ public class SurfaceMenu : MonoBehaviour
 
     public void AlignToSurface()
     {
-        surface.StartAligning();
+        if (!LocalPlayerManager.Singleton.lockedTable)
+        {
+            surface.StartAligning();
+        }
     }
 
     public void SpawnToken()

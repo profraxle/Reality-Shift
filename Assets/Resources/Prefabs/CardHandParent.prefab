@@ -133,7 +133,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2138094744800102330, guid: 7cf3a5eb1f061ce4c9d21b042a3b84fa, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 419.68
+      value: 591.2
       objectReference: {fileID: 0}
     - target: {fileID: 2138094744800102330, guid: 7cf3a5eb1f061ce4c9d21b042a3b84fa, type: 3}
       propertyPath: m_SizeDelta.y
@@ -215,6 +215,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: SurfaceMenu
       objectReference: {fileID: 0}
+    - target: {fileID: 4685372710318375178, guid: 7cf3a5eb1f061ce4c9d21b042a3b84fa, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 188358078764921293}
+    - target: {fileID: 4685372710318375178, guid: 7cf3a5eb1f061ce4c9d21b042a3b84fa, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ResetTable
+      objectReference: {fileID: 0}
+    - target: {fileID: 4685372710318375178, guid: 7cf3a5eb1f061ce4c9d21b042a3b84fa, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: SurfaceMenu, Assembly-CSharp
+      objectReference: {fileID: 0}
     - target: {fileID: 4993442023182944743, guid: 7cf3a5eb1f061ce4c9d21b042a3b84fa, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -257,7 +269,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8488022328395982394, guid: 7cf3a5eb1f061ce4c9d21b042a3b84fa, type: 3}
       propertyPath: _size.x
-      value: 419.68
+      value: 591.2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -18,7 +18,7 @@ public class SpatialAnchorManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
@@ -29,12 +29,14 @@ public class SpatialAnchorManager : MonoBehaviour
 
     public void CreateSpatialAnchor()
     {
-        OVRSpatialAnchor newAnchor = Instantiate(anchorPrefab);
+        Vector3 anchorPosition = new Vector3(0.436f, -0.363f, 0);
+        
+        OVRSpatialAnchor newAnchor = Instantiate(anchorPrefab,anchorPosition, Quaternion.identity);
         
         StartCoroutine(AnchorCreated(newAnchor));
     }
 
-    private IEnumerator AnchorCreated(OVRSpatialAnchor newAnchor)
+    public IEnumerator AnchorCreated(OVRSpatialAnchor newAnchor)
     {
         while (!newAnchor.Created && !newAnchor.Localized)
         {
